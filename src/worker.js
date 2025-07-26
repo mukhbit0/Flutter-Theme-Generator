@@ -4,12 +4,11 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url)
     
-    // Handle favicon.ico requests by redirecting to logo.png
+    // Handle favicon.ico requests - return 204 No Content instead of redirect
     if (url.pathname === '/favicon.ico') {
       return new Response(null, {
-        status: 301,
+        status: 204,
         headers: {
-          'Location': '/logo.png',
           'Cache-Control': 'public, max-age=86400',
         }
       })
@@ -36,7 +35,7 @@ export default {
         },
         {
           ASSET_NAMESPACE: env.__STATIC_CONTENT,
-          ASSET_MANIFEST: __STATIC_CONTENT_MANIFEST,
+          ASSET_MANIFEST: typeof __STATIC_CONTENT_MANIFEST !== 'undefined' ? __STATIC_CONTENT_MANIFEST : {},
         }
       )
       
@@ -62,7 +61,7 @@ export default {
             },
             {
               ASSET_NAMESPACE: env.__STATIC_CONTENT,
-              ASSET_MANIFEST: __STATIC_CONTENT_MANIFEST,
+              ASSET_MANIFEST: typeof __STATIC_CONTENT_MANIFEST !== 'undefined' ? __STATIC_CONTENT_MANIFEST : {},
             }
           )
 
