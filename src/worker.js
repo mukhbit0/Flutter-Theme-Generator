@@ -29,10 +29,7 @@ export default {
     try {
       // First, try to get the exact asset
       const page = await getAssetFromKV(
-        {
-          request,
-          waitUntil: ctx.waitUntil.bind(ctx),
-        },
+        { request, waitUntil: ctx.waitUntil.bind(ctx) },
         {
           ASSET_NAMESPACE: env.__STATIC_CONTENT,
           ASSET_MANIFEST: typeof __STATIC_CONTENT_MANIFEST !== 'undefined' ? __STATIC_CONTENT_MANIFEST : {},
