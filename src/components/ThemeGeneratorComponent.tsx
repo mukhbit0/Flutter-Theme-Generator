@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ThemeConfig, ThemeGeneratorSettings } from '../types/theme.ts'
+import { ThemeConfig, ThemeGeneratorSettings } from '../types/theme'
 import { generateFlutterTheme } from '../utils/FlutterThemeGenerator'
 import { extractColorsFromImage } from '../utils/ColorExtractor.ts'
 import {
