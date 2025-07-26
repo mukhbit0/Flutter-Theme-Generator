@@ -1,89 +1,93 @@
 import { getAssetFromKV } from '@cloudflare/kv-asset-handler'
 
-export default {
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url)
-    
-    // Handle favicon.ico requests - return 204 No Content instead of redirect
-    if (url.pathname === '/favicon.ico') {
-      return new Response(null, {
-        status: 204,
-        headers: {
-          'Cache-Control': 'public, max-age=86400',
-        }
-      })
-    }
-    
-    // Handle CORS preflight requests
-    if (request.method === 'OPTIONS') {
-      return new Response(null, {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        },
-      })
-    }
+/**
+ * The DEBUG flag will do two things that help during development:
+ * 1. we will skip caching on the edge, which makes it easier to
+ *    debug.
+ * 2. we will return an error message on exception in your Response rather
+ *    than the default 404.html page.
+ */
+const DEBUG = false
 
-    try {
-      // First, try to get the exact asset
-      const page = await getAssetFromKV(
-        { request, waitUntil: ctx.waitUntil.bind(ctx) },
-        {
-          ASSET_NAMESPACE: env.__STATIC_CONTENT,
-          ASSET_MANIFEST: typeof __STATIC_CONTENT_MANIFEST !== 'undefined' ? __STATIC_CONTENT_MANIFEST : {},
-        }
+addEventListener('fetch', event => {
+  try {
+    event.respondWith(handleEvent(event))
+  } catch (e) {
+    if (DEBUG) {
+      return event.respondWith(
+        new Response(e.message || e.toString(), {
+          status: 500,
+        }),
       )
-      
-      // Add CORS headers to response
-      const response = new Response(page.body, page)
-      response.headers.set('Access-Control-Allow-Origin', '*')
-      response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-      response.headers.set('Access-Control-Allow-Headers', 'Content-Type')
-      
-      return response
-      
-    } catch (e) {
-      // If asset not found and it's not a file request, serve index.html for SPA routing
-      if (!url.pathname.includes('.')) {
-        try {
-          const indexPage = await getAssetFromKV(
-            {
-              request: new Request(`${url.origin}/index.html`, {
-                method: request.method,
-                headers: request.headers,
-              }),
-              waitUntil: ctx.waitUntil.bind(ctx),
-            },
-            {
-              ASSET_NAMESPACE: env.__STATIC_CONTENT,
-              ASSET_MANIFEST: typeof __STATIC_CONTENT_MANIFEST !== 'undefined' ? __STATIC_CONTENT_MANIFEST : {},
-            }
-          )
-
-          return new Response(indexPage.body, {
-            status: 200,
-            headers: {
-              ...indexPage.headers,
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-              'Access-Control-Allow-Headers': 'Content-Type',
-            },
-          })
-        } catch (indexError) {
-          console.error('Failed to serve index.html:', indexError)
-        }
-      }
-      
-      // Return 404 for actual missing files
-      return new Response('Not Found', { 
-        status: 404,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'text/plain',
-        }
-      })
     }
-  },
+    event.respondWith(new Response('Internal Error', { status: 500 }))
+  }
+})
+
+async function handleEvent(event) {
+  const url = new URL(event.request.url)
+  let options = {}
+
+  /**
+   * You can add custom logic to how we fetch your assets
+   * by configuring the function `mapRequestToAsset`
+   */
+  // options.mapRequestToAsset = handlePrefix(/^\/docs/)
+
+  try {
+    if (DEBUG) {
+      // customize caching
+      options.cacheControl = {
+        bypassCache: true,
+      }
+    }
+
+    const page = await getAssetFromKV(event, options)
+
+    // allow headers to be altered
+    const response = new Response(page.body, page)
+
+    response.headers.set('X-XSS-Protection', '1; mode=block')
+    response.headers.set('X-Content-Type-Options', 'nosniff')
+    response.headers.set('X-Frame-Options', 'DENY')
+    response.headers.set('Referrer-Policy', 'unsafe-url')
+    response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+
+    return response
+
+  } catch (e) {
+    // if an error is thrown try to serve the asset at 404.html
+    if (!DEBUG) {
+      try {
+        let notFoundResponse = await getAssetFromKV(event, {
+          mapRequestToAsset: req => new Request(`${new URL(req.url).origin}/index.html`, req),
+        })
+
+        return new Response(notFoundResponse.body, { ...notFoundResponse, status: 404 })
+      } catch (e) {}
+    }
+
+    return new Response(e.message || e.toString(), { status: 500 })
+  }
+}
+
+/**
+ * Here's one example of how to modify a request to
+ * remove a specific prefix, in this case `/docs` from
+ * the url. This can be useful if you are deploying to a
+ * route on a zone, or if you only want your static content
+ * to exist at a specific path.
+ */
+function handlePrefix(prefix) {
+  return request => {
+    // compute the default (e.g. / -> index.html)
+    let defaultAssetKey = mapRequestToAsset(request)
+    let url = new URL(defaultAssetKey.url)
+
+    // strip the prefix from the path for lookup
+    url.pathname = url.pathname.replace(prefix, '/')
+
+    // inherit all other props from the default request
+    return new Request(url.toString(), defaultAssetKey)
+  }
 }
