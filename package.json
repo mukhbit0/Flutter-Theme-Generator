@@ -26,8 +26,8 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "deploy": "wrangler deploy",
-    "deploy:build": "npm run build && wrangler deploy"
+    "deploy": "npx wrangler deploy",
+    "deploy:build": "npm run build && npx wrangler deploy"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -51,6 +51,6 @@
     "tailwindcss": "^3.3.3",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
-    "wrangler": "^3.0.0"
+    "wrangler": "^4.26.0"
   }
 }
