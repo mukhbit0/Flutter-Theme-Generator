@@ -1,20 +1,21 @@
 import { getAssetFromKV, serveSinglePageApp } from '@cloudflare/kv-asset-handler';
 
-addEventListener('fetch', event => {
-  event.respondWith(handleEvent(event));
-});
-
-async function handleEvent(event) {
-  try {
-    return await getAssetFromKV(event, {
-      // Always serve index.html for all page requests
-      mapRequestToAsset: serveSinglePageApp,
-      // Cache settings
-      cacheControl: {
-        bypassCache: process.env.ENVIRONMENT === 'development',
-      },
-    });
-  } catch (e) {
-    return new Response(e.message || 'Internal Error', { status: 500 });
+export default {
+  async fetch(request, env, ctx) {
+    try {
+      return await getAssetFromKV(
+        { request, waitUntil: ctx.waitUntil.bind(ctx) },
+        {
+          mapRequestToAsset: serveSinglePageApp,
+          cacheControl: {
+            bypassCache: env.ENVIRONMENT === 'development',
+          },
+          ASSET_NAMESPACE: env.__STATIC_CONTENT,
+          ASSET_MANIFEST: typeof __STATIC_CONTENT_MANIFEST !== 'undefined' ? __STATIC_CONTENT_MANIFEST : {},
+        }
+      );
+    } catch (e) {
+      return new Response(e.message || 'Internal Error', { status: 500 });
+    }
   }
 }
