@@ -1,0 +1,56 @@
+{
+  "name": "flutter-theme-generator",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Professional Flutter Theme Generator with advanced color extraction, Material 3 support, and comprehensive widget preview",
+  "author": "mukhbit0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mukhbit0/Flutter-Theme-Generator.git"
+  },
+  "homepage": "https://flutter-theme-generator.mukhbit000.workers.dev",
+  "keywords": [
+    "flutter",
+    "theme",
+    "generator",
+    "material-design",
+    "color-extraction",
+    "dark-mode",
+    "react",
+    "typescript"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "deploy": "wrangler deploy",
+    "deploy:build": "npm run build && wrangler deploy"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "file-saver": "^2.0.5",
+    "jszip": "^3.10.1",
+    "@cloudflare/kv-asset-handler": "^0.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@types/file-saver": "^2.0.5",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vitejs/plugin-react": "^4.0.3",
+    "autoprefixer": "^10.4.14",
+    "eslint": "^8.45.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.3",
+    "postcss": "^8.4.27",
+    "tailwindcss": "^3.3.3",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5",
+    "wrangler": "^3.0.0"
+  }
+}

@@ -1,0 +1,6 @@
+export { default as GettingStartedSection } from './GettingStartedSection'
+export { default as ColorExtractionSection } from './ColorExtractionSection'
+export { default as ThemePreviewSection } from './ThemePreviewSection'
+export { default as ImplementationSection } from './ImplementationSection'
+export { default as WidgetExamplesSection } from './WidgetExamplesSection'
+export { default as BestPracticesSection } from './BestPracticesSection'

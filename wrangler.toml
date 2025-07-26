@@ -1,0 +1,15 @@
+name = "flutter-theme-generator"
+main = "src/worker.js"
+compatibility_date = "2025-07-27"
+compatibility_flags = ["nodejs_compat"]
+
+# Static assets configuration for Workers
+[site]
+bucket = "./dist"
+
+# Environment variables
+[env.production.vars]
+ENVIRONMENT = "production"
+
+[env.preview.vars]
+ENVIRONMENT = "preview"
