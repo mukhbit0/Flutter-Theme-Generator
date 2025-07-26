@@ -4,6 +4,17 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url)
     
+    // Handle favicon.ico requests by redirecting to logo.png
+    if (url.pathname === '/favicon.ico') {
+      return new Response(null, {
+        status: 301,
+        headers: {
+          'Location': '/logo.png',
+          'Cache-Control': 'public, max-age=86400',
+        }
+      })
+    }
+    
     // Handle CORS preflight requests
     if (request.method === 'OPTIONS') {
       return new Response(null, {
