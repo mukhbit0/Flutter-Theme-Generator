@@ -1,6 +1,6 @@
 name = "flutter-theme-generator"
 main = "src/worker.js"
-compatibility_date = "2025-07-27"
+compatibility_date = "2025-07-26"
 compatibility_flags = ["nodejs_compat"]
 
 # Static assets configuration for Workers

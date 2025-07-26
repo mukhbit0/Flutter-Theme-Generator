@@ -50,17 +50,20 @@ npm install
 # Build the project
 npm run build
 
-# Deploy to Cloudflare Workers
+# Deploy to Cloudflare Workers (production)
 npm run deploy
 ```
+
+**Note**: The deploy command automatically targets the production environment to avoid warnings.
 
 ## 🔧 Configuration Files
 
 ### wrangler.toml
+
 ```toml
 name = "flutter-theme-generator"
 main = "src/worker.js"
-compatibility_date = "2025-07-27"
+compatibility_date = "2025-07-26"
 compatibility_flags = ["nodejs_compat"]
 
 [site]
