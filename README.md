@@ -388,8 +388,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 *Passionate Flutter developer dedicated to making app development more accessible*
 
 [![GitHub](https://img.shields.io/badge/GitHub-mukhbit0-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mukhbit0)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-mukhbit-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mukhbit/)
-[![Twitter](https://img.shields.io/badge/Twitter-@mukhbit0-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/mukhbit0)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-mukhbit-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mukhbitayyub/)
+[![Twitter](https://img.shields.io/badge/Twitter-@mukhbit0-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/mu7khbit)
 
 </div>
 
