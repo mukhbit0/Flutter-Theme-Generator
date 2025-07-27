@@ -27,7 +27,7 @@ export const Footer: React.FC<FooterProps> = ({ darkMode }) => {
           {/* Links */}
           <div className="flex items-center space-x-6">
             <a
-              href="https://github.com/mukhbit0/Flutter-Onboarding-Generator"
+              href="https://github.com/mukhbit0/Flutter-Theme-Generator"
               target="_blank"
               rel="noopener noreferrer"
               className={`text-sm ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'} transition-colors flex items-center space-x-1`}
