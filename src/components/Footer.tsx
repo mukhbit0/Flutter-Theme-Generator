@@ -37,7 +37,7 @@ export const Footer: React.FC<FooterProps> = ({ darkMode }) => {
               </svg>
               <span>GitHub</span>
             </a>
-            
+          
             <a
               href="https://buymeacoffee.com/mukhbit"
               target="_blank"
