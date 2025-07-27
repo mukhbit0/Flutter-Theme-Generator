@@ -12,15 +12,6 @@ export default defineConfig({
     assetsDir: 'assets',
     target: 'es2015',
     minify: true,
-    rollupOptions: {
-      external: [],
-      output: {
-        format: 'es',
-        entryFileNames: 'assets/[name].js',
-        chunkFileNames: 'assets/[name].js',
-        assetFileNames: 'assets/[name].[ext]'
-      }
-    }
   },
   publicDir: 'public'
 })
