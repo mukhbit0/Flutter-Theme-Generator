@@ -16,7 +16,7 @@
 **Transform your Flutter app's appearance with our professional theme generator**  
 *Material 3 compliant • Dark mode ready • Logo color extraction • Live previews*
 
-[📱 Try Live Demo](https://flutter-theme-generator.mukhbit000.workers.dev) • [🤝 Contribute](CONTRIBUTING) • [💬 Support](https://www.buymeacoffee.com/mukhbit)
+[📱 Try Live Demo](https://flutter-theme-generator.mukhbit000.workers.dev) • [🤝 Contribute](CONTRIBUTING.md) • [💬 Support](https://www.buymeacoffee.com/mukhbit)
 
 </div>
 
@@ -381,7 +381,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 <div align="center">
 
-<img src="https://avatars.githubusercontent.com/u/mukhbit0?v=4" alt="mukhbit0" width="100" style="border-radius: 50%"/>
+<img src="https://raw.githubusercontent.com/mukhbit0/Flutter-Theme-Generator/main/ionicerrrrscode.png" alt="mukhbit0" width="100" style="border-radius: 50%"/>
 
 **Created with ❤️ by mukhbit0**
 
