@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import SplashScreen from './components/SplashScreen'
 import HomePage from './components/HomePage'
 import ThemeGeneratorComponent from './components/ThemeGeneratorComponent'
 import GuideScreen from './components/GuideScreen'
@@ -74,14 +75,24 @@ function AppContent() {
   )
 }
 
+
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  // Hide splash after 2.7s (matches progress duration in SplashScreen)
+  useEffect(() => {
+    if (!showSplash) return;
+    const timeout = setTimeout(() => setShowSplash(false), 2700);
+    return () => clearTimeout(timeout);
+  }, [showSplash]);
+
   return (
     <DarkModeProvider>
       <ThemeProvider>
-        <AppContent />
+        {showSplash ? <SplashScreen /> : <AppContent />}
       </ThemeProvider>
     </DarkModeProvider>
-  )
+  );
 }
 
 export default App

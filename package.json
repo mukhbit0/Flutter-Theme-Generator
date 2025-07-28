@@ -30,16 +30,17 @@
     "deploy:build": "npm run build && npx wrangler deploy --env production"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "@cloudflare/kv-asset-handler": "^0.3.0",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
-    "@cloudflare/kv-asset-handler": "^0.3.0"
+    "lucide-react": "^0.528.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.5",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
-    "@types/file-saver": "^2.0.5",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.3",
