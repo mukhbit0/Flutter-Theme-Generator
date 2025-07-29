@@ -5,6 +5,8 @@ compatibility_date = "2025-07-26"
 # Static assets configuration for Workers
 [site]
 bucket = "./dist"
+include = ["**/*"]
+exclude = []
 
 # Environment variables
 [env.production.vars]
@@ -14,6 +16,18 @@ ENVIRONMENT = "production"
 ENVIRONMENT = "preview"
 
 # KV namespace for static assets
-kv_namespaces = [
-  { binding = "__STATIC_CONTENT", id = "8b7d5638811649a7a388b654d2dbdf6d" }
-]
+[[kv_namespaces]]
+binding = "__STATIC_CONTENT"
+id = "8b7d5638811649a7a388b654d2dbdf6d"
+preview_id = "8b7d5638811649a7a388b654d2dbdf6d"
+
+# Build configuration
+[build]
+command = "npm run build"
+cwd = "./"
+watch_dir = "src"
+
+# Custom domain routes (add your domain here)
+[[routes]]
+pattern = "flutter.minimalistposter.studio/*"
+zone_name = "minimalistposter.studio"

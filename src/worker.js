@@ -10,52 +10,74 @@ export default {
     console.log(`[${new Date().toISOString()}] Request: ${pathname}`);
 
     try {
-      // Handle root path explicitly
-      if (pathname === '/') {
-        const indexRequest = new Request(new URL('/index.ca6b5c95a0.html', request.url), request);
-        return getAssetFromKV(
-          { request: indexRequest, waitUntil: ctx.waitUntil.bind(ctx) },
-          { ASSET_NAMESPACE: env.__STATIC_CONTENT, ASSET_MANIFEST: assetManifest }
-        );
-      }
-
-      // Handle assets with correct cache headers
-      if (pathname.startsWith('/assets/')) {
-        // Extract actual filename from hashed name
-        const cleanPath = pathname.replace(/\.([a-f0-9]+)\.(css|js)$/, '.$2');
-        const assetKey = Object.keys(assetManifest).find(key => 
-          key.startsWith(cleanPath.replace('/assets/', 'assets/'))
-        );
-        
-        if (assetKey) {
-          console.log(`Matched asset: ${assetKey} for ${pathname}`);
-          const assetRequest = new Request(new URL(`/${assetKey}`, request.url), request);
-          const response = await getAssetFromKV(
-            { request: assetRequest, waitUntil: ctx.waitUntil.bind(ctx) },
-            { ASSET_NAMESPACE: env.__STATIC_CONTENT, ASSET_MANIFEST: assetManifest }
-          );
-          
-          // Apply long-term caching headers
-          const headers = new Headers(response.headers);
-          headers.set('Cache-Control', 'public, max-age=31536000, immutable');
-          headers.set('Content-Type', pathname.endsWith('.css') ? 'text/css' : 'application/javascript');
-          
-          return new Response(response.body, {
-            status: response.status,
-            headers
-          });
+      // Configure options for getAssetFromKV
+      const options = {
+        ASSET_NAMESPACE: env.__STATIC_CONTENT,
+        ASSET_MANIFEST: assetManifest,
+        mapRequestToAsset: (req) => {
+          const url = new URL(req.url);
+          // For root path, serve index.html
+          if (url.pathname === '/') {
+            return new Request(`${url.origin}/index.html`, req);
+          }
+          // For all other paths, use as-is
+          return req;
+        },
+        // Add caching options
+        cacheControl: {
+          browserTTL: pathname.startsWith('/assets/') ? 31536000 : 3600, // 1 year for assets, 1 hour for others
+          edgeTTL: pathname.startsWith('/assets/') ? 31536000 : 3600,
+          bypassCache: false,
         }
+      };
+
+      // Get asset from KV
+      const response = await getAssetFromKV(
+        { request, waitUntil: ctx.waitUntil.bind(ctx) },
+        options
+      );
+
+      // Add appropriate headers for assets
+      if (pathname.startsWith('/assets/')) {
+        const headers = new Headers(response.headers);
+        headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+        
+        // Set correct content type based on file extension
+        if (pathname.endsWith('.css')) {
+          headers.set('Content-Type', 'text/css; charset=utf-8');
+        } else if (pathname.endsWith('.js')) {
+          headers.set('Content-Type', 'application/javascript; charset=utf-8');
+        }
+        
+        return new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers
+        });
       }
 
-      // Default handling for all other requests
-      return getAssetFromKV(
-        { request, waitUntil: ctx.waitUntil.bind(ctx) },
-        { ASSET_NAMESPACE: env.__STATIC_CONTENT, ASSET_MANIFEST: assetManifest }
-      );
+      return response;
       
     } catch (error) {
-      console.error(`Error: ${error.message}`);
-      return new Response('Not Found', { status: 404 });
+      console.error(`Error serving ${pathname}: ${error.message}`);
+      
+      // For SPA routing - serve index.html for non-asset requests
+      if (!pathname.startsWith('/assets/') && !pathname.includes('.')) {
+        try {
+          const indexRequest = new Request(`${url.origin}/index.html`, request);
+          return getAssetFromKV(
+            { request: indexRequest, waitUntil: ctx.waitUntil.bind(ctx) },
+            { ASSET_NAMESPACE: env.__STATIC_CONTENT, ASSET_MANIFEST: assetManifest }
+          );
+        } catch (indexError) {
+          console.error(`Error serving index.html: ${indexError.message}`);
+        }
+      }
+      
+      return new Response('Not Found', { 
+        status: 404,
+        headers: { 'Content-Type': 'text/plain' }
+      });
     }
   },
 };
