@@ -31,3 +31,6 @@ watch_dir = "src"
 [[routes]]
 pattern = "flutter.minimalistposter.studio/*"
 zone_name = "minimalistposter.studio"
+
+[observability.logs]
+enabled = true
