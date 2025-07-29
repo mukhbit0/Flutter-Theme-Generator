@@ -12,3 +12,8 @@ ENVIRONMENT = "production"
 
 [env.preview.vars]
 ENVIRONMENT = "preview"
+
+# KV namespace for static assets
+kv_namespaces = [
+  { binding = "__STATIC_CONTENT", id = "8b7d5638811649a7a388b654d2dbdf6d" }
+]
