@@ -17,7 +17,7 @@ ENVIRONMENT = "preview"
 
 # KV namespace for static assets
 [[kv_namespaces]]
-binding = "__STATIC_CONTENT"
+binding = "STATIC_ASSETS"
 id = "8b7d5638811649a7a388b654d2dbdf6d"
 preview_id = "8b7d5638811649a7a388b654d2dbdf6d"
 

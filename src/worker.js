@@ -12,7 +12,7 @@ export default {
     try {
       // Configure options for getAssetFromKV
       const options = {
-        ASSET_NAMESPACE: env.__STATIC_CONTENT,
+        ASSET_NAMESPACE: env.STATIC_ASSETS,
         ASSET_MANIFEST: assetManifest,
         mapRequestToAsset: (req) => {
           const url = new URL(req.url);
@@ -67,7 +67,7 @@ export default {
           const indexRequest = new Request(`${url.origin}/index.html`, request);
           return getAssetFromKV(
             { request: indexRequest, waitUntil: ctx.waitUntil.bind(ctx) },
-            { ASSET_NAMESPACE: env.__STATIC_CONTENT, ASSET_MANIFEST: assetManifest }
+            { ASSET_NAMESPACE: env.STATIC_ASSETS, ASSET_MANIFEST: assetManifest }
           );
         } catch (indexError) {
           console.error(`Error serving index.html: ${indexError.message}`);
