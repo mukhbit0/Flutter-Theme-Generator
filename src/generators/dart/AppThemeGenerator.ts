@@ -332,8 +332,8 @@ class AppTheme {
   static final SwitchThemeData _switchTheme = SwitchThemeData(
     thumbColor: MaterialStateProperty.resolveWith((states) {
       if (states.contains(MaterialState.selected)) {
-        return lightColors.primary == darkColors.primary 
-          ? Color(${hexToColorCode(lightColors.primary)})
+        return _lightColorScheme.primary == _darkColorScheme.primary 
+          ? _lightColorScheme.primary
           : null;
       }
       return null;

@@ -30,22 +30,22 @@ class AppConstants {
   // Consistent spacing creates visual rhythm and hierarchy
   
   /// Extra small spacing (4px) - For tight layouts, borders
-  static ${useScreenUtil ? 'double get' : 'const double'} spacingXS = ${config.spacing.xs}${screenUtilSuffix};
+  static ${useScreenUtil ? 'double get' : 'const double'} spacingXS${useScreenUtil ? ` => ${config.spacing.xs}${screenUtilSuffix}` : ` = ${config.spacing.xs}${screenUtilSuffix}`};
   
   /// Small spacing (8px) - For compact elements, form fields
-  static ${useScreenUtil ? 'double get' : 'const double'} spacingSM = ${config.spacing.sm}${screenUtilSuffix};
+  static ${useScreenUtil ? 'double get' : 'const double'} spacingSM${useScreenUtil ? ` => ${config.spacing.sm}${screenUtilSuffix}` : ` = ${config.spacing.sm}${screenUtilSuffix}`};
   
   /// Medium spacing (16px) - For cards, buttons, general content
-  static ${useScreenUtil ? 'double get' : 'const double'} spacingMD = ${config.spacing.md}${screenUtilSuffix};
+  static ${useScreenUtil ? 'double get' : 'const double'} spacingMD${useScreenUtil ? ` => ${config.spacing.md}${screenUtilSuffix}` : ` = ${config.spacing.md}${screenUtilSuffix}`};
   
   /// Large spacing (24px) - For sections, major components
-  static ${useScreenUtil ? 'double get' : 'const double'} spacingLG = ${config.spacing.lg}${screenUtilSuffix};
+  static ${useScreenUtil ? 'double get' : 'const double'} spacingLG${useScreenUtil ? ` => ${config.spacing.lg}${screenUtilSuffix}` : ` = ${config.spacing.lg}${screenUtilSuffix}`};
   
   /// Extra large spacing (32px) - For screen sections, headers
-  static ${useScreenUtil ? 'double get' : 'const double'} spacingXL = ${config.spacing.xl}${screenUtilSuffix};
+  static ${useScreenUtil ? 'double get' : 'const double'} spacingXL${useScreenUtil ? ` => ${config.spacing.xl}${screenUtilSuffix}` : ` = ${config.spacing.xl}${screenUtilSuffix}`};
   
   /// Double extra large spacing (48px) - For major layout breaks
-  static ${useScreenUtil ? 'double get' : 'const double'} spacingXXL = ${config.spacing.xxl}${screenUtilSuffix};
+  static ${useScreenUtil ? 'double get' : 'const double'} spacingXXL${useScreenUtil ? ` => ${config.spacing.xxl}${screenUtilSuffix}` : ` = ${config.spacing.xxl}${screenUtilSuffix}`};
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 🔄 BORDER RADIUS SYSTEM  
@@ -53,22 +53,22 @@ class AppConstants {
   // Consistent corner rounding for modern, cohesive design
   
   /// Extra small radius (4px) - For subtle rounding, checkboxes
-  static ${useScreenUtil ? 'double get' : 'const double'} radiusXS = ${config.borderRadius.xs}${screenUtilSuffix};
+  static ${useScreenUtil ? 'double get' : 'const double'} radiusXS${useScreenUtil ? ` => ${config.borderRadius.xs}${screenUtilSuffix}` : ` = ${config.borderRadius.xs}${screenUtilSuffix}`};
   
   /// Small radius (8px) - For buttons, chips, form fields
-  static ${useScreenUtil ? 'double get' : 'const double'} radiusSM = ${config.borderRadius.sm}${screenUtilSuffix};
+  static ${useScreenUtil ? 'double get' : 'const double'} radiusSM${useScreenUtil ? ` => ${config.borderRadius.sm}${screenUtilSuffix}` : ` = ${config.borderRadius.sm}${screenUtilSuffix}`};
   
   /// Medium radius (12px) - For cards, containers
-  static ${useScreenUtil ? 'double get' : 'const double'} radiusMD = ${config.borderRadius.md}${screenUtilSuffix};
+  static ${useScreenUtil ? 'double get' : 'const double'} radiusMD${useScreenUtil ? ` => ${config.borderRadius.md}${screenUtilSuffix}` : ` = ${config.borderRadius.md}${screenUtilSuffix}`};
   
   /// Large radius (16px) - For prominent elements, dialogs
-  static ${useScreenUtil ? 'double get' : 'const double'} radiusLG = ${config.borderRadius.lg}${screenUtilSuffix};
+  static ${useScreenUtil ? 'double get' : 'const double'} radiusLG${useScreenUtil ? ` => ${config.borderRadius.lg}${screenUtilSuffix}` : ` = ${config.borderRadius.lg}${screenUtilSuffix}`};
   
   /// Extra large radius (24px) - For hero elements, bottom sheets
-  static ${useScreenUtil ? 'double get' : 'const double'} radiusXL = ${config.borderRadius.xl}${screenUtilSuffix};
+  static ${useScreenUtil ? 'double get' : 'const double'} radiusXL${useScreenUtil ? ` => ${config.borderRadius.xl}${screenUtilSuffix}` : ` = ${config.borderRadius.xl}${screenUtilSuffix}`};
   
   /// Full radius (9999px) - For circular elements, pills
-  static ${useScreenUtil ? 'double get' : 'const double'} radiusFull = ${config.borderRadius.full}${screenUtilSuffix};
+  static ${useScreenUtil ? 'double get' : 'const double'} radiusFull${useScreenUtil ? ` => ${config.borderRadius.full}${screenUtilSuffix}` : ` = ${config.borderRadius.full}${screenUtilSuffix}`};
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 🏔️ ELEVATION SYSTEM
@@ -233,11 +233,11 @@ class AppConstants {
   /// Get responsive padding based on screen width
   static EdgeInsets getResponsivePadding(double screenWidth) {
     if (screenWidth >= breakpointDesktop) {
-      return const EdgeInsets.all(spacingXXL);
+      return EdgeInsets.all(spacingXXL);
     } else if (screenWidth >= breakpointTablet) {
-      return const EdgeInsets.all(spacingXL);
+      return EdgeInsets.all(spacingXL);
     } else {
-      return const EdgeInsets.all(spacingMD);
+      return EdgeInsets.all(spacingMD);
     }
   }
   

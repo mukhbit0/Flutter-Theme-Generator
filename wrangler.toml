@@ -27,10 +27,5 @@ command = "npm run build"
 cwd = "./"
 watch_dir = "src"
 
-# Custom domain routes (add your domain here)
-[[routes]]
-pattern = "flutter.minimalistposter.studio/*"
-zone_name = "minimalistposter.studio"
-
 [observability.logs]
 enabled = true

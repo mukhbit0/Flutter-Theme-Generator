@@ -44,37 +44,37 @@ extension ThemeExtensions on BuildContext {
 /// Spacing extensions - Gaps between widgets
 extension SpacingExtensions on BuildContext {
   /// Extra small gap (4px) - For tight layouts, icon-text spacing
-  Widget get gapXS => const SizedBox(
+  Widget get gapXS => SizedBox(
     width: AppConstants.spacingXS,
     height: AppConstants.spacingXS,
   );
 
   /// Small gap (8px) - For compact layouts, button spacing
-  Widget get gapSM => const SizedBox(
+  Widget get gapSM => SizedBox(
     width: AppConstants.spacingSM,
     height: AppConstants.spacingSM,
   );
 
   /// Medium gap (16px) - For standard content spacing, form fields
-  Widget get gapMD => const SizedBox(
+  Widget get gapMD => SizedBox(
     width: AppConstants.spacingMD,
     height: AppConstants.spacingMD,
   );
 
   /// Large gap (24px) - For section spacing, card separation
-  Widget get gapLG => const SizedBox(
+  Widget get gapLG => SizedBox(
     width: AppConstants.spacingLG,
     height: AppConstants.spacingLG,
   );
 
   /// Extra large gap (32px) - For major section breaks
-  Widget get gapXL => const SizedBox(
+  Widget get gapXL => SizedBox(
     width: AppConstants.spacingXL,
     height: AppConstants.spacingXL,
   );
 
   /// Double extra large gap (48px) - For dramatic spacing, screen sections
-  Widget get gapXXL => const SizedBox(
+  Widget get gapXXL => SizedBox(
     width: AppConstants.spacingXXL,
     height: AppConstants.spacingXXL,
   );
@@ -83,22 +83,22 @@ extension SpacingExtensions on BuildContext {
 /// Padding extensions - Space inside widgets
 extension PaddingExtensions on BuildContext {
   /// Extra small padding (4px all sides) - For tight spacing, borders
-  EdgeInsets get paddingXS => const EdgeInsets.all(AppConstants.spacingXS);
+  EdgeInsets get paddingXS => EdgeInsets.all(AppConstants.spacingXS);
 
   /// Small padding (8px all sides) - For compact elements, buttons
-  EdgeInsets get paddingSM => const EdgeInsets.all(AppConstants.spacingSM);
+  EdgeInsets get paddingSM => EdgeInsets.all(AppConstants.spacingSM);
 
   /// Medium padding (16px all sides) - For standard content, cards
-  EdgeInsets get paddingMD => const EdgeInsets.all(AppConstants.spacingMD);
+  EdgeInsets get paddingMD => EdgeInsets.all(AppConstants.spacingMD);
 
   /// Large padding (24px all sides) - For spacious layouts, dialogs
-  EdgeInsets get paddingLG => const EdgeInsets.all(AppConstants.spacingLG);
+  EdgeInsets get paddingLG => EdgeInsets.all(AppConstants.spacingLG);
 
   /// Extra large padding (32px all sides) - For major spacing, screen edges
-  EdgeInsets get paddingXL => const EdgeInsets.all(AppConstants.spacingXL);
+  EdgeInsets get paddingXL => EdgeInsets.all(AppConstants.spacingXL);
 
   /// Double extra large padding (48px all sides) - For dramatic spacing
-  EdgeInsets get paddingXXL => const EdgeInsets.all(AppConstants.spacingXXL);
+  EdgeInsets get paddingXXL => EdgeInsets.all(AppConstants.spacingXXL);
 
   /// Horizontal padding only (left and right)
   EdgeInsets paddingHorizontal(double value) => EdgeInsets.symmetric(horizontal: value);
