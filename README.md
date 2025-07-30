@@ -16,7 +16,7 @@
 **Transform your Flutter app's appearance with our professional theme generator**  
 *Material 3 compliant • Dark mode ready • Logo color extraction • Live previews*
 
-[📱 Try Live Demo](https://flutter-theme-generator.mukhbit000.workers.dev) • [🤝 Contribute](CONTRIBUTING.md) • [💬 Support](https://www.buymeacoffee.com/mukhbit)
+[📱 Try Live Demo](https://theme.ionicerrrrscode.com/) • [🤝 Contribute](CONTRIBUTING.md) • [💬 Support](https://www.buymeacoffee.com/mukhbit)
 
 </div>
 
