@@ -25,7 +25,7 @@ preview_id = "8b7d5638811649a7a388b654d2dbdf6d"
 [[d1_databases]]
 binding = "THEME_DB"
 database_name = "flutter-theme-counter"
-database_id = "flutter-theme-counter-db"
+database_id = "34a417cb-0a43-4202-8792-2328c894da49"
 
 # Build configuration
 [build]

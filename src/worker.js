@@ -127,6 +127,20 @@ export default {
   // Get current counter value
   async getCounter(env, corsHeaders) {
     try {
+      // Check if D1 database is available
+      if (!env.THEME_DB) {
+        console.warn('D1 database not configured, using fallback');
+        return new Response(JSON.stringify({ 
+          success: true, 
+          count: 12847, 
+          fallback: true,
+          message: 'D1 database not configured',
+          timestamp: new Date().toISOString()
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
       // Initialize database if needed
       await this.initializeDatabase(env);
 
@@ -151,6 +165,7 @@ export default {
         success: true, 
         count: 12847, 
         fallback: true,
+        error: error.message,
         timestamp: new Date().toISOString()
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -161,6 +176,20 @@ export default {
   // Increment counter
   async incrementCounter(env, corsHeaders) {
     try {
+      // Check if D1 database is available
+      if (!env.THEME_DB) {
+        console.warn('D1 database not configured, using fallback');
+        return new Response(JSON.stringify({ 
+          success: true, 
+          count: 12848, 
+          fallback: true,
+          message: 'D1 database not configured',
+          timestamp: new Date().toISOString()
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
       // Initialize database if needed
       await this.initializeDatabase(env);
 
@@ -192,6 +221,7 @@ export default {
         success: true, 
         count: 12848, 
         fallback: true,
+        error: error.message,
         timestamp: new Date().toISOString()
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -202,6 +232,12 @@ export default {
   // Initialize database with required tables
   async initializeDatabase(env) {
     try {
+      // Check if D1 is available
+      if (!env.THEME_DB) {
+        console.warn('D1 database binding not available');
+        return;
+      }
+
       await env.THEME_DB.prepare(`
         CREATE TABLE IF NOT EXISTS theme_counter (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
