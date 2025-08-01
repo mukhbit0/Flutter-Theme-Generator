@@ -1,11 +1,7 @@
 import { PreviewWidget } from '../PreviewWidget'
+import { WidgetPreviewProps } from '../PreviewScreenTypes'
 
-interface ProgressPreviewProps {
-  currentColors: any
-  previewMode: 'light' | 'dark'
-}
-
-export default function ProgressPreview({ currentColors, previewMode }: ProgressPreviewProps) {
+export default function ProgressPreview({ currentColors, previewMode }: WidgetPreviewProps) {
   return (
     <PreviewWidget title="Progress Indicators" previewMode={previewMode} themeColors={currentColors}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

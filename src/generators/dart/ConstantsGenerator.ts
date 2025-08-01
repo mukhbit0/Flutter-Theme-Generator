@@ -130,37 +130,37 @@ class AppConstants {
   // Frequently used measurements for consistent implementation
   
   /// Standard button height (48px) - Meets accessibility guidelines
-  static const double buttonHeight = 48.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} buttonHeight${useScreenUtil ? ' => 48.h' : ' = 48.0'};
   
   /// Large button height (56px) - For prominent actions
-  static const double buttonHeightLarge = 56.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} buttonHeightLarge${useScreenUtil ? ' => 56.h' : ' = 56.0'};
   
   /// Small button height (40px) - For compact layouts
-  static const double buttonHeightSmall = 40.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} buttonHeightSmall${useScreenUtil ? ' => 40.h' : ' = 40.0'};
   
   /// Text field height (56px) - Standard Material Design height
-  static const double textFieldHeight = 56.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} textFieldHeight${useScreenUtil ? ' => 56.h' : ' = 56.0'};
   
   /// App bar height (56px) - Standard Material Design app bar
-  static const double appBarHeight = 56.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} appBarHeight${useScreenUtil ? ' => 56.h' : ' = 56.0'};
   
   /// Tab bar height (48px) - Standard Material Design tab bar
-  static const double tabBarHeight = 48.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} tabBarHeight${useScreenUtil ? ' => 48.h' : ' = 48.0'};
   
   /// Bottom navigation height (80px) - With padding and content
-  static const double bottomNavHeight = 80.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} bottomNavHeight${useScreenUtil ? ' => 80.h' : ' = 80.0'};
   
   /// FAB size (56px) - Standard floating action button
-  static const double fabSize = 56.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fabSize${useScreenUtil ? ' => 56.w' : ' = 56.0'};
   
   /// Large FAB size (64px) - Extended floating action button
-  static const double fabSizeLarge = 64.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fabSizeLarge${useScreenUtil ? ' => 64.w' : ' = 64.0'};
   
   /// Avatar size (40px) - Standard user avatar
-  static const double avatarSize = 40.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} avatarSize${useScreenUtil ? ' => 40.w' : ' = 40.0'};
   
   /// Large avatar size (64px) - Profile or prominent display
-  static const double avatarSizeLarge = 64.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} avatarSizeLarge${useScreenUtil ? ' => 64.w' : ' = 64.0'};
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 📱 RESPONSIVE BREAKPOINTS
@@ -168,13 +168,13 @@ class AppConstants {
   // Screen size breakpoints for responsive design
   
   /// Mobile breakpoint (600px) - Phone screens
-  static const double breakpointMobile = 600.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} breakpointMobile${useScreenUtil ? ' => 600.w' : ' = 600.0'};
   
   /// Tablet breakpoint (900px) - Tablet screens
-  static const double breakpointTablet = 900.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} breakpointTablet${useScreenUtil ? ' => 900.w' : ' = 900.0'};
   
   /// Desktop breakpoint (1200px) - Desktop screens
-  static const double breakpointDesktop = 1200.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} breakpointDesktop${useScreenUtil ? ' => 1200.w' : ' = 1200.0'};
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 🔤 TYPOGRAPHY SCALE
@@ -182,49 +182,49 @@ class AppConstants {
   // Font sizes following Material Design 3 type scale
   
   /// Display Large (57px) - Hero text, major headlines
-  static const double fontSizeDisplayLarge = 57.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeDisplayLarge${useScreenUtil ? ' => 57.sp' : ' = 57.0'};
   
   /// Display Medium (45px) - Large headers
-  static const double fontSizeDisplayMedium = 45.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeDisplayMedium${useScreenUtil ? ' => 45.sp' : ' = 45.0'};
   
   /// Display Small (36px) - Section headers
-  static const double fontSizeDisplaySmall = 36.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeDisplaySmall${useScreenUtil ? ' => 36.sp' : ' = 36.0'};
   
   /// Headline Large (32px) - Page titles
-  static const double fontSizeHeadlineLarge = 32.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeHeadlineLarge${useScreenUtil ? ' => 32.sp' : ' = 32.0'};
   
   /// Headline Medium (28px) - Card titles
-  static const double fontSizeHeadlineMedium = 28.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeHeadlineMedium${useScreenUtil ? ' => 28.sp' : ' = 28.0'};
   
   /// Headline Small (24px) - List headers
-  static const double fontSizeHeadlineSmall = 24.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeHeadlineSmall${useScreenUtil ? ' => 24.sp' : ' = 24.0'};
   
   /// Title Large (22px) - App bar titles
-  static const double fontSizeTitleLarge = 22.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeTitleLarge${useScreenUtil ? ' => 22.sp' : ' = 22.0'};
   
   /// Title Medium (16px) - Button text, tab labels
-  static const double fontSizeTitleMedium = 16.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeTitleMedium${useScreenUtil ? ' => 16.sp' : ' = 16.0'};
   
   /// Title Small (14px) - List item titles
-  static const double fontSizeTitleSmall = 14.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeTitleSmall${useScreenUtil ? ' => 14.sp' : ' = 14.0'};
   
   /// Body Large (16px) - Prominent body text
-  static const double fontSizeBodyLarge = 16.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeBodyLarge${useScreenUtil ? ' => 16.sp' : ' = 16.0'};
   
   /// Body Medium (14px) - Standard body text
-  static const double fontSizeBodyMedium = 14.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeBodyMedium${useScreenUtil ? ' => 14.sp' : ' = 14.0'};
   
   /// Body Small (12px) - Supporting text
-  static const double fontSizeBodySmall = 12.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeBodySmall${useScreenUtil ? ' => 12.sp' : ' = 12.0'};
   
   /// Label Large (14px) - Form labels
-  static const double fontSizeLabelLarge = 14.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeLabelLarge${useScreenUtil ? ' => 14.sp' : ' = 14.0'};
   
   /// Label Medium (12px) - Caption text
-  static const double fontSizeLabelMedium = 12.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeLabelMedium${useScreenUtil ? ' => 12.sp' : ' = 12.0'};
   
   /// Label Small (11px) - Small annotations
-  static const double fontSizeLabelSmall = 11.0;
+  static ${useScreenUtil ? 'double get' : 'const double'} fontSizeLabelSmall${useScreenUtil ? ' => 11.sp' : ' = 11.0'};
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 🎨 HELPER METHODS

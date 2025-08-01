@@ -1,11 +1,7 @@
 import { PreviewWidget } from '../PreviewWidget'
+import { WidgetPreviewProps } from '../PreviewScreenTypes'
 
-interface ButtonsPreviewProps {
-  currentColors: any
-  previewMode: 'light' | 'dark'
-}
-
-export default function ButtonsPreview({ currentColors, previewMode }: ButtonsPreviewProps) {
+export default function ButtonsPreview({ currentColors, previewMode }: WidgetPreviewProps) {
   return (
     <PreviewWidget title="Material Buttons" previewMode={previewMode} themeColors={currentColors}>
       <div className="space-y-6">

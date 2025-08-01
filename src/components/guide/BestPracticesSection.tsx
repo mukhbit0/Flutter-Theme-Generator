@@ -5,39 +5,48 @@ interface BestPracticesSectionProps {
 export default function BestPracticesSection({ darkMode }: BestPracticesSectionProps) {
   const practices = [
     {
-      title: "🎨 Color Usage",
+      title: "🎨 Enhanced Color Usage",
       tips: [
-        "Use semantic colors (primary, secondary) over hardcoded values",
-        "Ensure proper contrast ratios for accessibility",
-        "Test colors in both light and dark modes",
-        "Maintain brand consistency across all screens"
+        "Use semantic Material 3 colors (primary, secondary, tertiary) with all variants",
+        "Leverage APCA accessibility standards for superior contrast compliance",
+        "Test all 6 theme variants (light/dark + contrast modes) thoroughly",
+        "Maintain Oklab color space consistency for perceptual accuracy"
       ]
     },
     {
-      title: "📏 Spacing & Layout",
+      title: "📏 ScreenUtil Integration",
       tips: [
-        "Use theme spacing constants instead of magic numbers",
-        "Implement responsive design with MediaQuery",
-        "Follow Material Design spacing guidelines",
-        "Use consistent padding and margins"
+        "Use ScreenUtil constants (.sp, .w, .h) for perfect responsive design",
+        "Replace all hardcoded dimensions with responsive equivalents",
+        "Follow Material Design 3 spacing guidelines with device adaptation",
+        "Implement consistent padding/margins that scale across devices"
       ]
     },
     {
-      title: "✍️ Typography",
+      title: "✍️ Responsive Typography",
       tips: [
-        "Use theme text styles for consistency",
-        "Ensure text is readable on all backgrounds",
-        "Follow accessibility guidelines for font sizes",
-        "Maintain proper text hierarchy"
+        "Use ScreenUtil-enhanced text styles for device-appropriate sizing",
+        "Ensure text readability across all theme variants and screen sizes",
+        "Follow WCAG AAA guidelines with enhanced accessibility features",
+        "Maintain proper text hierarchy with responsive scaling"
       ]
     },
     {
-      title: "🚀 Performance",
+      title: "🚀 Material 3 Performance",
       tips: [
-        "Cache theme instances when possible",
-        "Use const constructors for theme data",
-        "Avoid rebuilding themes unnecessarily",
-        "Optimize for different screen densities"
+        "Cache Material 3 theme instances with all variants efficiently",
+        "Use const constructors for enhanced theme data optimization",
+        "Implement smart theme switching without unnecessary rebuilds",
+        "Optimize for different screen densities with ScreenUtil integration"
+      ]
+    },
+    {
+      title: "♿ Accessibility Excellence",
+      tips: [
+        "Utilize APCA contrast algorithms for next-generation accessibility",
+        "Test with high contrast theme variants for visual impairments",
+        "Ensure focus indicators work across all Material 3 variants",
+        "Validate color accessibility with our built-in compliance tools"
       ]
     }
   ]
@@ -46,10 +55,10 @@ export default function BestPracticesSection({ darkMode }: BestPracticesSectionP
     <div className="space-y-8">
       <div>
         <h2 className={`text-3xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-          Best Practices
+          Enhanced Best Practices
         </h2>
         <p className={`text-lg mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-          Guidelines for effective theme usage and maintenance.
+          Professional guidelines for Material 3 themes, ScreenUtil integration, accessibility compliance, and optimal performance practices.
         </p>
       </div>
 

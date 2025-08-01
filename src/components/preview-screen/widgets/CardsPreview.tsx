@@ -1,11 +1,7 @@
 import { PreviewWidget } from '../PreviewWidget'
+import { WidgetPreviewProps } from '../PreviewScreenTypes'
 
-interface CardsPreviewProps {
-  currentColors: any
-  previewMode: 'light' | 'dark'
-}
-
-export default function CardsPreview({ currentColors, previewMode }: CardsPreviewProps) {
+export default function CardsPreview({ currentColors, previewMode }: WidgetPreviewProps) {
   return (
     <PreviewWidget title="Cards & Content Containers" previewMode={previewMode} themeColors={currentColors}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

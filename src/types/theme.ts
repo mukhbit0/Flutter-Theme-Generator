@@ -1,39 +1,84 @@
 export interface ThemeColors {
-  // Primary Colors
+  // Core Colors
   primary: string;
-  primaryVariant: string;
+  onPrimary: string;
+  primaryContainer: string;
+  onPrimaryContainer: string;
   secondary: string;
-  secondaryVariant: string;
+  onSecondary: string;
+  secondaryContainer: string;
+  onSecondaryContainer: string;
+  tertiary: string;
+  onTertiary: string;
+  tertiaryContainer: string;
+  onTertiaryContainer: string;
+  
+  // Error Colors
+  error: string;
+  onError: string;
+  errorContainer: string;
+  onErrorContainer: string;
   
   // Surface Colors
   surface: string;
-  background: string;
-  error: string;
-  
-  // Text Colors
-  onPrimary: string;
-  onSecondary: string;
   onSurface: string;
+  onSurfaceVariant: string;
+  surfaceDim: string;
+  surfaceBright: string;
+  surfaceContainerLowest: string;
+  surfaceContainerLow: string;
+  surfaceContainer: string;
+  surfaceContainerHigh: string;
+  surfaceContainerHighest: string;
+  
+  // Background Colors (deprecated but kept for compatibility)
+  background: string;
   onBackground: string;
-  onError: string;
   
-  // Additional Colors
-  success: string;
-  warning: string;
-  info: string;
-  
-  // Neutral Colors
+  // Outline Colors
   outline: string;
+  outlineVariant: string;
+  
+  // Utility Colors
   shadow: string;
+  scrim: string;
+  
+  // Inverse Colors
   inverseSurface: string;
   inverseOnSurface: string;
   inversePrimary: string;
+  
+  // Fixed Colors
+  primaryFixed: string;
+  onPrimaryFixed: string;
+  primaryFixedDim: string;
+  onPrimaryFixedVariant: string;
+  secondaryFixed: string;
+  onSecondaryFixed: string;
+  secondaryFixedDim: string;
+  onSecondaryFixedVariant: string;
+  tertiaryFixed: string;
+  onTertiaryFixed: string;
+  tertiaryFixedDim: string;
+  onTertiaryFixedVariant: string;
+  
+  // Surface Tint
+  surfaceTint: string;
+  
+  // Additional Colors (custom)
+  success?: string;
+  warning?: string;
+  info?: string;
 }
 
 export interface ThemeConfig {
   colors: {
     light: ThemeColors;
+    lightMediumContrast?: ThemeColors;
+    lightHighContrast?: ThemeColors;
     dark: ThemeColors;
+    darkMediumContrast?: ThemeColors;
+    darkHighContrast?: ThemeColors;
   };
   typography: {
     displayLarge: TypographyStyle;

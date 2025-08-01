@@ -13,7 +13,7 @@ import {
 
 interface ThemeGeneratorComponentProps {
   onBack: () => void
-  onPreview: (config: ThemeConfig) => void
+  onPreview: (config: ThemeConfig, settings?: ThemeGeneratorSettings) => void
   darkMode: boolean
   onToggleDarkMode: () => void
 }
@@ -82,7 +82,7 @@ export default function ThemeGeneratorComponent({ onBack, onPreview, darkMode, o
       }
       
       const themeConfig = generateFlutterTheme(colors, { useScreenUtil: settings.useScreenUtil })
-      onPreview(themeConfig)
+      onPreview(themeConfig, settings)
     } catch (error) {
       console.error('Error generating theme:', error)
     } finally {

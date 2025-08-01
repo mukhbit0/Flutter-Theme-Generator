@@ -9,9 +9,12 @@ export default function WidgetExamplesSection({ darkMode }: WidgetExamplesSectio
       description: "All button types with theme integration and visual previews",
       widgets: [
         {
-          title: "ElevatedButton",
-          description: "Primary action button with shadow elevation",
-          code: `ElevatedButton(
+          title: "Enhanced ElevatedButton",
+          description: "Material 3 primary action button with ScreenUtil responsive design",
+          code: `import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'theme/app_constants.dart';
+
+ElevatedButton(
   onPressed: () {
     // Handle button press
   },
@@ -19,8 +22,13 @@ export default function WidgetExamplesSection({ darkMode }: WidgetExamplesSectio
     backgroundColor: Theme.of(context).colorScheme.primary,
     foregroundColor: Theme.of(context).colorScheme.onPrimary,
     elevation: 3,
+    padding: EdgeInsets.symmetric(
+      horizontal: AppConstants.paddingLarge, // ScreenUtil ready
+      vertical: AppConstants.paddingMedium,
+    ),
+    textStyle: TextStyle(fontSize: AppConstants.fontSizeMedium), // .sp scaling
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
     ),
   ),
   child: Text('Primary Action'),
@@ -494,10 +502,10 @@ export default function WidgetExamplesSection({ darkMode }: WidgetExamplesSectio
     <div className="space-y-8">
       <div>
         <h2 className={`text-3xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-          Widget Examples
+          Material 3 Widget Examples
         </h2>
         <p className={`text-lg mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-          Comprehensive Flutter widgets with theme integration and visual previews.
+          Complete Material 3 Flutter widgets with ScreenUtil integration, enhanced theme support, and accessibility compliance examples.
         </p>
       </div>
 

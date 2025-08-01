@@ -8,32 +8,32 @@ export default function ImplementationSection({ darkMode }: ImplementationSectio
       step: "1",
       title: "Download Your Theme Package",
       description: "Generate and download your complete theme bundle",
-      code: `// After generating your theme in the preview:
+      code: `// After generating your theme with enhanced features:
 1. Click "Download Theme Files" button
-2. Save the ZIP file to your computer
-3. Extract the contents
+2. Save the complete ZIP package to your computer
+3. Extract the contents with all enhancements
 
-// Your download will include:
+// Your enhanced download includes:
 📁 theme_package/
-  ├── 📄 app_theme.dart         # Main theme configuration
-  ├── 📄 app_constants.dart     # Design tokens & constants
-  ├── 📄 theme_extensions.dart  # Custom theme extensions
-  ├── 📄 README.md             # Implementation guide
-  └── 📁 example/              # Usage examples
-      ├── 📄 main.dart
-      └── 📄 sample_widgets.dart`,
+  ├── 📄 app_theme.dart         # Material 3 compliant theme with 6 variants
+  ├── 📄 app_constants.dart     # ScreenUtil-ready design tokens
+  ├── 📄 theme_extensions.dart  # Enhanced custom extensions
+  ├── 📄 README.md             # Comprehensive implementation guide
+  └── 📁 example/              # Complete usage examples
+      ├── 📄 main.dart          # ScreenUtil integration example
+      └── 📄 sample_widgets.dart # All theme variants demo`,
       language: "text"
     },
     {
       step: "2",
       title: "Project Integration",
       description: "Add theme files to your Flutter project structure",
-      code: `# Recommended project structure:
+      code: `# Enhanced project structure with ScreenUtil support:
 lib/
   ├── theme/                   # Create this directory
-  │   ├── app_theme.dart       # Copy here
-  │   ├── app_constants.dart   # Copy here
-  │   └── theme_extensions.dart # Copy here
+  │   ├── app_theme.dart       # Material 3 theme with all variants
+  │   ├── app_constants.dart   # ScreenUtil-ready constants (.sp, .w, .h)
+  │   └── theme_extensions.dart # Enhanced custom extensions
   ├── screens/
   ├── widgets/
   └── main.dart
@@ -42,35 +42,49 @@ lib/
 lib/
   ├── core/
   │   └── theme/
-  │       ├── app_theme.dart
-  │       ├── colors.dart
-  │       ├── typography.dart
-  │       └── spacing.dart
-  └── features/`,
+  │       ├── app_theme.dart    # Complete Material 3 implementation
+  │       ├── colors.dart       # 6 theme variants (light/dark/contrast)
+  │       ├── typography.dart   # ScreenUtil responsive text
+  │       └── spacing.dart      # Responsive spacing constants
+  └── features/
+
+# Add ScreenUtil dependency if not already present:
+dependencies:
+  flutter_screenutil: ^5.9.0`,
       language: "text"
     },
     {
       step: "3",
-      title: "MaterialApp Configuration",
-      description: "Apply your theme to the root MaterialApp widget",
+      title: "Enhanced MaterialApp Configuration",
+      description: "Apply your Material 3 theme with ScreenUtil integration",
       code: `import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'theme/app_theme.dart';
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'My Themed App',
-      
-      // Apply your generated themes
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      
-      // Automatic theme switching based on system preference
-      themeMode: ThemeMode.system,
-      
-      home: HomeScreen(),
-      debugShowCheckedModeBanner: false,
+    return ScreenUtilInit(
+      designSize: const Size(375, 812), // Your design reference size
+      builder: (context, child) {
+        return MaterialApp(
+          title: 'My Enhanced Themed App',
+          
+          // Apply your generated Material 3 themes
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          
+          // Optional: Use contrast themes for accessibility
+          // theme: AppTheme.lightHighContrastTheme,
+          // darkTheme: AppTheme.darkHighContrastTheme,
+          
+          // Automatic theme switching based on system preference
+          themeMode: ThemeMode.system,
+          
+          home: HomeScreen(),
+          debugShowCheckedModeBanner: false,
+        );
+      },
     );
   }
 }`,
@@ -78,9 +92,12 @@ class MyApp extends StatelessWidget {
     },
     {
       step: "4",
-      title: "Using Theme in Widgets",
-      description: "Access theme colors and styles in your widgets",
-      code: `class MyWidget extends StatelessWidget {
+      title: "Using Enhanced Theme in Widgets",
+      description: "Access theme colors, ScreenUtil constants, and Material 3 styles",
+      code: `import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'theme/app_constants.dart';
+
+class MyWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -88,6 +105,7 @@ class MyApp extends StatelessWidget {
     
     return Container(
       color: colorScheme.surface,
+      padding: EdgeInsets.all(AppConstants.paddingMedium), // ScreenUtil ready
       child: Column(
         children: [
           ElevatedButton(
@@ -117,10 +135,10 @@ class MyApp extends StatelessWidget {
     <div className="space-y-8">
       <div>
         <h2 className={`text-3xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-          Implementation Guide
+          Enhanced Implementation Guide
         </h2>
         <p className={`text-lg mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-          Step-by-step guide to integrate your generated theme into your Flutter project.
+          Complete integration guide for Material 3 themes with ScreenUtil responsive design, accessibility compliance, and all 6 theme variants.
         </p>
       </div>
 

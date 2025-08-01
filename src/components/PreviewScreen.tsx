@@ -1,18 +1,63 @@
 import { useState } from 'react'
 import { downloadThemeFiles } from '../utils/FileDownloader'
-import { PreviewScreenProps } from './preview-screen/PreviewScreenTypes'
+import { PreviewScreenProps, PreviewMode } from './preview-screen/PreviewScreenTypes'
 import PreviewHeader from './preview-screen/PreviewHeader'
 import ColorPalette from './preview-screen/ColorPalette'
 import WidgetPreviews from './preview-screen/WidgetPreviews'
 import { ThemeConfig } from '../types/theme'
 
-export default function PreviewScreen({ themeConfig, onBack, darkMode }: PreviewScreenProps) {
-  const [previewMode, setPreviewMode] = useState<'light' | 'dark'>('light')
+export default function PreviewScreen({ themeConfig, settings, onBack, darkMode }: PreviewScreenProps) {
+  const [previewMode, setPreviewMode] = useState<PreviewMode>('light')
   const [isDownloading, setIsDownloading] = useState(false)
   const [modifiedThemeConfig, setModifiedThemeConfig] = useState<ThemeConfig>(themeConfig)
 
   // Get current colors based on preview mode (independent of site-wide dark mode)
-  const currentColors = previewMode === 'light' ? modifiedThemeConfig.colors.light : modifiedThemeConfig.colors.dark
+  const getCurrentColors = () => {
+    let colors;
+    switch (previewMode) {
+      case 'light':
+        colors = modifiedThemeConfig.colors.light
+        break
+      case 'lightMediumContrast':
+        colors = modifiedThemeConfig.colors.lightMediumContrast
+        if (!colors) {
+          console.warn('lightMediumContrast colors not found, falling back to light')
+          colors = modifiedThemeConfig.colors.light
+        }
+        break
+      case 'lightHighContrast':
+        colors = modifiedThemeConfig.colors.lightHighContrast
+        if (!colors) {
+          console.warn('lightHighContrast colors not found, falling back to light')
+          colors = modifiedThemeConfig.colors.light
+        }
+        break
+      case 'dark':
+        colors = modifiedThemeConfig.colors.dark
+        break
+      case 'darkMediumContrast':
+        colors = modifiedThemeConfig.colors.darkMediumContrast
+        if (!colors) {
+          console.warn('darkMediumContrast colors not found, falling back to dark')
+          colors = modifiedThemeConfig.colors.dark
+        }
+        break
+      case 'darkHighContrast':
+        colors = modifiedThemeConfig.colors.darkHighContrast
+        if (!colors) {
+          console.warn('darkHighContrast colors not found, falling back to dark')
+          colors = modifiedThemeConfig.colors.dark
+        }
+        break
+      default:
+        colors = modifiedThemeConfig.colors.light
+    }
+    
+    console.log(`Preview mode: ${previewMode}`, colors)
+    return colors
+  }
+
+  const currentColors = getCurrentColors()
 
   // Safety check for colors
   if (!currentColors) {
@@ -38,12 +83,27 @@ export default function PreviewScreen({ themeConfig, onBack, darkMode }: Preview
   }
 
   const handleColorChange = (colorName: string, newColor: string) => {
+    const getCurrentModeKey = () => {
+      switch (previewMode) {
+        case 'light':
+        case 'lightMediumContrast':
+        case 'lightHighContrast':
+          return previewMode
+        case 'dark':
+        case 'darkMediumContrast':
+        case 'darkHighContrast':
+          return previewMode
+        default:
+          return 'light'
+      }
+    }
+
     setModifiedThemeConfig((prev: ThemeConfig) => ({
       ...prev,
       colors: {
         ...prev.colors,
-        [previewMode]: {
-          ...prev.colors[previewMode],
+        [getCurrentModeKey()]: {
+          ...prev.colors[getCurrentModeKey() as keyof typeof prev.colors],
           [colorName]: newColor
         }
       }
@@ -53,7 +113,7 @@ export default function PreviewScreen({ themeConfig, onBack, darkMode }: Preview
   const handleDownload = async () => {
     try {
       setIsDownloading(true)
-      await downloadThemeFiles(modifiedThemeConfig)
+      await downloadThemeFiles(modifiedThemeConfig, settings || undefined)
     } catch (error) {
       console.error('Download failed:', error)
       alert('Download failed. Please try again.')

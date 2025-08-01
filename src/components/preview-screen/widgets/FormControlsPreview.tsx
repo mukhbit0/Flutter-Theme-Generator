@@ -1,11 +1,7 @@
 import { PreviewWidget } from '../PreviewWidget'
+import { WidgetPreviewProps } from '../PreviewScreenTypes'
 
-interface FormControlsPreviewProps {
-  currentColors: any
-  previewMode: 'light' | 'dark'
-}
-
-export default function FormControlsPreview({ currentColors, previewMode }: FormControlsPreviewProps) {
+export default function FormControlsPreview({ currentColors, previewMode }: WidgetPreviewProps) {
   return (
     <PreviewWidget title="Form Controls & Input" previewMode={previewMode} themeColors={currentColors}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

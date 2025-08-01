@@ -1,11 +1,7 @@
 import { PreviewWidget } from '../PreviewWidget'
+import { WidgetPreviewProps } from '../PreviewScreenTypes'
 
-interface AppBarPreviewProps {
-  currentColors: any
-  previewMode: 'light' | 'dark'
-}
-
-export default function AppBarPreview({ currentColors, previewMode }: AppBarPreviewProps) {
+export default function AppBarPreview({ currentColors, previewMode }: WidgetPreviewProps) {
   return (
     <PreviewWidget title="App Bar & Navigation" previewMode={previewMode} themeColors={currentColors}>
       <div className="space-y-4">

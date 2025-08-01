@@ -1,4 +1,4 @@
-import { PreviewHeaderProps } from './PreviewScreenTypes'
+import { PreviewHeaderProps, PreviewMode } from './PreviewScreenTypes'
 
 export default function PreviewHeader({
   darkMode,
@@ -8,6 +8,15 @@ export default function PreviewHeader({
   onDownload,
   isDownloading
 }: PreviewHeaderProps) {
+  const modeOptions: { value: PreviewMode; label: string; group: 'light' | 'dark' }[] = [
+    { value: 'light', label: 'Light', group: 'light' },
+    { value: 'lightMediumContrast', label: 'Light Medium', group: 'light' },
+    { value: 'lightHighContrast', label: 'Light High', group: 'light' },
+    { value: 'dark', label: 'Dark', group: 'dark' },
+    { value: 'darkMediumContrast', label: 'Dark Medium', group: 'dark' },
+    { value: 'darkHighContrast', label: 'Dark High', group: 'dark' },
+  ]
+
   return (
     <div className={`${
       darkMode ? 'bg-gray-800/80' : 'bg-white/80'
@@ -39,33 +48,26 @@ export default function PreviewHeader({
           
           <div className="flex items-center space-x-4">
             {/* Theme Mode Toggle */}
-            <div className={`flex items-center space-x-2 p-1 rounded-lg ${
+            <div className={`flex items-center space-x-1 p-1 rounded-lg ${
               darkMode ? 'bg-gray-700' : 'bg-gray-100'
             }`}>
-              <button
-                onClick={() => setPreviewMode('light')}
-                className={`px-3 py-1 rounded-md text-sm font-medium transition-all duration-200 ${
-                  previewMode === 'light'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : darkMode
-                      ? 'text-gray-300 hover:text-white'
-                      : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Light
-              </button>
-              <button
-                onClick={() => setPreviewMode('dark')}
-                className={`px-3 py-1 rounded-md text-sm font-medium transition-all duration-200 ${
-                  previewMode === 'dark'
-                    ? 'bg-gray-800 text-white shadow-sm'
-                    : darkMode
-                      ? 'text-gray-300 hover:text-white'
-                      : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Dark
-              </button>
+              {modeOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setPreviewMode(option.value)}
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 whitespace-nowrap ${
+                    previewMode === option.value
+                      ? option.group === 'light'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'bg-gray-800 text-white shadow-sm'
+                      : darkMode
+                        ? 'text-gray-300 hover:text-white hover:bg-gray-600'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
             </div>
 
             <button

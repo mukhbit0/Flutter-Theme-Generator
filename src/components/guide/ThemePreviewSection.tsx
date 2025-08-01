@@ -5,48 +5,48 @@ interface ThemePreviewSectionProps {
 export default function ThemePreviewSection({ darkMode }: ThemePreviewSectionProps) {
   const previewFeatures = [
     {
-      title: "🎨 Live Color Preview",
-      description: "Real-time color changes as you adjust theme settings",
+      title: "🎨 Advanced Color Preview",
+      description: "Real-time visualization of all 6 Material 3 theme variants",
       details: [
-        "Instant visual feedback for color modifications",
-        "Preview all color variants (primary, secondary, accent)",
-        "See color relationships and harmonies",
-        "Test color accessibility and contrast ratios"
+        "Instant preview of light, dark, and contrast modes",
+        "Live Oklab color space calculations for accurate perception",
+        "APCA accessibility compliance validation in real-time",
+        "Enhanced contrast ratios with next-generation algorithms"
       ]
     },
     {
-      title: "🌙 Dark/Light Mode Toggle",
-      description: "Preview your theme in both light and dark modes",
+      title: "🌙 Complete Theme Coverage",
+      description: "Preview all 6 Material 3 theme variants simultaneously",
       details: [
-        "Seamless switching between modes",
-        "Automatic color inversion and adaptation",
-        "Consistent design language across modes",
-        "Accessibility compliance in both themes"
+        "Light, Dark, Light Medium/High Contrast, Dark Medium/High Contrast",
+        "Seamless switching between all variants",
+        "Consistent design language across all modes",
+        "WCAG AAA+ accessibility compliance validation"
       ]
     },
     {
-      title: "📱 Interactive Widget Showcase",
-      description: "See your theme applied to real Flutter widgets",
+      title: "📱 Enhanced Widget Showcase",
+      description: "20+ Flutter widgets with Material 3 compliance",
       details: [
-        "Material Design buttons and controls",
-        "Navigation components (AppBar, BottomNav)",
-        "Form elements (TextField, Dropdown, Checkbox)",
-        "Cards, dialogs, and surface elements"
+        "Complete Material Design 3 component library",
+        "Interactive buttons, forms, and navigation elements",
+        "Advanced typography with ScreenUtil integration",
+        "Cards, dialogs, progress indicators, and surface elements"
       ]
     },
     {
-      title: "✍️ Typography Preview",
-      description: "Complete text style hierarchy with your theme",
+      title: "📐 ScreenUtil Typography",
+      description: "Responsive design integration with live preview",
       details: [
-        "Display Large, Medium, Small variants",
-        "Headline and Title text styles",
-        "Body and Label text variations",
-        "Custom font family integration"
+        "All text sizes with .sp scaling for perfect device adaptation",
+        "Display Large, Medium, Small with responsive scaling",
+        "Headline, Title, Body, and Label text with device optimization",
+        "Live preview of responsive behavior across screen sizes"
       ]
     },
     {
-      title: "🎛️ Interactive Components",
-      description: "Test component states and interactions",
+      title: "🎛️ Advanced Interactions",
+      description: "Test all component states with enhanced feedback",
       details: [
         "Button hover and pressed states",
         "Form validation and error states",
@@ -122,10 +122,10 @@ export default function ThemePreviewSection({ darkMode }: ThemePreviewSectionPro
     <div className="space-y-8">
       <div>
         <h2 className={`text-3xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-          Theme Preview Guide
+          Enhanced Theme Preview
         </h2>
         <p className={`text-lg mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-          Master the theme preview system to perfect your Flutter app design before implementation.
+          Experience real-time Material 3 theme visualization with all 6 contrast variants, ScreenUtil integration, and APCA accessibility validation.
         </p>
       </div>
 

@@ -1,4 +1,5 @@
 import { Footer } from './Footer'
+import { ThemeCounter } from './ThemeCounter'
 
 interface HomePageProps {
   onNavigateToGenerator: () => void
@@ -71,13 +72,15 @@ export default function HomePage({ onNavigateToGenerator, onNavigateToGuide, dar
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="max-w-6xl w-full">
           <div className="text-center mb-16">
-            <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-6 ${
-              darkMode 
-                ? 'bg-purple-900/20 text-purple-300 border border-purple-700/30' 
-                : 'bg-purple-50 text-purple-700 border border-purple-200'
-            }`}>
-              <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-              Create Professional Flutter Themes
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-8">
+              <div className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium ${
+                darkMode 
+                  ? 'bg-purple-900/20 text-purple-300 border border-purple-700/30' 
+                  : 'bg-purple-50 text-purple-700 border border-purple-200'
+              }`}>
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                Create Professional Flutter Themes
+              </div>
             </div>
             
             <h1 className={`text-6xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -199,23 +202,27 @@ export default function HomePage({ onNavigateToGenerator, onNavigateToGuide, dar
             ))}
           </div>
 
-          {/* CTA Section */}
+          {/* CTA Section with Counter */}
           <div className={`mt-20 text-center p-12 rounded-3xl ${darkMode ? 'bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-700/50' : 'bg-gradient-to-r from-blue-50/50 to-purple-50/50 border border-gray-200/50'} backdrop-blur-lg`}>
-            <h2 className={`text-3xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              Ready to Create Your Theme?
-            </h2>
-            <p className={`text-lg mb-8 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              Start building professional Flutter themes with our comprehensive generator
-            </p>
-            <button
-              onClick={onNavigateToGenerator}
-              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 space-x-3"
-            >
-              <span>Start Building Now</span>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </button>
+            <div className="flex flex-col items-center space-y-6">
+              <ThemeCounter darkMode={darkMode} />
+              
+              <h2 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                Ready to Create Your Theme?
+              </h2>
+              <p className={`text-lg ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                Start building professional Flutter themes with our comprehensive generator
+              </p>
+              <button
+                onClick={onNavigateToGenerator}
+                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 space-x-3"
+              >
+                <span>Start Building Now</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>

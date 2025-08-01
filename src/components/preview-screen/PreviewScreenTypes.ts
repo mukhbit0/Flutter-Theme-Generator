@@ -1,7 +1,10 @@
-import { ThemeConfig } from '../../types/theme'
+import { ThemeConfig, ThemeGeneratorSettings } from '../../types/theme'
+
+export type PreviewMode = 'light' | 'lightMediumContrast' | 'lightHighContrast' | 'dark' | 'darkMediumContrast' | 'darkHighContrast'
 
 export interface PreviewScreenProps {
   themeConfig: ThemeConfig
+  settings?: ThemeGeneratorSettings | null
   onBack: () => void
   darkMode: boolean
 }
@@ -9,8 +12,13 @@ export interface PreviewScreenProps {
 export interface PreviewWidgetProps {
   title: string
   children: React.ReactNode
-  previewMode: 'light' | 'dark'
+  previewMode: PreviewMode
   themeColors: any
+}
+
+export interface WidgetPreviewProps {
+  currentColors: any
+  previewMode: PreviewMode
 }
 
 export interface ColorPaletteProps {
@@ -22,8 +30,8 @@ export interface ColorPaletteProps {
 
 export interface PreviewHeaderProps {
   darkMode: boolean
-  previewMode: 'light' | 'dark'
-  setPreviewMode: (mode: 'light' | 'dark') => void
+  previewMode: PreviewMode
+  setPreviewMode: (mode: PreviewMode) => void
   onBack: () => void
   onDownload: () => void
   isDownloading: boolean
@@ -31,5 +39,5 @@ export interface PreviewHeaderProps {
 
 export interface WidgetPreviewsProps {
   currentColors: any
-  previewMode: 'light' | 'dark'
+  previewMode: PreviewMode
 }

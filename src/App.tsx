@@ -4,7 +4,7 @@ import HomePage from './components/HomePage'
 import ThemeGeneratorComponent from './components/ThemeGeneratorComponent'
 import GuideScreen from './components/GuideScreen'
 import PreviewScreen from './components/PreviewScreen'
-import { ThemeConfig } from './types/theme'
+import { ThemeConfig, ThemeGeneratorSettings } from './types/theme'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { DarkModeProvider, useDarkMode } from './contexts/DarkModeContext'
 
@@ -13,6 +13,7 @@ type AppPhase = 'home' | 'theme-generator' | 'guide' | 'preview'
 function AppContent() {
   const [currentPhase, setCurrentPhase] = useState<AppPhase>('home')
   const [themeConfig, setThemeConfig] = useState<ThemeConfig | null>(null)
+  const [themeSettings, setThemeSettings] = useState<ThemeGeneratorSettings | null>(null)
   const { darkMode, toggleDarkMode } = useDarkMode()
 
   const handleNavigateToGenerator = () => {
@@ -23,14 +24,16 @@ function AppContent() {
     setCurrentPhase('guide')
   }
 
-  const handleNavigateToPreview = (config: ThemeConfig) => {
+  const handleNavigateToPreview = (config: ThemeConfig, settings?: ThemeGeneratorSettings) => {
     setThemeConfig(config)
+    setThemeSettings(settings || null)
     setCurrentPhase('preview')
   }
 
   const handleBackToHome = () => {
     setCurrentPhase('home')
     setThemeConfig(null)
+    setThemeSettings(null)
   }
 
   const handleBackToGenerator = () => {
@@ -67,6 +70,7 @@ function AppContent() {
       {currentPhase === 'preview' && themeConfig && (
         <PreviewScreen 
           themeConfig={themeConfig}
+          settings={themeSettings}
           onBack={handleBackToGenerator}
           darkMode={darkMode}
         />

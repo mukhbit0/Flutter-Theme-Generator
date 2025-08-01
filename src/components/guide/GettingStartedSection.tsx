@@ -6,22 +6,22 @@ export default function GettingStartedSection({ darkMode }: GettingStartedSectio
   const steps = [
     {
       title: '1. Configure Settings',
-      description: 'Set your theme name, package name, and basic configuration options.',
+      description: 'Set your theme name, package name, and enable ScreenUtil support for responsive design.',
       icon: '⚙️'
     },
     {
       title: '2. Upload Logo (Optional)',
-      description: 'Upload your brand logo to automatically extract color palettes.',
+      description: 'Upload your brand logo for AI-powered color extraction using K-Means clustering.',
       icon: '🎨'
     },
     {
-      title: '3. Choose Colors',
-      description: 'Select primary, secondary, and accent colors for your theme.',
+      title: '3. Choose Colors & Modes',
+      description: 'Select colors and preview all 6 theme variants (light/dark with contrast levels).',
       icon: '🌈'
     },
     {
       title: '4. Generate & Download',
-      description: 'Generate your theme files and download the complete package.',
+      description: 'Export Material 3 compliant themes with complete ScreenUtil integration.',
       icon: '📦'
     }
   ]
@@ -33,7 +33,7 @@ export default function GettingStartedSection({ darkMode }: GettingStartedSectio
           Getting Started
         </h2>
         <p className={`text-lg mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-          Learn how to create and implement Flutter themes with our generator.
+          Create professional Flutter themes with advanced algorithms, complete Material 3 support, and responsive design integration.
         </p>
       </div>
 
@@ -53,10 +53,10 @@ export default function GettingStartedSection({ darkMode }: GettingStartedSectio
 
       <div className={`p-6 rounded-xl ${darkMode ? 'bg-blue-900/20 border border-blue-700/30' : 'bg-blue-50 border border-blue-200'}`}>
         <h3 className={`text-lg font-semibold mb-2 ${darkMode ? 'text-blue-300' : 'text-blue-900'}`}>
-          💡 Quick Tip
+          � Enhanced Features
         </h3>
         <p className={`${darkMode ? 'text-blue-200' : 'text-blue-800'}`}>
-          For best results, upload a high-quality logo or image with distinct colors. Our algorithm will extract the most prominent colors to create a cohesive color palette.
+          Our latest update includes Oklab color space processing for perceptually accurate colors, APCA accessibility standards, and complete ScreenUtil integration for responsive design across all device sizes.
         </p>
       </div>
     </div>

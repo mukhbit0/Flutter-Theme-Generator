@@ -6,178 +6,437 @@ export function generateFlutterTheme(colors: {
   tertiary: string
   logo?: string
 }, settings?: { useScreenUtil?: boolean }): ThemeConfig {
-  const lightColors: ThemeColors = {
-    primary: colors.primary,
-    primaryVariant: adjustColor(colors.primary, 20),
-    secondary: colors.secondary,
-    secondaryVariant: adjustColor(colors.secondary, 20),
-    surface: '#FFFFFF',
-    background: '#FAFAFA',
-    error: '#B00020',
-    onPrimary: getContrastColor(colors.primary),
-    onSecondary: getContrastColor(colors.secondary),
-    onSurface: '#1A1A1A',
-    onBackground: '#1A1A1A',
-    onError: '#FFFFFF',
-    success: '#2E7D32',
-    warning: '#F57C00',
-    info: '#1976D2',
-    outline: '#79747E',
-    shadow: '#000000',
-    inverseSurface: '#1E1E1E',
-    inverseOnSurface: '#F5F5F5',
-    inversePrimary: adjustColor(colors.primary, -40)
-  }
-
-  const sophisticatedDark = getSophisticatedDarkColors()
-
-  const darkColors: ThemeColors = {
-    primary: adjustColor(colors.primary, -20),
-    primaryVariant: adjustColor(colors.primary, -40),
-    secondary: adjustColor(colors.secondary, -20),
-    secondaryVariant: adjustColor(colors.secondary, -40),
-    surface: sophisticatedDark.surface,
-    background: sophisticatedDark.background,
-    error: '#CF6679',
-    onPrimary: adjustColorWithContrast(getOptimalTextColor(adjustColor(colors.primary, -20), true), adjustColor(colors.primary, -20), true),
-    onSecondary: adjustColorWithContrast(getOptimalTextColor(adjustColor(colors.secondary, -20), true), adjustColor(colors.secondary, -20), true),
-    onSurface: sophisticatedDark.onSurface,
-    onBackground: sophisticatedDark.onBackground,
-    onError: '#000000',
-    success: '#66BB6A',
-    warning: '#FFB74D',
-    info: '#64B5F6',
-    outline: sophisticatedDark.outline,
-    shadow: sophisticatedDark.shadow,
-    inverseSurface: '#F5F5F5',
-    inverseOnSurface: '#1A1A1A',
-    inversePrimary: colors.primary
-  }
+  const lightColors: ThemeColors = generateLightMaterial3Colors(colors)
+  const lightMediumContrastColors: ThemeColors = generateLightMediumContrastColors(colors)
+  const lightHighContrastColors: ThemeColors = generateLightHighContrastColors(colors)
+  const darkColors: ThemeColors = generateDarkMaterial3Colors(colors)
+  const darkMediumContrastColors: ThemeColors = generateDarkMediumContrastColors(colors)
+  const darkHighContrastColors: ThemeColors = generateDarkHighContrastColors(colors)
 
   return {
     colors: {
       light: lightColors,
-      dark: darkColors
+      lightMediumContrast: lightMediumContrastColors,
+      lightHighContrast: lightHighContrastColors,
+      dark: darkColors,
+      darkMediumContrast: darkMediumContrastColors,
+      darkHighContrast: darkHighContrastColors
     },
-    typography: {
-      displayLarge: {
-        fontSize: 57,
-        fontWeight: '400',
-        letterSpacing: -0.25,
-        lineHeight: 64
-      },
-      displayMedium: {
-        fontSize: 45,
-        fontWeight: '400',
-        letterSpacing: 0,
-        lineHeight: 52
-      },
-      displaySmall: {
-        fontSize: 36,
-        fontWeight: '400',
-        letterSpacing: 0,
-        lineHeight: 44
-      },
-      headlineLarge: {
-        fontSize: 32,
-        fontWeight: '400',
-        letterSpacing: 0,
-        lineHeight: 40
-      },
-      headlineMedium: {
-        fontSize: 28,
-        fontWeight: '400',
-        letterSpacing: 0,
-        lineHeight: 36
-      },
-      headlineSmall: {
-        fontSize: 24,
-        fontWeight: '400',
-        letterSpacing: 0,
-        lineHeight: 32
-      },
-      titleLarge: {
-        fontSize: 22,
-        fontWeight: '400',
-        letterSpacing: 0,
-        lineHeight: 28
-      },
-      titleMedium: {
-        fontSize: 16,
-        fontWeight: '500',
-        letterSpacing: 0.15,
-        lineHeight: 24
-      },
-      titleSmall: {
-        fontSize: 14,
-        fontWeight: '500',
-        letterSpacing: 0.1,
-        lineHeight: 20
-      },
-      bodyLarge: {
-        fontSize: 16,
-        fontWeight: '400',
-        letterSpacing: 0.15,
-        lineHeight: 24
-      },
-      bodyMedium: {
-        fontSize: 14,
-        fontWeight: '400',
-        letterSpacing: 0.25,
-        lineHeight: 20
-      },
-      bodySmall: {
-        fontSize: 12,
-        fontWeight: '400',
-        letterSpacing: 0.4,
-        lineHeight: 16
-      },
-      labelLarge: {
-        fontSize: 14,
-        fontWeight: '500',
-        letterSpacing: 0.1,
-        lineHeight: 20
-      },
-      labelMedium: {
-        fontSize: 12,
-        fontWeight: '500',
-        letterSpacing: 0.5,
-        lineHeight: 16
-      },
-      labelSmall: {
-        fontSize: 11,
-        fontWeight: '500',
-        letterSpacing: 0.5,
-        lineHeight: 16
-      }
+    typography: generateTypographyConfig(),
+    spacing: generateSpacingConfig(),
+    borderRadius: generateBorderRadiusConfig(),
+    elevation: generateElevationConfig(),
+    settings
+  }
+}
+
+/**
+ * Generate light mode Material 3 color scheme
+ */
+function generateLightMaterial3Colors(colors: { primary: string, secondary: string, tertiary: string }): ThemeColors {
+  return {
+    // Core Colors
+    primary: colors.primary,
+    onPrimary: getContrastColor(colors.primary),
+    primaryContainer: adjustColor(colors.primary, 80),
+    onPrimaryContainer: adjustColor(colors.primary, -40),
+    secondary: colors.secondary,
+    onSecondary: getContrastColor(colors.secondary),
+    secondaryContainer: adjustColor(colors.secondary, 80),
+    onSecondaryContainer: adjustColor(colors.secondary, -40),
+    tertiary: colors.tertiary,
+    onTertiary: getContrastColor(colors.tertiary),
+    tertiaryContainer: adjustColor(colors.tertiary, 80),
+    onTertiaryContainer: adjustColor(colors.tertiary, -40),
+    
+    // Error Colors
+    error: '#BA1A1A',
+    onError: '#FFFFFF',
+    errorContainer: '#FFDAD6',
+    onErrorContainer: '#93000A',
+    
+    // Surface Colors
+    surface: '#FFFBFE',
+    onSurface: '#1C1B1F',
+    onSurfaceVariant: '#49454F',
+    surfaceDim: '#E6E0E9',
+    surfaceBright: '#FFFBFE',
+    surfaceContainerLowest: '#FFFFFF',
+    surfaceContainerLow: '#F7F2FA',
+    surfaceContainer: '#F3EDF7',
+    surfaceContainerHigh: '#ECE6F0',
+    surfaceContainerHighest: '#E6E0E9',
+    
+    // Background Colors (deprecated but kept for compatibility)
+    background: '#FFFBFE',
+    onBackground: '#1C1B1F',
+    
+    // Outline Colors
+    outline: '#79747E',
+    outlineVariant: '#CAC4D0',
+    
+    // Utility Colors
+    shadow: '#000000',
+    scrim: '#000000',
+    
+    // Inverse Colors
+    inverseSurface: '#313033',
+    inverseOnSurface: '#F4EFF4',
+    inversePrimary: adjustColor(colors.primary, -20),
+    
+    // Fixed Colors
+    primaryFixed: adjustColor(colors.primary, 80),
+    onPrimaryFixed: adjustColor(colors.primary, -60),
+    primaryFixedDim: adjustColor(colors.primary, 60),
+    onPrimaryFixedVariant: adjustColor(colors.primary, -20),
+    secondaryFixed: adjustColor(colors.secondary, 80),
+    onSecondaryFixed: adjustColor(colors.secondary, -60),
+    secondaryFixedDim: adjustColor(colors.secondary, 60),
+    onSecondaryFixedVariant: adjustColor(colors.secondary, -20),
+    tertiaryFixed: adjustColor(colors.tertiary, 80),
+    onTertiaryFixed: adjustColor(colors.tertiary, -60),
+    tertiaryFixedDim: adjustColor(colors.tertiary, 60),
+    onTertiaryFixedVariant: adjustColor(colors.tertiary, -20),
+    
+    // Surface Tint
+    surfaceTint: colors.primary,
+    
+    // Additional Colors (custom)
+    success: '#2E7D32',
+    warning: '#F57C00',
+    info: '#1976D2',
+  }
+}
+
+/**
+ * Generate dark mode Material 3 color scheme
+ */
+function generateDarkMaterial3Colors(colors: { primary: string, secondary: string, tertiary: string }): ThemeColors {
+  return {
+    // Core Colors
+    primary: adjustColor(colors.primary, -20),
+    onPrimary: adjustColor(colors.primary, -80),
+    primaryContainer: adjustColor(colors.primary, -60),
+    onPrimaryContainer: adjustColor(colors.primary, 80),
+    secondary: adjustColor(colors.secondary, -20),
+    onSecondary: adjustColor(colors.secondary, -80),
+    secondaryContainer: adjustColor(colors.secondary, -60),
+    onSecondaryContainer: adjustColor(colors.secondary, 80),
+    tertiary: adjustColor(colors.tertiary, -20),
+    onTertiary: adjustColor(colors.tertiary, -80),
+    tertiaryContainer: adjustColor(colors.tertiary, -60),
+    onTertiaryContainer: adjustColor(colors.tertiary, 80),
+    
+    // Error Colors
+    error: '#FFB4AB',
+    onError: '#690005',
+    errorContainer: '#93000A',
+    onErrorContainer: '#FFDAD6',
+    
+    // Surface Colors
+    surface: '#10090D',
+    onSurface: '#E6E0E9',
+    onSurfaceVariant: '#CAC4D0',
+    surfaceDim: '#10090D',
+    surfaceBright: '#362F33',
+    surfaceContainerLowest: '#0B0509',
+    surfaceContainerLow: '#1D1418',
+    surfaceContainer: '#211A1E',
+    surfaceContainerHigh: '#2B2329',
+    surfaceContainerHighest: '#362F33',
+    
+    // Background Colors (deprecated but kept for compatibility)
+    background: '#10090D',
+    onBackground: '#E6E0E9',
+    
+    // Outline Colors
+    outline: '#938F99',
+    outlineVariant: '#49454F',
+    
+    // Utility Colors
+    shadow: '#000000',
+    scrim: '#000000',
+    
+    // Inverse Colors
+    inverseSurface: '#E6E0E9',
+    inverseOnSurface: '#313033',
+    inversePrimary: colors.primary,
+    
+    // Fixed Colors
+    primaryFixed: adjustColor(colors.primary, 80),
+    onPrimaryFixed: adjustColor(colors.primary, -60),
+    primaryFixedDim: adjustColor(colors.primary, 60),
+    onPrimaryFixedVariant: adjustColor(colors.primary, -20),
+    secondaryFixed: adjustColor(colors.secondary, 80),
+    onSecondaryFixed: adjustColor(colors.secondary, -60),
+    secondaryFixedDim: adjustColor(colors.secondary, 60),
+    onSecondaryFixedVariant: adjustColor(colors.secondary, -20),
+    tertiaryFixed: adjustColor(colors.tertiary, 80),
+    onTertiaryFixed: adjustColor(colors.tertiary, -60),
+    tertiaryFixedDim: adjustColor(colors.tertiary, 60),
+    onTertiaryFixedVariant: adjustColor(colors.tertiary, -20),
+    
+    // Surface Tint
+    surfaceTint: adjustColor(colors.primary, -20),
+    
+    // Additional Colors (custom)
+    success: '#66BB6A',
+    warning: '#FFB74D',
+    info: '#64B5F6',
+  }
+}
+
+/**
+ * Generate light medium contrast Material 3 color scheme
+ */
+function generateLightMediumContrastColors(colors: { primary: string, secondary: string, tertiary: string }): ThemeColors {
+  const baseColors = generateLightMaterial3Colors(colors)
+  return {
+    ...baseColors,
+    // Keep light surface but increase text contrast slightly
+    primary: adjustColor(colors.primary, -5), // Slightly darker primary
+    onPrimary: '#FFFFFF',
+    primaryContainer: adjustColor(colors.primary, 85), // Lighter container
+    onPrimaryContainer: adjustColor(colors.primary, -45), // Darker text on container
+    secondary: adjustColor(colors.secondary, -5), // Slightly darker secondary
+    onSecondary: '#FFFFFF',
+    secondaryContainer: adjustColor(colors.secondary, 85), // Lighter container
+    onSecondaryContainer: adjustColor(colors.secondary, -45), // Darker text on container
+    tertiary: adjustColor(colors.tertiary, -5), // Slightly darker tertiary
+    onTertiary: '#FFFFFF',
+    tertiaryContainer: adjustColor(colors.tertiary, 85), // Lighter container
+    onTertiaryContainer: adjustColor(colors.tertiary, -45), // Darker text on container
+    surface: '#FEFEFE', // Very light surface
+    onSurface: '#1A1A1A', // Darker text for better contrast
+    onSurfaceVariant: '#42464F', // Darker variant text
+    outline: '#6F737A', // Darker outline
+    // Explicitly maintain light background
+    background: '#FFFBFE',
+    onBackground: '#1A1A1A',
+  }
+}
+
+/**
+ * Generate light high contrast Material 3 color scheme
+ */
+function generateLightHighContrastColors(colors: { primary: string, secondary: string, tertiary: string }): ThemeColors {
+  const baseColors = generateLightMaterial3Colors(colors)
+  return {
+    ...baseColors,
+    // Maximum contrast - keep light surface, make text very dark
+    primary: adjustColor(colors.primary, -15), // Much darker primary
+    onPrimary: '#FFFFFF',
+    primaryContainer: adjustColor(colors.primary, 90), // Very light container
+    onPrimaryContainer: adjustColor(colors.primary, -55), // Very dark text on container
+    secondary: adjustColor(colors.secondary, -15), // Much darker secondary
+    onSecondary: '#FFFFFF',
+    secondaryContainer: adjustColor(colors.secondary, 90), // Very light container
+    onSecondaryContainer: adjustColor(colors.secondary, -55), // Very dark text on container
+    tertiary: adjustColor(colors.tertiary, -15), // Much darker tertiary
+    onTertiary: '#FFFFFF',
+    tertiaryContainer: adjustColor(colors.tertiary, 90), // Very light container
+    onTertiaryContainer: adjustColor(colors.tertiary, -55), // Very dark text on container
+    surface: '#FFFFFF', // Pure white surface
+    onSurface: '#000000', // Pure black text
+    onSurfaceVariant: '#2F323A', // Very dark variant text
+    outline: '#1F232A', // Very dark outline
+    // Explicitly maintain light background
+    background: '#FFFFFF',
+    onBackground: '#000000',
+  }
+}
+
+/**
+ * Generate dark medium contrast Material 3 color scheme
+ */
+function generateDarkMediumContrastColors(colors: { primary: string, secondary: string, tertiary: string }): ThemeColors {
+  const baseColors = generateDarkMaterial3Colors(colors)
+  return {
+    ...baseColors,
+    // Keep dark surface but increase text contrast slightly
+    primary: adjustColor(colors.primary, -15), // Slightly lighter primary for better visibility
+    onPrimary: adjustColor(colors.primary, -75), // Darker text on primary
+    primaryContainer: adjustColor(colors.primary, -55), // Darker container
+    onPrimaryContainer: adjustColor(colors.primary, 90), // Lighter text on container
+    secondary: adjustColor(colors.secondary, -15), // Slightly lighter secondary
+    onSecondary: adjustColor(colors.secondary, -75), // Darker text on secondary
+    secondaryContainer: adjustColor(colors.secondary, -55), // Darker container
+    onSecondaryContainer: adjustColor(colors.secondary, 90), // Lighter text on container
+    tertiary: adjustColor(colors.tertiary, -15), // Slightly lighter tertiary
+    onTertiary: adjustColor(colors.tertiary, -75), // Darker text on tertiary
+    tertiaryContainer: adjustColor(colors.tertiary, -55), // Darker container
+    onTertiaryContainer: adjustColor(colors.tertiary, 90), // Lighter text on container
+    surface: '#0A0A0C', // Darker surface
+    onSurface: '#F0F0F0', // Lighter text for better contrast
+    onSurfaceVariant: '#D0D0D0', // Lighter variant text
+    outline: '#A0A0A0', // Lighter outline
+  }
+}
+
+/**
+ * Generate dark high contrast Material 3 color scheme
+ */
+function generateDarkHighContrastColors(colors: { primary: string, secondary: string, tertiary: string }): ThemeColors {
+  const baseColors = generateDarkMaterial3Colors(colors)
+  return {
+    ...baseColors,
+    // Maximum contrast - keep dark surface, make text very light
+    primary: adjustColor(colors.primary, -5), // Lighter primary for visibility
+    onPrimary: adjustColor(colors.primary, -80), // Very dark text on primary
+    primaryContainer: adjustColor(colors.primary, -45), // Much darker container
+    onPrimaryContainer: '#FFFFFF', // Pure white text on container
+    secondary: adjustColor(colors.secondary, -5), // Lighter secondary
+    onSecondary: adjustColor(colors.secondary, -80), // Very dark text on secondary
+    secondaryContainer: adjustColor(colors.secondary, -45), // Much darker container
+    onSecondaryContainer: '#FFFFFF', // Pure white text on container
+    tertiary: adjustColor(colors.tertiary, -5), // Lighter tertiary
+    onTertiary: adjustColor(colors.tertiary, -80), // Very dark text on tertiary
+    tertiaryContainer: adjustColor(colors.tertiary, -45), // Much darker container
+    onTertiaryContainer: '#FFFFFF', // Pure white text on container
+    surface: '#000000', // Pure black surface
+    onSurface: '#FFFFFF', // Pure white text
+    onSurfaceVariant: '#FFFFFF', // Pure white variant text
+    outline: '#E0E0E0', // Very light outline
+  }
+}
+
+/**
+ * Generate typography configuration
+ */
+function generateTypographyConfig() {
+  return {
+    displayLarge: {
+      fontSize: 57,
+      fontWeight: '400',
+      letterSpacing: -0.25,
+      lineHeight: 64
     },
-    spacing: {
-      xs: 4,
-      sm: 8,
-      md: 16,
-      lg: 24,
-      xl: 32,
-      xxl: 48
+    displayMedium: {
+      fontSize: 45,
+      fontWeight: '400',
+      letterSpacing: 0,
+      lineHeight: 52
     },
-    borderRadius: {
-      xs: 4,
-      sm: 8,
-      md: 12,
-      lg: 16,
-      xl: 24,
-      full: 9999
+    displaySmall: {
+      fontSize: 36,
+      fontWeight: '400',
+      letterSpacing: 0,
+      lineHeight: 44
     },
-    elevation: {
-      level0: 0,
-      level1: 1,
-      level2: 3,
-      level3: 6,
-      level4: 8,
-      level5: 12
+    headlineLarge: {
+      fontSize: 32,
+      fontWeight: '400',
+      letterSpacing: 0,
+      lineHeight: 40
     },
-    settings: {
-      useScreenUtil: settings?.useScreenUtil || false
+    headlineMedium: {
+      fontSize: 28,
+      fontWeight: '400',
+      letterSpacing: 0,
+      lineHeight: 36
+    },
+    headlineSmall: {
+      fontSize: 24,
+      fontWeight: '400',
+      letterSpacing: 0,
+      lineHeight: 32
+    },
+    titleLarge: {
+      fontSize: 22,
+      fontWeight: '400',
+      letterSpacing: 0,
+      lineHeight: 28
+    },
+    titleMedium: {
+      fontSize: 16,
+      fontWeight: '500',
+      letterSpacing: 0.15,
+      lineHeight: 24
+    },
+    titleSmall: {
+      fontSize: 14,
+      fontWeight: '500',
+      letterSpacing: 0.1,
+      lineHeight: 20
+    },
+    bodyLarge: {
+      fontSize: 16,
+      fontWeight: '400',
+      letterSpacing: 0.15,
+      lineHeight: 24
+    },
+    bodyMedium: {
+      fontSize: 14,
+      fontWeight: '400',
+      letterSpacing: 0.25,
+      lineHeight: 20
+    },
+    bodySmall: {
+      fontSize: 12,
+      fontWeight: '400',
+      letterSpacing: 0.4,
+      lineHeight: 16
+    },
+    labelLarge: {
+      fontSize: 14,
+      fontWeight: '500',
+      letterSpacing: 0.1,
+      lineHeight: 20
+    },
+    labelMedium: {
+      fontSize: 12,
+      fontWeight: '500',
+      letterSpacing: 0.5,
+      lineHeight: 16
+    },
+    labelSmall: {
+      fontSize: 11,
+      fontWeight: '500',
+      letterSpacing: 0.5,
+      lineHeight: 16
     }
+  }
+}
+
+/**
+ * Generate spacing configuration
+ */
+function generateSpacingConfig() {
+  return {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 48
+  }
+}
+
+/**
+ * Generate border radius configuration
+ */
+function generateBorderRadiusConfig() {
+  return {
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 24,
+    full: 9999
+  }
+}
+
+/**
+ * Generate elevation configuration
+ */
+function generateElevationConfig() {
+  return {
+    level0: 0,
+    level1: 1,
+    level2: 3,
+    level3: 6,
+    level4: 8,
+    level5: 12
   }
 }
 
@@ -246,52 +505,29 @@ function adjustColorWithContrast(baseColor: string, targetBackground: string, is
   return getOptimalTextColor(targetBackground, isDark)
 }
 
+// Helper function to get luminance
 function getLuminance(hex: string): number {
   const color = hex.replace('#', '')
   const r = parseInt(color.substr(0, 2), 16) / 255
   const g = parseInt(color.substr(2, 2), 16) / 255
   const b = parseInt(color.substr(4, 2), 16) / 255
-  
-  const sR = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4)
-  const sG = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4)
-  const sB = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4)
-  
-  return 0.2126 * sR + 0.7152 * sG + 0.0722 * sB
+
+  const [rs, gs, bs] = [r, g, b].map(c => {
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+  })
+
+  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs
 }
 
-// Enhanced text color algorithm for better readability
-function getOptimalTextColor(backgroundHex: string, isDark: boolean = false): string {
-  const luminance = getLuminance(backgroundHex)
+// Helper function to get optimal text color
+function getOptimalTextColor(backgroundColor: string, preferDark: boolean = false): string {
+  const luminance = getLuminance(backgroundColor)
   
-  if (isDark) {
-    // For dark themes, use sophisticated grays instead of pure white/black
-    if (luminance > 0.5) {
-      return '#1A1A1A' // Dark text on light backgrounds
-    } else if (luminance > 0.2) {
-      return '#F0F0F0' // Light gray on medium backgrounds
-    } else {
-      return '#E8E8E8' // Softer white on dark backgrounds
-    }
-  } else {
-    // For light themes, ensure sufficient contrast
-    return luminance > 0.5 ? '#1A1A1A' : '#FFFFFF'
+  if (preferDark) {
+    return luminance > 0.7 ? '#000000' : '#FFFFFF'
   }
-}
-
-// Sophisticated dark color palette generator
-function getSophisticatedDarkColors() {
-  return {
-    background: '#1A1A1A',      // Primary dark background - comfortable dark gray
-    surface: '#2D2D2D',         // Elevated surfaces - distinct from background
-    surfaceVariant: '#3A3A3A',  // Cards, dialogs - higher elevation
-    outline: '#8A8A8A',         // Borders and dividers - visible but subtle
-    outlineVariant: '#5A5A5A',  // Secondary borders
-    onBackground: '#E8E8E8',    // Primary text - high contrast but not harsh
-    onSurface: '#F0F0F0',       // Surface text - slightly brighter
-    onSurfaceVariant: '#D0D0D0', // Secondary text
-    shadow: '#000000',
-    scrim: '#000000'
-  }
+  
+  return luminance > 0.5 ? '#000000' : '#FFFFFF'
 }
 
 export class FlutterThemeGenerator {

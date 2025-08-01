@@ -1,11 +1,7 @@
 import { PreviewWidget } from '../PreviewWidget'
+import { WidgetPreviewProps } from '../PreviewScreenTypes'
 
-interface TypographyPreviewProps {
-  currentColors: any
-  previewMode: 'light' | 'dark'
-}
-
-export default function TypographyPreview({ currentColors, previewMode }: TypographyPreviewProps) {
+export default function TypographyPreview({ currentColors, previewMode }: WidgetPreviewProps) {
   return (
     <PreviewWidget title="Typography Styles" previewMode={previewMode} themeColors={currentColors}>
       <div className="space-y-6">
