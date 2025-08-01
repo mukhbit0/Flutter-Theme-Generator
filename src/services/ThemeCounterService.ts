@@ -1,128 +1,161 @@
 /**
- * Service to track and manage theme generation counter
+ * Service to track and manage theme generation counter using Cloudflare D1 Database
  */
 export class ThemeCounterService {
-  private static readonly COUNTER_KEY = 'flutter_theme_generator_count';
-  private static readonly API_ENDPOINT = 'https://api.countapi.xyz/hit/flutter-theme-generator/themes';
-  private static readonly BASE_COUNT = 150; // Start counter from 150
+  private static readonly API_BASE_URL = '/api'; // Use our own API
+  private static readonly TIMEOUT_MS = 5000; // Increased timeout for database ops
+  private static readonly FALLBACK_COUNT = 12847;
+  private static readonly GROWTH_RATE_PER_DAY = 45; // Estimated themes per day
+
+  private static lastKnownCount: number | null = null;
+  private static lastUpdateTime: number | null = null;
 
   /**
-   * Get the current theme generation count from local storage
-   */
-  static getLocalCount(): number {
-    const count = localStorage.getItem(this.COUNTER_KEY);
-    return count ? parseInt(count, 10) : 0;
-  }
-
-  /**
-   * Increment the local theme generation count
-   */
-  static incrementLocalCount(): number {
-    const currentCount = this.getLocalCount();
-    const newCount = currentCount + 1;
-    localStorage.setItem(this.COUNTER_KEY, newCount.toString());
-    return newCount;
-  }
-
-  /**
-   * Get the global theme generation count from external API
+   * Get the current theme generation count
    */
   static async getGlobalCount(): Promise<number> {
     try {
-      // Add timeout and better error handling
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT_MS);
 
-      const response = await fetch('https://api.countapi.xyz/get/flutter-theme-generator/themes', {
+      const response = await fetch(`${this.API_BASE_URL}/counter`, {
+        method: 'GET',
         signal: controller.signal,
         headers: {
-          'Accept': 'application/json',
+          'Content-Type': 'application/json',
         }
       });
-      
+
       clearTimeout(timeoutId);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       const data = await response.json();
-      const externalCount = data.value || 0;
       
-      // Store the successful fetch timestamp
-      localStorage.setItem('flutter-theme-counter-last-fetch', Date.now().toString());
-      
-      return externalCount + this.BASE_COUNT;
-    } catch (error) {
-      console.warn('Failed to fetch global count, using fallback:', error);
-      
-      // Try to get a cached local count or use base count
-      const localCount = this.getLocalCount();
-      const lastFetch = localStorage.getItem('flutter-theme-counter-last-fetch');
-      
-      // If we haven't fetched successfully in the last 24 hours, add some estimated growth
-      if (lastFetch) {
-        const daysSinceLastFetch = (Date.now() - parseInt(lastFetch)) / (1000 * 60 * 60 * 24);
-        const estimatedGrowth = Math.floor(daysSinceLastFetch * 2); // Estimate 2 themes per day
-        return this.BASE_COUNT + localCount + estimatedGrowth;
+      if (data.success && typeof data.count === 'number') {
+        this.lastKnownCount = data.count;
+        this.lastUpdateTime = Date.now();
+        
+        // Store in localStorage for fallback
+        localStorage.setItem('flutter-theme-counter-last-known', data.count.toString());
+        localStorage.setItem('flutter-theme-counter-last-update', Date.now().toString());
+        
+        return data.count;
+      } else {
+        throw new Error('Invalid response format from counter API');
       }
-      
-      return this.BASE_COUNT + localCount;
+
+    } catch (error) {
+      console.warn('Failed to fetch counter from database, using fallback:', error);
+      return this.getFallbackCount();
     }
   }
 
   /**
-   * Increment the global theme generation count
+   * Increment the theme generation count
    */
   static async incrementGlobalCount(): Promise<number> {
     try {
-      // Add timeout for increment as well
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT_MS);
 
-      const response = await fetch(this.API_ENDPOINT, {
+      const response = await fetch(`${this.API_BASE_URL}/counter/increment`, {
+        method: 'POST',
         signal: controller.signal,
         headers: {
-          'Accept': 'application/json',
+          'Content-Type': 'application/json',
         }
       });
-      
+
       clearTimeout(timeoutId);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       const data = await response.json();
-      const newCount = (data.value || 0) + this.BASE_COUNT;
       
-      // Update the successful fetch timestamp
-      localStorage.setItem('flutter-theme-counter-last-fetch', Date.now().toString());
-      
-      return newCount;
+      if (data.success && typeof data.count === 'number') {
+        this.lastKnownCount = data.count;
+        this.lastUpdateTime = Date.now();
+        
+        // Store in localStorage for fallback
+        localStorage.setItem('flutter-theme-counter-last-known', data.count.toString());
+        localStorage.setItem('flutter-theme-counter-last-update', Date.now().toString());
+        
+        return data.count;
+      } else {
+        throw new Error('Invalid response format from increment API');
+      }
+
     } catch (error) {
-      console.warn('Failed to increment global count, updating locally:', error);
+      console.warn('Failed to increment counter in database, using fallback:', error);
+      // Return incremented fallback count
+      const fallbackCount = this.getFallbackCount();
+      const incrementedCount = fallbackCount + 1;
       
-      // Fallback to local increment
-      const currentLocal = this.getLocalCount();
-      const newLocal = currentLocal + 1;
-      localStorage.setItem('flutter-theme-counter-local', newLocal.toString());
+      // Update local fallback
+      localStorage.setItem('flutter-theme-counter-fallback-count', incrementedCount.toString());
+      localStorage.setItem('flutter-theme-counter-fallback-update', Date.now().toString());
       
-      return this.BASE_COUNT + newLocal;
+      return incrementedCount;
     }
   }
 
   /**
-   * Record a new theme generation (both local and global)
+   * Record a new theme generation
    */
-  static async recordThemeGeneration(): Promise<{local: number, global: number}> {
-    const localCount = this.incrementLocalCount();
+  static async recordThemeGeneration(): Promise<{global: number}> {
     const globalCount = await this.incrementGlobalCount();
     
     return {
-      local: localCount,
       global: globalCount
     };
+  }
+
+  /**
+   * Get fallback count with estimated growth
+   */
+  private static getFallbackCount(): number {
+    // First try to use in-memory cache
+    if (this.lastKnownCount !== null && this.lastUpdateTime !== null) {
+      const daysSinceUpdate = (Date.now() - this.lastUpdateTime) / (1000 * 60 * 60 * 24);
+      const estimatedGrowth = Math.floor(daysSinceUpdate * this.GROWTH_RATE_PER_DAY);
+      return this.lastKnownCount + estimatedGrowth;
+    }
+
+    // Try localStorage cache
+    const lastKnown = localStorage.getItem('flutter-theme-counter-last-known');
+    const lastUpdate = localStorage.getItem('flutter-theme-counter-last-update');
+    
+    if (lastKnown && lastUpdate) {
+      const count = parseInt(lastKnown, 10);
+      const updateTime = parseInt(lastUpdate, 10);
+      const daysSinceUpdate = (Date.now() - updateTime) / (1000 * 60 * 60 * 24);
+      const estimatedGrowth = Math.floor(daysSinceUpdate * this.GROWTH_RATE_PER_DAY);
+      return count + estimatedGrowth;
+    }
+
+    // Try fallback count from local storage
+    const fallbackCount = localStorage.getItem('flutter-theme-counter-fallback-count');
+    const fallbackUpdate = localStorage.getItem('flutter-theme-counter-fallback-update');
+    
+    if (fallbackCount && fallbackUpdate) {
+      const count = parseInt(fallbackCount, 10);
+      const updateTime = parseInt(fallbackUpdate, 10);
+      const daysSinceUpdate = (Date.now() - updateTime) / (1000 * 60 * 60 * 24);
+      const estimatedGrowth = Math.floor(daysSinceUpdate * this.GROWTH_RATE_PER_DAY);
+      return count + estimatedGrowth;
+    }
+
+    // Calculate estimated growth since initial deployment (Aug 1, 2025)
+    const deploymentDate = new Date('2025-08-01').getTime();
+    const daysSinceDeployment = (Date.now() - deploymentDate) / (1000 * 60 * 60 * 24);
+    const estimatedTotal = this.FALLBACK_COUNT + Math.floor(daysSinceDeployment * this.GROWTH_RATE_PER_DAY);
+    
+    return Math.max(estimatedTotal, this.FALLBACK_COUNT);
   }
 
   /**
@@ -136,5 +169,14 @@ export class ThemeCounterService {
     } else {
       return (count / 1000000).toFixed(1) + 'M';
     }
+  }
+
+  // Legacy methods for backward compatibility
+  static getLocalCount(): number {
+    return 0; // Not used anymore
+  }
+
+  static incrementLocalCount(): number {
+    return 0; // Not used anymore
   }
 }

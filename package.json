@@ -23,11 +23,17 @@
   ],
   "scripts": {
     "dev": "vite",
+    "dev:local": "npx wrangler dev --local",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "deploy": "npx wrangler deploy --env production",
-    "deploy:build": "npm run build && npx wrangler deploy --env production"
+    "deploy:build": "npm run build && npx wrangler deploy --env production",
+    "db:create": "npx wrangler d1 create flutter-theme-counter",
+    "db:migrate": "npx wrangler d1 execute flutter-theme-counter --file=./migrations/0001_create_theme_counter.sql",
+    "db:migrate:local": "npx wrangler d1 execute flutter-theme-counter --local --file=./migrations/0001_create_theme_counter.sql",
+    "db:query": "npx wrangler d1 execute flutter-theme-counter --command",
+    "db:query:local": "npx wrangler d1 execute flutter-theme-counter --local --command"
   },
   "dependencies": {
     "@cloudflare/kv-asset-handler": "^0.3.0",

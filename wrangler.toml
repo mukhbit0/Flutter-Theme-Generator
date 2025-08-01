@@ -21,6 +21,12 @@ binding = "STATIC_ASSETS"
 id = "8b7d5638811649a7a388b654d2dbdf6d"
 preview_id = "8b7d5638811649a7a388b654d2dbdf6d"
 
+# D1 Database for theme counter
+[[d1_databases]]
+binding = "THEME_DB"
+database_name = "flutter-theme-counter"
+database_id = "flutter-theme-counter-db"
+
 # Build configuration
 [build]
 command = "npm run build"
