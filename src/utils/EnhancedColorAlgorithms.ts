@@ -5,7 +5,7 @@
  * that provide superior color harmony and accessibility compliance.
  */
 
-import { hexToRgb, rgbToHex, getLuminance, getContrastRatio } from './colorUtils'
+import { hexToRgb, rgbToHex, getLuminance } from './colorUtils'
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 🎨 CURRENT ALGORITHM OVERVIEW

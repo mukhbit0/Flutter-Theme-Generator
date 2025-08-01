@@ -132,8 +132,8 @@ export default function ButtonsPreview({ currentColors, previewMode }: WidgetPre
             <button 
               className="w-10 h-10 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
               style={{ 
-                backgroundColor: currentColors.primaryVariant,
-                color: currentColors.onPrimary
+                backgroundColor: currentColors.primaryContainer,
+                color: currentColors.onPrimaryContainer
               }}
             >
               <span className="text-sm">↗</span>
