@@ -3,12 +3,13 @@ import SplashScreen from './components/SplashScreen'
 import HomePage from './components/HomePage'
 import ThemeGeneratorComponent from './components/ThemeGeneratorComponent'
 import GuideScreen from './components/GuideScreen'
+import RoadmapScreen from './components/RoadmapScreen'
 import PreviewScreen from './components/PreviewScreen'
 import { ThemeConfig, ThemeGeneratorSettings } from './types/theme'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { DarkModeProvider, useDarkMode } from './contexts/DarkModeContext'
 
-type AppPhase = 'home' | 'theme-generator' | 'guide' | 'preview'
+type AppPhase = 'home' | 'theme-generator' | 'guide' | 'roadmap' | 'preview'
 
 function AppContent() {
   const [currentPhase, setCurrentPhase] = useState<AppPhase>('home')
@@ -22,6 +23,10 @@ function AppContent() {
 
   const handleNavigateToGuide = () => {
     setCurrentPhase('guide')
+  }
+
+  const handleNavigateToRoadmap = () => {
+    setCurrentPhase('roadmap')
   }
 
   const handleNavigateToPreview = (config: ThemeConfig, settings?: ThemeGeneratorSettings) => {
@@ -46,6 +51,7 @@ function AppContent() {
         <HomePage 
           onNavigateToGenerator={handleNavigateToGenerator}
           onNavigateToGuide={handleNavigateToGuide}
+          onNavigateToRoadmap={handleNavigateToRoadmap}
           darkMode={darkMode}
           onToggleDarkMode={toggleDarkMode}
         />
@@ -62,6 +68,13 @@ function AppContent() {
 
       {currentPhase === 'guide' && (
         <GuideScreen 
+          onBack={handleBackToHome}
+          darkMode={darkMode}
+        />
+      )}
+
+      {currentPhase === 'roadmap' && (
+        <RoadmapScreen 
           onBack={handleBackToHome}
           darkMode={darkMode}
         />

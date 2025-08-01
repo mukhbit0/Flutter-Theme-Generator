@@ -99,3 +99,45 @@ The service automatically handles migration from the old countapi.xyz system:
 - Maintains existing counter value as starting point (12,847)
 - Provides fallback estimation during transition
 - Backward compatible API for existing components
+
+## Safe Deployment Guidelines
+
+### Your Existing Database is Safe! 🔒
+
+**Your current theme counter database will NOT be affected** when deploying new features because:
+
+1. **Unique Database ID**: Your database has a unique ID (`34a417cb-0a43-4202-8792-2328c894da49`)
+2. **Safe SQL Operations**: All migrations use `CREATE TABLE IF NOT EXISTS` and `INSERT OR IGNORE`
+3. **No Data Overwriting**: Existing counter values are preserved
+
+### Deploying New Features
+
+When deploying new features like the roadmap:
+
+```bash
+# 1. First, backup your current counter (optional but recommended)
+npx wrangler d1 execute flutter-theme-counter --command="SELECT * FROM theme_counter;"
+
+# 2. Run any new migrations (safe operations only)
+npx wrangler d1 execute flutter-theme-counter --file=./migrations/0002_roadmap_deployment.sql
+
+# 3. Deploy the application
+npm run deploy
+```
+
+### Migration Files
+
+- `0001_create_theme_counter.sql` - Initial database setup
+- `0002_roadmap_deployment.sql` - Roadmap feature deployment (safe)
+
+All migration files are designed to be **idempotent** - they can be run multiple times safely without affecting your existing data.
+
+### Checking Database Status
+
+```bash
+# Check current counter value
+npx wrangler d1 execute flutter-theme-counter --command="SELECT * FROM theme_counter;"
+
+# Check deployment history
+npx wrangler d1 execute flutter-theme-counter --command="SELECT * FROM deployment_log ORDER BY deployed_at DESC;"
+```
