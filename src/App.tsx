@@ -13,6 +13,30 @@ import { DarkModeProvider, useDarkMode } from './contexts/DarkModeContext'
 function AppContent() {
   const [themeConfig, setThemeConfig] = useState<ThemeConfig | null>(null)
   const [themeSettings, setThemeSettings] = useState<ThemeGeneratorSettings | null>(null)
+  const [uploadedLogo, setUploadedLogo] = useState<File | null>(null)
+  const [extractedColors, setExtractedColors] = useState<string[]>([])
+  const [generatorSettings, setGeneratorSettings] = useState<ThemeGeneratorSettings>({
+    themeName: 'AppTheme',
+    packageName: 'com.example.myapp',
+    customColors: [],
+    generateMaterialYou: true,
+    includeExtensions: true,
+    includeAnimations: false,
+    useScreenUtil: false,
+    themeVariants: {
+      lightMode: true,
+      lightMedium: true,
+      lightHigh: true,
+      darkMode: true,
+      darkMedium: true,
+      darkHigh: true
+    },
+    baseColors: {
+      primary: '#6366F1',
+      secondary: '#EC4899',
+      accent: '#10B981'
+    }
+  })
   const { darkMode, toggleDarkMode } = useDarkMode()
   const navigate = useNavigate()
 
@@ -38,6 +62,7 @@ function AppContent() {
     navigate('/')
     setThemeConfig(null)
     setThemeSettings(null)
+    // Note: We're keeping generatorSettings, uploadedLogo, and extractedColors to persist user work
   }
 
   const handleBackToGenerator = () => {
@@ -68,6 +93,12 @@ function AppContent() {
               onPreview={handleNavigateToPreview}
               darkMode={darkMode}
               onToggleDarkMode={toggleDarkMode}
+              settings={generatorSettings}
+              onSettingsChange={setGeneratorSettings}
+              uploadedLogo={uploadedLogo}
+              setUploadedLogo={setUploadedLogo}
+              extractedColors={extractedColors}
+              setExtractedColors={setExtractedColors}
             />
           } 
         />

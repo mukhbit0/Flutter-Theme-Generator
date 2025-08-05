@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { downloadThemeFiles } from '../utils/FileDownloader'
 import { PreviewScreenProps, PreviewMode } from './preview-screen/PreviewScreenTypes'
 import PreviewHeader from './preview-screen/PreviewHeader'
@@ -10,6 +10,32 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
   const [previewMode, setPreviewMode] = useState<PreviewMode>('light')
   const [isDownloading, setIsDownloading] = useState(false)
   const [modifiedThemeConfig, setModifiedThemeConfig] = useState<ThemeConfig>(themeConfig)
+
+  // Auto-select first available theme variant on mount or settings change
+  useEffect(() => {
+    if (settings?.themeVariants) {
+      const variantMap: Record<keyof typeof settings.themeVariants, PreviewMode> = {
+        lightMode: 'light',
+        lightMedium: 'lightMediumContrast',
+        lightHigh: 'lightHighContrast',
+        darkMode: 'dark',
+        darkMedium: 'darkMediumContrast',
+        darkHigh: 'darkHighContrast'
+      }
+
+      const currentVariantKey = Object.entries(variantMap).find(([_, mode]) => mode === previewMode)?.[0]
+      const isCurrentModeEnabled = currentVariantKey && settings.themeVariants[currentVariantKey as keyof typeof settings.themeVariants]
+
+      if (!isCurrentModeEnabled) {
+        // Find first enabled variant
+        const firstEnabledVariant = Object.entries(settings.themeVariants).find(([_, enabled]) => enabled)?.[0]
+        if (firstEnabledVariant) {
+          const newMode = variantMap[firstEnabledVariant as keyof typeof variantMap]
+          setPreviewMode(newMode)
+        }
+      }
+    }
+  }, [settings, previewMode])
 
   // Get current colors based on preview mode (independent of site-wide dark mode)
   const getCurrentColors = () => {
@@ -138,6 +164,7 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
         onBack={onBack}
         onDownload={handleDownload}
         isDownloading={isDownloading}
+        settings={settings}
       />
 
       {/* Main Content */}

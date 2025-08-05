@@ -46,8 +46,12 @@ const SplashScreen = () => {
       <div className="text-center">
         {/* Logo Animation */}
         <div className="relative mb-8">
-          <div className="w-24 h-24 mx-auto bg-gradient-to-r from-white via-slate-100 to-purple-100 rounded-3xl flex items-center justify-center shadow-2xl transform animate-pulse border border-gray-200">
-            <img src="/logo.png" alt="Flutter Theme Generator Logo" className="w-24 h-24 object-contain" />
+          <div className="w-24 h-24 mx-auto flex items-center justify-center transform animate-pulse">
+            <img 
+              src={darkMode ? "https://img.ionicerrrrscode.com/company-projects/logo-dark.webp" : "https://img.ionicerrrrscode.com/company-projects/logo-light.webp"} 
+              alt="Flutter Theme Generator Logo" 
+              className="w-24 h-24 object-contain" 
+            />
           </div>
           {/* Floating particles */}
           <div className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }} />

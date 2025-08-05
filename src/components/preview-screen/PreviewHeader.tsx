@@ -1,4 +1,5 @@
 import { PreviewHeaderProps, PreviewMode } from './PreviewScreenTypes'
+import { ThemeGeneratorSettings } from '../../types/theme'
 
 export default function PreviewHeader({
   darkMode,
@@ -6,16 +7,23 @@ export default function PreviewHeader({
   setPreviewMode,
   onBack,
   onDownload,
-  isDownloading
+  isDownloading,
+  settings
 }: PreviewHeaderProps) {
-  const modeOptions: { value: PreviewMode; label: string; group: 'light' | 'dark' }[] = [
-    { value: 'light', label: 'Light', group: 'light' },
-    { value: 'lightMediumContrast', label: 'Light Medium', group: 'light' },
-    { value: 'lightHighContrast', label: 'Light High', group: 'light' },
-    { value: 'dark', label: 'Dark', group: 'dark' },
-    { value: 'darkMediumContrast', label: 'Dark Medium', group: 'dark' },
-    { value: 'darkHighContrast', label: 'Dark High', group: 'dark' },
+  const allModeOptions: { value: PreviewMode; label: string; group: 'light' | 'dark'; variantKey: keyof ThemeGeneratorSettings['themeVariants'] }[] = [
+    { value: 'light', label: 'Light', group: 'light', variantKey: 'lightMode' },
+    { value: 'lightMediumContrast', label: 'Light Medium', group: 'light', variantKey: 'lightMedium' },
+    { value: 'lightHighContrast', label: 'Light High', group: 'light', variantKey: 'lightHigh' },
+    { value: 'dark', label: 'Dark', group: 'dark', variantKey: 'darkMode' },
+    { value: 'darkMediumContrast', label: 'Dark Medium', group: 'dark', variantKey: 'darkMedium' },
+    { value: 'darkHighContrast', label: 'Dark High', group: 'dark', variantKey: 'darkHigh' },
   ]
+
+  // Filter mode options based on enabled theme variants
+  const modeOptions = allModeOptions.filter(option => {
+    if (!settings?.themeVariants) return true // Show all if no settings
+    return settings.themeVariants[option.variantKey as keyof typeof settings.themeVariants]
+  })
 
   return (
     <div className={`${

@@ -143,7 +143,6 @@ export interface ThemeGeneratorSettings {
   packageName: string;
   customColors: CustomColor[];
   generateMaterialYou: boolean;
-  includeDarkMode: boolean;
   includeExtensions: boolean;
   includeAnimations: boolean;
   useScreenUtil: boolean;
@@ -152,6 +151,14 @@ export interface ThemeGeneratorSettings {
     primary: string;
     secondary: string;
     accent: string;
+  };
+  themeVariants: {
+    lightMode: boolean;
+    lightMedium: boolean;
+    lightHigh: boolean;
+    darkMode: boolean;
+    darkMedium: boolean;
+    darkHigh: boolean;
   };
 }
 

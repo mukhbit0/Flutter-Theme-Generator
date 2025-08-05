@@ -19,7 +19,7 @@ export default function HomePage({ onNavigateToGenerator, onNavigateToGuide, onN
             <div className="flex items-center space-x-4">
               <div className={`w-20 h-20 rounded-xl ${darkMode ? 'bg-gray-700/50' : 'bg-gray-100/50'} flex items-center justify-center shadow-lg overflow-hidden`}>
                 <img 
-                  src="/logo.png" 
+                  src={darkMode ? "https://img.ionicerrrrscode.com/company-projects/logo-dark.webp" : "https://img.ionicerrrrscode.com/company-projects/logo-light.webp"} 
                   alt="Flutter Theme Generator Logo" 
                   className="w-24 h-24 object-contain"
                 />

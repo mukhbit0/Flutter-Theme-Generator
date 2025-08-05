@@ -9,11 +9,6 @@ interface GenerationOptionsSectionProps {
 export default function GenerationOptionsSection({ settings, onSettingsChange, darkMode }: GenerationOptionsSectionProps) {
   const options = [
     { 
-      key: 'includeDarkMode' as keyof ThemeGeneratorSettings, 
-      label: 'Include Dark Mode', 
-      description: 'Generate both light and dark theme variants' 
-    },
-    { 
       key: 'generateMaterialYou' as keyof ThemeGeneratorSettings, 
       label: 'Material You Support', 
       description: 'Include Material 3 dynamic color support' 

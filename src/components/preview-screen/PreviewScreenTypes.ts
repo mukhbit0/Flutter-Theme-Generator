@@ -35,6 +35,7 @@ export interface PreviewHeaderProps {
   onBack: () => void
   onDownload: () => void
   isDownloading: boolean
+  settings?: ThemeGeneratorSettings | null
 }
 
 export interface WidgetPreviewsProps {

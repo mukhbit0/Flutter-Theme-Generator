@@ -16,28 +16,27 @@ interface ThemeGeneratorComponentProps {
   onPreview: (config: ThemeConfig, settings?: ThemeGeneratorSettings) => void
   darkMode: boolean
   onToggleDarkMode: () => void
+  settings: ThemeGeneratorSettings
+  onSettingsChange: (settings: ThemeGeneratorSettings) => void
+  uploadedLogo: File | null
+  setUploadedLogo: (logo: File | null) => void
+  extractedColors: string[]
+  setExtractedColors: (colors: string[]) => void
 }
 
-export default function ThemeGeneratorComponent({ onBack, onPreview, darkMode, onToggleDarkMode }: ThemeGeneratorComponentProps) {
-  const [settings, setSettings] = useState<ThemeGeneratorSettings>({
-    themeName: 'AppTheme',
-    packageName: 'com.example.myapp',
-    customColors: [],
-    generateMaterialYou: true,
-    includeDarkMode: true,
-    includeExtensions: true,
-    includeAnimations: false,
-    useScreenUtil: false,
-    baseColors: {
-      primary: '#6366F1',
-      secondary: '#EC4899',
-      accent: '#10B981'
-    }
-  })
-
-  const [extractedColors, setExtractedColors] = useState<string[]>([])
+export default function ThemeGeneratorComponent({ 
+  onBack, 
+  onPreview, 
+  darkMode, 
+  onToggleDarkMode, 
+  settings, 
+  onSettingsChange,
+  uploadedLogo,
+  setUploadedLogo,
+  extractedColors,
+  setExtractedColors
+}: ThemeGeneratorComponentProps) {
   const [isGenerating, setIsGenerating] = useState(false)
-  const [uploadedLogo, setUploadedLogo] = useState<File | null>(null)
 
   const handleLogoUpload = async (file: File) => {
     setUploadedLogo(file)
@@ -45,14 +44,14 @@ export default function ThemeGeneratorComponent({ onBack, onPreview, darkMode, o
       const colors = await extractColorsFromImage(file)
       setExtractedColors(colors)
       if (colors.length >= 3) {
-        setSettings(prev => ({
-          ...prev,
+        onSettingsChange({
+          ...settings,
           baseColors: {
             primary: colors[0],
             secondary: colors[1],
             accent: colors[2]
           }
-        }))
+        })
       }
     } catch (error) {
       console.error('Error extracting colors:', error)
@@ -65,7 +64,7 @@ export default function ThemeGeneratorComponent({ onBack, onPreview, darkMode, o
   }
 
   const handleSettingsChange = (updates: Partial<ThemeGeneratorSettings>) => {
-    setSettings(prev => ({ ...prev, ...updates }))
+    onSettingsChange({ ...settings, ...updates })
   }
 
   const handleGenerate = async () => {
@@ -75,13 +74,21 @@ export default function ThemeGeneratorComponent({ onBack, onPreview, darkMode, o
         throw new Error('Base colors are required')
       }
       
+      // Validate that at least one theme variant is selected
+      const hasEnabledVariant = Object.values(settings.themeVariants).some(v => v)
+      if (!hasEnabledVariant) {
+        throw new Error('At least one theme variant must be selected')
+      }
+      
       const colors = {
         primary: settings.baseColors.primary,
         secondary: settings.baseColors.secondary,
         tertiary: settings.baseColors.accent
       }
       
-      const themeConfig = generateFlutterTheme(colors, { useScreenUtil: settings.useScreenUtil })
+      const themeConfig = generateFlutterTheme(colors, { 
+        useScreenUtil: settings.useScreenUtil
+      })
       onPreview(themeConfig, settings)
     } catch (error) {
       console.error('Error generating theme:', error)
@@ -186,6 +193,7 @@ export default function ThemeGeneratorComponent({ onBack, onPreview, darkMode, o
             settings={settings}
             isGenerating={isGenerating}
             onGenerate={handleGenerate}
+            onSettingsChange={handleSettingsChange}
             darkMode={darkMode}
           />
         </div>
