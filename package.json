@@ -41,7 +41,8 @@
     "jszip": "^3.10.1",
     "lucide-react": "^0.528.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^7.7.1"
   },
   "devDependencies": {
     "@types/file-saver": "^2.0.5",

@@ -4,6 +4,7 @@ import { PreviewScreenProps, PreviewMode } from './preview-screen/PreviewScreenT
 import PreviewHeader from './preview-screen/PreviewHeader'
 import ColorPalette from './preview-screen/ColorPalette'
 import WidgetPreviews from './preview-screen/WidgetPreviews'
+import Navigation from './shared/Navigation'
 import { ThemeConfig } from '../types/theme'
 
 export default function PreviewScreen({ themeConfig, settings, onBack, darkMode }: PreviewScreenProps) {

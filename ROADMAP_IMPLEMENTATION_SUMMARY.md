@@ -34,17 +34,22 @@
 ### 🔄 In Progress (1 feature)
 6. **Interactive Roadmap** (v1.5) - August 1, 2025
 
-### 📋 Planned (3 features)
-7. **Custom Widget Theming** (v2.0) - August 15, 2025
-8. **Theme Presets Library** (v2.1) - September 1, 2025
-9. **Advanced Export Options** (v2.2) - September 15, 2025
+### 📋 Planned (4 features)
+7. **Shareable Theme Links** (v2.0) - August 15, 2025
+8. **Flutter Code Templates** (v2.1) - September 1, 2025
+9. **Theme Validation & Analysis** (v2.2) - September 15, 2025
+10. **Design System Export** (v2.3) - October 1, 2025
 
-### 🚀 Future (5 features)
-10. **AI-Powered Theme Generation** (v3.0) - October 2025
-11. **Team Collaboration** (v3.1) - November 2025
-12. **Cloud Integration** (v3.2) - December 2025
-13. **VS Code Extension** (v3.3) - January 2026
-14. **Mobile Companion App** (v4.0) - Q2 2026
+### 🚀 Future (9 features)
+11. **Live Hot Reload Integration** (v3.0) - November 2025
+12. **Component Theme Generator** (v3.1) - December 2025
+13. **Theme Gallery & Library** (v3.2) - January 2026
+14. **AI-Powered Brand Analysis** (v3.3) - February 2026
+15. **Flutter Package Integration** (v3.4) - March 2026
+16. **Multi-Platform Theme Support** (v4.0) - April 2026
+17. **VS Code Extension** (v4.1) - May 2026
+18. **Design System Management** (v5.0) - Q3 2026
+19. **Mobile Companion App** (v5.1) - Q4 2026
 
 ## 🎨 Design Features
 

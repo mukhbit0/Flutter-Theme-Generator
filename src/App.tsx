@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'
 import SplashScreen from './components/SplashScreen'
 import HomePage from './components/HomePage'
 import ThemeGeneratorComponent from './components/ThemeGeneratorComponent'
@@ -9,85 +10,119 @@ import { ThemeConfig, ThemeGeneratorSettings } from './types/theme'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { DarkModeProvider, useDarkMode } from './contexts/DarkModeContext'
 
-type AppPhase = 'home' | 'theme-generator' | 'guide' | 'roadmap' | 'preview'
-
 function AppContent() {
-  const [currentPhase, setCurrentPhase] = useState<AppPhase>('home')
   const [themeConfig, setThemeConfig] = useState<ThemeConfig | null>(null)
   const [themeSettings, setThemeSettings] = useState<ThemeGeneratorSettings | null>(null)
   const { darkMode, toggleDarkMode } = useDarkMode()
+  const navigate = useNavigate()
 
   const handleNavigateToGenerator = () => {
-    setCurrentPhase('theme-generator')
+    navigate('/generator')
   }
 
   const handleNavigateToGuide = () => {
-    setCurrentPhase('guide')
+    navigate('/guide')
   }
 
   const handleNavigateToRoadmap = () => {
-    setCurrentPhase('roadmap')
+    navigate('/roadmap')
   }
 
   const handleNavigateToPreview = (config: ThemeConfig, settings?: ThemeGeneratorSettings) => {
     setThemeConfig(config)
     setThemeSettings(settings || null)
-    setCurrentPhase('preview')
+    navigate('/preview')
   }
 
   const handleBackToHome = () => {
-    setCurrentPhase('home')
+    navigate('/')
     setThemeConfig(null)
     setThemeSettings(null)
   }
 
   const handleBackToGenerator = () => {
-    setCurrentPhase('theme-generator')
+    navigate('/generator')
   }
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-slate-50 to-blue-50'}`}>
-      {currentPhase === 'home' && (
-        <HomePage 
+      <Routes>
+        <Route 
+          path="/" 
+          element={
+            <HomePage 
+              onNavigateToGenerator={handleNavigateToGenerator}
+              onNavigateToGuide={handleNavigateToGuide}
+              onNavigateToRoadmap={handleNavigateToRoadmap}
+              darkMode={darkMode}
+              onToggleDarkMode={toggleDarkMode}
+            />
+          } 
+        />
+        
+        <Route 
+          path="/generator" 
+          element={
+            <ThemeGeneratorComponent 
+              onBack={handleBackToHome}
+              onPreview={handleNavigateToPreview}
+              darkMode={darkMode}
+              onToggleDarkMode={toggleDarkMode}
+            />
+          } 
+        />
+
+        <Route 
+          path="/guide" 
+          element={
+            <GuideScreen 
+              onBack={handleBackToHome}
+              darkMode={darkMode}
+            />
+          } 
+        />
+
+        <Route 
+          path="/roadmap" 
+          element={
+            <RoadmapScreen 
+              onBack={handleBackToHome}
+              darkMode={darkMode}
+            />
+          } 
+        />
+
+        <Route 
+          path="/preview" 
+          element={
+            themeConfig ? (
+              <PreviewScreen 
+                themeConfig={themeConfig}
+                settings={themeSettings}
+                onBack={handleBackToGenerator}
+                darkMode={darkMode}
+              />
+            ) : (
+              <HomePage 
+                onNavigateToGenerator={handleNavigateToGenerator}
+                onNavigateToGuide={handleNavigateToGuide}
+                onNavigateToRoadmap={handleNavigateToRoadmap}
+                darkMode={darkMode}
+                onToggleDarkMode={toggleDarkMode}
+              />
+            )
+          } 
+        />
+
+        {/* Catch all route - redirect to home */}
+        <Route path="*" element={<HomePage 
           onNavigateToGenerator={handleNavigateToGenerator}
           onNavigateToGuide={handleNavigateToGuide}
           onNavigateToRoadmap={handleNavigateToRoadmap}
           darkMode={darkMode}
           onToggleDarkMode={toggleDarkMode}
-        />
-      )}
-      
-      {currentPhase === 'theme-generator' && (
-        <ThemeGeneratorComponent 
-          onBack={handleBackToHome}
-          onPreview={handleNavigateToPreview}
-          darkMode={darkMode}
-          onToggleDarkMode={toggleDarkMode}
-        />
-      )}
-
-      {currentPhase === 'guide' && (
-        <GuideScreen 
-          onBack={handleBackToHome}
-          darkMode={darkMode}
-        />
-      )}
-
-      {currentPhase === 'roadmap' && (
-        <RoadmapScreen 
-          onBack={handleBackToHome}
-          darkMode={darkMode}
-        />
-      )}
-
-      {currentPhase === 'preview' && themeConfig && (
-        <PreviewScreen 
-          themeConfig={themeConfig}
-          settings={themeSettings}
-          onBack={handleBackToGenerator}
-          darkMode={darkMode}
-        />
-      )}
+        />} />
+      </Routes>
     </div>
   )
 }
@@ -106,7 +141,13 @@ function App() {
   return (
     <DarkModeProvider>
       <ThemeProvider>
-        {showSplash ? <SplashScreen /> : <AppContent />}
+        {showSplash ? (
+          <SplashScreen />
+        ) : (
+          <BrowserRouter>
+            <AppContent />
+          </BrowserRouter>
+        )}
       </ThemeProvider>
     </DarkModeProvider>
   );
