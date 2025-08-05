@@ -20,7 +20,7 @@ interface RoadmapItem {
   priority: 'low' | 'medium' | 'high' | 'critical'
 }
 
-export default function RoadmapScreen({ onBack, darkMode, onNavigateToGenerator, onNavigateToGuide }: RoadmapScreenProps) {
+export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) {
   const [filter, setFilter] = useState<'all' | 'completed' | 'in-progress' | 'planned' | 'future'>('all')
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'core' | 'ui' | 'performance' | 'developer-experience' | 'integration'>('all')
   const [visibleItems, setVisibleItems] = useState<string[]>([])
