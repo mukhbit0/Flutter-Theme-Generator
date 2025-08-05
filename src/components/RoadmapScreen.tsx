@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 interface RoadmapScreenProps {
   onBack: () => void
   darkMode: boolean
+  onNavigateToGenerator?: () => void
+  onNavigateToGuide?: () => void
 }
 
 interface RoadmapItem {
@@ -18,7 +20,7 @@ interface RoadmapItem {
   priority: 'low' | 'medium' | 'high' | 'critical'
 }
 
-export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) {
+export default function RoadmapScreen({ onBack, darkMode, onNavigateToGenerator, onNavigateToGuide }: RoadmapScreenProps) {
   const [filter, setFilter] = useState<'all' | 'completed' | 'in-progress' | 'planned' | 'future'>('all')
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'core' | 'ui' | 'performance' | 'developer-experience' | 'integration'>('all')
   const [visibleItems, setVisibleItems] = useState<string[]>([])
@@ -545,7 +547,26 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
             </div>
 
             {/* Progress Overview */}
-            <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden md:flex items-center space-x-8">
+              {/* Overall Progress */}
+              <div className="flex items-center space-x-3">
+                <div className="text-center">
+                  <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {Math.round((statusCounts.completed / roadmapData.length) * 100)}%
+                  </div>
+                  <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Complete
+                  </div>
+                </div>
+                <div className="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-1000"
+                    style={{ width: `${(statusCounts.completed / roadmapData.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Status Counts */}
               {Object.entries(statusCounts).map(([status, count]) => (
                 <div key={status} className="text-center">
                   <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -652,6 +673,11 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
                           <span className={`text-xs px-2 py-1 rounded-full ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'}`}>
                             {item.version}
                           </span>
+                          {item.version.startsWith('v2.') && (
+                            <span className="text-xs px-2 py-1 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium">
+                              🚀 Next-Gen
+                            </span>
+                          )}
                           {item.date && (
                             <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                               {item.date}

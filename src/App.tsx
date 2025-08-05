@@ -88,6 +88,8 @@ function AppContent() {
             <RoadmapScreen 
               onBack={handleBackToHome}
               darkMode={darkMode}
+              onNavigateToGenerator={handleNavigateToGenerator}
+              onNavigateToGuide={handleNavigateToGuide}
             />
           } 
         />
