@@ -6,17 +6,14 @@ import CardsPreview from './widgets/CardsPreview'
 import ProgressPreview from './widgets/ProgressPreview'
 import TypographyPreview from './widgets/TypographyPreview'
 
-export default function WidgetPreviews({ currentColors, previewMode }: WidgetPreviewsProps) {
+export default function WidgetPreviews({ currentColors, previewMode, darkMode }: WidgetPreviewsProps) {
   return (
     <div 
-      className={`rounded-xl p-8 border transition-all duration-300 ${
-        previewMode === 'light' 
-          ? 'border-gray-200' 
-          : 'border-gray-600'
-      }`}
+      className="rounded-xl p-8 border transition-all duration-300"
       style={{ 
-        backgroundColor: currentColors.background,
-        color: currentColors.onBackground 
+        backgroundColor: darkMode ? '#1f2937' : '#ffffff',
+        borderColor: darkMode ? '#374151' : '#e5e7eb',
+        color: darkMode ? '#e5e7eb' : '#374151'
       }}
     >
       <div className="space-y-8">

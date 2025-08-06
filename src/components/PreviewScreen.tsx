@@ -3,7 +3,7 @@ import { downloadThemeFiles } from '../utils/FileDownloader'
 import { PreviewScreenProps, PreviewMode } from './preview-screen/PreviewScreenTypes'
 import PreviewHeader from './preview-screen/PreviewHeader'
 import ColorPalette from './preview-screen/ColorPalette'
-import WidgetPreviews from './preview-screen/WidgetPreviews'
+import PreviewContainer from './preview-screen/PreviewContainer'
 import { ThemeConfig } from '../types/theme'
 
 export default function PreviewScreen({ themeConfig, settings, onBack, darkMode }: PreviewScreenProps) {
@@ -168,7 +168,7 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
       />
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto pr-6 lg:pr-8 pl-2 lg:pl-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
           {/* Color Palette Sidebar */}
@@ -181,9 +181,13 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
             />
           </div>
 
-          {/* Widget Previews */}
+          {/* Preview Content */}
           <div className="lg:col-span-3">
-            <WidgetPreviews currentColors={currentColors} previewMode={previewMode} />
+            <PreviewContainer 
+              currentColors={currentColors} 
+              previewMode={previewMode} 
+              darkMode={darkMode} 
+            />
           </div>
         </div>
       </div>

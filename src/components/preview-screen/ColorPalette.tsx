@@ -19,7 +19,6 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
 
   const handleColorInputChange = (newColor: string) => {
     setTempColor(newColor)
-    // Live preview - update immediately
     if (onColorChange && editingColor) {
       onColorChange(editingColor, newColor)
     }
@@ -34,7 +33,6 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
   }
 
   const handleCancelEdit = () => {
-    // Revert to original color
     if (onColorChange && editingColor) {
       onColorChange(editingColor, currentColors[editingColor] as string)
     }
@@ -48,7 +46,7 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
     } backdrop-blur-lg rounded-xl p-6 border ${
       darkMode ? 'border-gray-700/50' : 'border-gray-200/50'
     } sticky top-32`}>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-6">
         <h2 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
           Color Palette
         </h2>
@@ -61,35 +59,40 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
         )}
       </div>
       
-      <div className="space-y-3">
+      {/* Main content - single column */}
+      <div className="space-y-4">
         {Object.entries(currentColors).map(([name, color]) => (
-          <div key={name} className="space-y-2">
+          <div 
+            key={name} 
+            className="space-y-2 transition-all duration-300"
+          >
             <div className="flex items-center space-x-3">
               <div 
-                className={`w-8 h-8 rounded-lg shadow-sm border border-gray-200 ${
+                className={`w-8 h-8 rounded-lg shadow-sm border border-black/10 flex-shrink-0 ${
                   isEditable ? 'cursor-pointer hover:scale-110 transition-transform' : ''
                 }`}
                 style={{ backgroundColor: color as string }}
                 onClick={() => handleColorClick(name)}
                 title={isEditable ? 'Click to edit color' : undefined}
               />
-              <div>
-                <div className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              {/* Added min-w-0 to ensure text truncates properly in flexbox */}
+              <div className="min-w-0">
+                <div className={`text-sm font-medium truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                   {name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                 </div>
-                <div className={`text-xs font-mono ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                <div className={`text-xs font-mono truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   {color as string}
                 </div>
               </div>
             </div>
             
             {editingColor === name && (
-              <div className="ml-11 space-y-2">
+              <div className="pt-2 space-y-2">
                 <input
                   type="color"
                   value={tempColor}
                   onChange={(e) => handleColorInputChange(e.target.value)}
-                  className="w-full h-8 rounded border cursor-pointer"
+                  className="w-full h-8 rounded border-none cursor-pointer"
                 />
                 <input
                   type="text"
