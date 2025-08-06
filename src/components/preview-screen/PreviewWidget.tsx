@@ -6,7 +6,7 @@ export function PreviewWidget({ title, children, previewMode, themeColors }: Pre
   
   return (
     <div 
-      className={`rounded-xl p-6 border transition-all duration-300 shadow-lg backdrop-blur-sm`}
+      className={`rounded-xl p-6 border shadow-lg backdrop-blur-sm`}
       style={{
         backgroundColor: isLightVariant ? 'rgba(255, 255, 255, 0.95)' : 'rgba(18, 18, 18, 0.95)',
         borderColor: isLightVariant ? 'rgba(229, 231, 235, 0.5)' : 'rgba(75, 85, 99, 0.5)',

@@ -21,6 +21,15 @@ export interface WidgetPreviewProps {
   previewMode: PreviewMode
 }
 
+export interface WidgetPreviewsProps {
+  currentColors: any
+  previewMode: PreviewMode
+  darkMode: boolean
+}
+
+export interface PreviewContainerProps extends WidgetPreviewsProps {
+}
+
 export interface ColorPaletteProps {
   currentColors: any
   darkMode: boolean
@@ -36,9 +45,4 @@ export interface PreviewHeaderProps {
   onDownload: () => void
   isDownloading: boolean
   settings?: ThemeGeneratorSettings | null
-}
-
-export interface WidgetPreviewsProps {
-  currentColors: any
-  previewMode: PreviewMode
 }
