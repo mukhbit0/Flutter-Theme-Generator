@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { DESIGN_CONSTANTS, A11Y_CONSTANTS } from './constants'
+import { DESIGN_CONSTANTS } from './constants'
 
 interface TooltipProps {
   children: React.ReactNode
