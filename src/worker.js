@@ -21,11 +21,19 @@ export default {
         ASSET_MANIFEST: assetManifest,
         mapRequestToAsset: (req) => {
           const url = new URL(req.url);
+          const path = url.pathname;
+          
           // For root path, serve index.html
-          if (url.pathname === '/') {
+          if (path === '/') {
             return new Request(`${url.origin}/index.html`, req);
           }
-          // For all other paths, use as-is
+          
+          // For SPA routes (non-asset paths without extensions), serve index.html
+          if (!path.startsWith('/assets/') && !path.includes('.') && path !== '/index.html') {
+            return new Request(`${url.origin}/index.html`, req);
+          }
+          
+          // For all other paths (including assets), use as-is
           return req;
         },
         // Add caching options
@@ -66,16 +74,33 @@ export default {
     } catch (error) {
       console.error(`Error serving ${pathname}: ${error.message}`);
       
-      // For SPA routing - serve index.html for non-asset requests
-      if (!pathname.startsWith('/assets/') && !pathname.includes('.')) {
+      // For SPA routing - serve index.html for routes that look like app routes
+      if (!pathname.startsWith('/assets/') && 
+          !pathname.includes('.') && 
+          (pathname.startsWith('/shared/') || 
+           pathname.startsWith('/preview') || 
+           pathname.startsWith('/roadmap') ||
+           pathname.startsWith('/guide'))) {
         try {
+          console.log(`Serving index.html for SPA route: ${pathname}`);
           const indexRequest = new Request(`${url.origin}/index.html`, request);
-          return getAssetFromKV(
+          const indexResponse = await getAssetFromKV(
             { request: indexRequest, waitUntil: ctx.waitUntil.bind(ctx) },
             { ASSET_NAMESPACE: env.STATIC_ASSETS, ASSET_MANIFEST: assetManifest }
           );
+          
+          // Add proper headers for HTML
+          const headers = new Headers(indexResponse.headers);
+          headers.set('Content-Type', 'text/html; charset=utf-8');
+          headers.set('Cache-Control', 'no-cache');
+          
+          return new Response(indexResponse.body, {
+            status: 200,
+            statusText: 'OK',
+            headers
+          });
         } catch (indexError) {
-          console.error(`Error serving index.html: ${indexError.message}`);
+          console.error(`Error serving index.html for SPA route: ${indexError.message}`);
         }
       }
       

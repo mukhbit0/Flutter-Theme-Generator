@@ -23,6 +23,6 @@ export default defineConfig({
     }
   },
   publicDir: 'public',
-  // Ensure proper base path
-  base: './'
+  // Use absolute base path for Cloudflare Workers
+  base: '/'
 })
