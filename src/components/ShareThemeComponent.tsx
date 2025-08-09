@@ -6,7 +6,7 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { sharingService, ShareOptions, ShareResult, ShareableTheme } from '../services/SharingService'
 import { ThemeConfig } from '../types/theme'
-import { Share2, Copy, Eye, EyeOff, Trash2, Clock, Tag, AlertCircle, CheckCircle, ExternalLink } from 'lucide-react'
+import { Share2, Copy, Eye, EyeOff, Trash2, Clock, Tag, AlertCircle, CheckCircle } from 'lucide-react'
 
 interface ShareThemeComponentProps {
   themeConfig: ThemeConfig
