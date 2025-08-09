@@ -24,18 +24,18 @@
 
 ## 📊 Roadmap Features Overview
 
-### ✅ Completed (5 features)
+### ✅ Completed (6 features)
 1. **Basic Theme Generation** (v1.0) - July 15, 2025
 2. **Logo Color Extraction** (v1.1) - July 20, 2025  
 3. **Live Theme Preview** (v1.2) - July 25, 2025
 4. **Enhanced User Interface** (v1.3) - July 28, 2025
 5. **Comprehensive Documentation** (v1.4) - July 30, 2025
+6. **Shareable Theme Links** (v2.0) - August 9, 2025
 
 ### 🔄 In Progress (1 feature)
-6. **Interactive Roadmap** (v1.5) - August 1, 2025
+7. **Interactive Roadmap** (v1.5) - August 1, 2025
 
-### 📋 Planned (4 features)
-7. **Shareable Theme Links** (v2.0) - August 15, 2025
+### 📋 Planned (3 features)  
 8. **Flutter Code Templates** (v2.1) - September 1, 2025
 9. **Theme Validation & Analysis** (v2.2) - September 15, 2025
 10. **Design System Export** (v2.3) - October 1, 2025

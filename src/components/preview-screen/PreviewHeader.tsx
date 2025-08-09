@@ -78,6 +78,7 @@ export default function PreviewHeader({
               ))}
             </div>
 
+            {/* Download Button */}
             <button
               onClick={onDownload}
               disabled={isDownloading}

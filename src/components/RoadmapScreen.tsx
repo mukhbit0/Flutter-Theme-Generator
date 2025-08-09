@@ -158,15 +158,15 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
       ]
     },
 
-    // Planned Features
+    // Recently Completed Features
     {
       id: 'shareable-themes',
       title: 'Shareable Theme Links',
-      description: 'Generate unique URLs to share themes instantly without authentication',
-      status: 'planned',
+      description: 'Generate unique URLs to share themes instantly with QR codes and privacy controls',
+      status: 'completed',
       category: 'developer-experience',
       version: 'v2.0',
-      date: 'August 15, 2025',
+      date: 'August 9, 2025',
       priority: 'critical',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,11 +175,15 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
       ),
       features: [
         'QR code generation',
-        'Social media sharing',
-        'Team collaboration',
-        'Mobile app scanning'
+        'Privacy controls (public/private)',
+        'Shareable theme URLs',
+        'Modular error-safe architecture',
+        'Theme history management',
+        'Cross-browser clipboard support'
       ]
     },
+    
+    // Planned Features
     {
       id: 'flutter-templates',
       title: 'Flutter Code Templates',
