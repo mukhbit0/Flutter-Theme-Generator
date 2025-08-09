@@ -5,11 +5,19 @@ import PreviewHeader from './preview-screen/PreviewHeader'
 import ColorPalette from './preview-screen/ColorPalette'
 import PreviewContainer from './preview-screen/PreviewContainer'
 import { ThemeConfig } from '../types/theme'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function PreviewScreen({ themeConfig, settings, onBack, darkMode }: PreviewScreenProps) {
   const [previewMode, setPreviewMode] = useState<PreviewMode>('light')
   const [isDownloading, setIsDownloading] = useState(false)
   const [modifiedThemeConfig, setModifiedThemeConfig] = useState<ThemeConfig>(themeConfig)
+  const { setThemeConfig } = useTheme()
+
+  // Update theme context when themeConfig prop changes
+  useEffect(() => {
+    setThemeConfig(themeConfig)
+    setModifiedThemeConfig(themeConfig)
+  }, [themeConfig, setThemeConfig])
 
   // Auto-select first available theme variant on mount or settings change
   useEffect(() => {

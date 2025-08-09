@@ -58,3 +58,42 @@ body {
 .animate-pulse-subtle {
   animation: pulse-subtle 2s infinite;
 }
+
+/* Smooth page transitions */
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fadeInSlide {
+  animation: fadeInSlide 0.4s ease-out;
+}
+
+/* Loading fade animation */
+@keyframes fadeInFast {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeInFast {
+  animation: fadeInFast 0.2s ease-out;
+}
+
+/* Component transition utilities */
+.transition-all-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-opacity-smooth {
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}

@@ -140,7 +140,7 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
       id: 'roadmap-visualization',
       title: 'Interactive Roadmap',
       description: 'Beautiful, animated roadmap showing project progress and future plans',
-      status: 'in-progress',
+      status: 'completed',
       category: 'ui',
       version: 'v1.5',
       date: 'August 1, 2025',
@@ -185,13 +185,37 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
     
     // Planned Features
     {
+      id: 'firebase-integration',
+      title: 'Firebase Integration & User System',
+      description: 'Complete backend integration with user authentication, like system, and theme history',
+      status: 'planned',
+      category: 'integration',
+      version: 'v2.1',
+      date: 'September 1, 2025',
+      priority: 'critical',
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+        </svg>
+      ),
+      features: [
+        'User authentication (Google, GitHub, Email)',
+        'Like system with user tracking',
+        'Theme history and favorites',
+        'Real-time sharing statistics',
+        'User profiles and theme galleries',
+        'Cloud storage for themes',
+        'Social features and following system'
+      ]
+    },
+    {
       id: 'flutter-templates',
       title: 'Flutter Code Templates',
       description: 'Generate complete Flutter app examples with theme integration',
       status: 'planned',
       category: 'developer-experience',
-      version: 'v2.1',
-      date: 'September 1, 2025',
+      version: 'v2.2',
+      date: 'September 15, 2025',
       priority: 'high',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

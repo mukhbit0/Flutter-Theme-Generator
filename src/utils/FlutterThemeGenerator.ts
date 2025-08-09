@@ -1,27 +1,41 @@
-import { ThemeConfig, ThemeColors } from '../types/theme'
+import { ThemeConfig, ThemeColors, ThemeGeneratorSettings } from '../types/theme'
 
 export function generateFlutterTheme(colors: {
   primary: string
   secondary: string
   tertiary: string
   logo?: string
-}, settings?: { useScreenUtil?: boolean }): ThemeConfig {
+}, settings?: ThemeGeneratorSettings): ThemeConfig {
   const lightColors: ThemeColors = generateLightMaterial3Colors(colors)
-  const lightMediumContrastColors: ThemeColors = generateLightMediumContrastColors(colors)
-  const lightHighContrastColors: ThemeColors = generateLightHighContrastColors(colors)
   const darkColors: ThemeColors = generateDarkMaterial3Colors(colors)
-  const darkMediumContrastColors: ThemeColors = generateDarkMediumContrastColors(colors)
-  const darkHighContrastColors: ThemeColors = generateDarkHighContrastColors(colors)
+  
+  // Build colors object based on enabled variants
+  const colorsConfig: any = {}
+  
+  // Always include basic light and dark if enabled
+  if (settings?.themeVariants?.lightMode !== false) {
+    colorsConfig.light = lightColors
+  }
+  if (settings?.themeVariants?.darkMode !== false) {
+    colorsConfig.dark = darkColors
+  }
+  
+  // Add contrast variants if enabled
+  if (settings?.themeVariants?.lightMedium) {
+    colorsConfig.lightMediumContrast = generateLightMediumContrastColors(colors)
+  }
+  if (settings?.themeVariants?.lightHigh) {
+    colorsConfig.lightHighContrast = generateLightHighContrastColors(colors)
+  }
+  if (settings?.themeVariants?.darkMedium) {
+    colorsConfig.darkMediumContrast = generateDarkMediumContrastColors(colors)
+  }
+  if (settings?.themeVariants?.darkHigh) {
+    colorsConfig.darkHighContrast = generateDarkHighContrastColors(colors)
+  }
 
   return {
-    colors: {
-      light: lightColors,
-      lightMediumContrast: lightMediumContrastColors,
-      lightHighContrast: lightHighContrastColors,
-      dark: darkColors,
-      darkMediumContrast: darkMediumContrastColors,
-      darkHighContrast: darkHighContrastColors
-    },
+    colors: colorsConfig,
     typography: generateTypographyConfig(),
     spacing: generateSpacingConfig(),
     borderRadius: generateBorderRadiusConfig(),

@@ -424,7 +424,7 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
                         className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                         title="Copy share link"
                       >
-                        <ExternalLink className="w-4 h-4" />
+                        <Copy className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(theme.id)}

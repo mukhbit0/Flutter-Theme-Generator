@@ -34,7 +34,7 @@ export interface ShareResult {
 }
 
 class SharingService {
-  private readonly baseUrl = 'https://theme.ionicerrrrscode.com' // Your actual site URL
+  private readonly baseUrl = window.location.origin // Use current origin for development
   private readonly localStorageKey = 'flutter_theme_generator_shared_themes'
   private readonly maxLocalThemes = 10
 

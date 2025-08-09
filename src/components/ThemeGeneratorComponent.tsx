@@ -86,9 +86,7 @@ export default function ThemeGeneratorComponent({
         tertiary: settings.baseColors.accent
       }
       
-      const themeConfig = generateFlutterTheme(colors, { 
-        useScreenUtil: settings.useScreenUtil
-      })
+      const themeConfig = generateFlutterTheme(colors, settings)
       onPreview(themeConfig, settings)
     } catch (error) {
       console.error('Error generating theme:', error)
