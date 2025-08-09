@@ -13,6 +13,24 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  /* Hide scrollbar globally */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Hide scrollbar for webkit browsers (Chrome, Safari, Opera) */
+body::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  /* Hide scrollbar globally for html element too */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+html::-webkit-scrollbar {
+  display: none;
 }
 
 /* Hide scrollbar but keep functionality */
