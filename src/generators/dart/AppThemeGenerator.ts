@@ -24,7 +24,6 @@ function adjustColorBrightness(hex: string, percent: number): string {
 export function generateAppThemeFile(config: ThemeConfig): string {
   const lightColors = config.colors.light
   const darkColors = config.colors.dark
-  const useScreenUtil = config.settings?.useScreenUtil || false
   
   return `import 'package:flutter/material.dart';
 import 'app_constants.dart';
@@ -247,7 +246,7 @@ ${generateButtonThemes()}
 
 ${generateInputThemes()}
 
-${generateComponentThemes(useScreenUtil)}
+${generateComponentThemes()}
 }
 
 /// Custom theme colors extension for additional brand colors

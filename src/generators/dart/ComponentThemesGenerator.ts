@@ -2,7 +2,7 @@
  * Generates component theme configurations (cards, app bars, etc.)
  * These themes use AppConstants for consistent design tokens
  */
-export function generateComponentThemes(useScreenUtil: boolean = false): string {
+export function generateComponentThemes(): string {
   return `
   /// App bar theme for light mode
   static final AppBarTheme _lightAppBarTheme = AppBarTheme(
