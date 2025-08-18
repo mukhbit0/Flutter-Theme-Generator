@@ -2,6 +2,25 @@ import { ThemeConfig } from '../../types/theme'
 
 /**
  * Generates the app_constants.dart file with design system constants
+ * 
+ * 🎯 WHY APP CONSTANTS ARE IMPORTANT:
+ * 
+ * 1. **CONSISTENCY**: Ensures all components use the same design tokens
+ * 2. **MAINTAINABILITY**: Change spacing/radius globally by updating one file
+ * 3. **DESIGN SYSTEM**: Follows Material Design principles with consistent tokens
+ * 4. **RESPONSIVENESS**: Supports ScreenUtil for responsive design across devices
+ * 5. **DEVELOPER EXPERIENCE**: Auto-complete helps developers use correct values
+ * 6. **THEME INTEGRATION**: AppTheme.dart uses these constants instead of hardcoded values
+ * 
+ * Example Usage:
+ * ```dart
+ * Container(
+ *   margin: EdgeInsets.all(AppConstants.spacingMD), // Instead of EdgeInsets.all(16)
+ *   decoration: BoxDecoration(
+ *     borderRadius: BorderRadius.circular(AppConstants.radiusLG), // Instead of BorderRadius.circular(16)
+ *   ),
+ * )
+ * ```
  */
 export function generateConstantsFile(config: ThemeConfig): string {
   const useScreenUtil = config.settings?.useScreenUtil || false;
@@ -69,6 +88,20 @@ class AppConstants {
   
   /// Full radius (9999px) - For circular elements, pills
   static ${useScreenUtil ? 'double get' : 'const double'} radiusFull${useScreenUtil ? ` => ${config.borderRadius.full}${screenUtilSuffix}` : ` = ${config.borderRadius.full}${screenUtilSuffix}`};
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🔲 BORDER WIDTH SYSTEM
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Consistent border widths for outlines and dividers
+  
+  /// Thin border (1px) - For subtle outlines, dividers
+  static ${useScreenUtil ? 'double get' : 'const double'} borderWidthThin${useScreenUtil ? ' => 1.0.w' : ' = 1.0'};
+  
+  /// Medium border (2px) - For form fields, buttons
+  static ${useScreenUtil ? 'double get' : 'const double'} borderWidthMedium${useScreenUtil ? ' => 2.0.w' : ' = 2.0'};
+  
+  /// Thick border (4px) - For emphasis, focus states
+  static ${useScreenUtil ? 'double get' : 'const double'} borderWidthThick${useScreenUtil ? ' => 4.0.w' : ' = 4.0'};
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 🏔️ ELEVATION SYSTEM
