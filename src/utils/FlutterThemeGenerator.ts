@@ -548,4 +548,6 @@ export class FlutterThemeGenerator {
   static getContrastRatio = getContrastRatio
   static adjustColorWithContrast = adjustColorWithContrast
   static getOptimalTextColor = getOptimalTextColor
+  static getLuminance = getLuminance
+  static adjustColor = adjustColor
 }

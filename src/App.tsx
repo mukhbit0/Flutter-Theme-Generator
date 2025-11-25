@@ -8,6 +8,7 @@ import RoadmapScreen from './components/RoadmapScreen'
 import PreviewScreen from './components/PreviewScreen'
 import SharedThemeViewer from './components/SharedThemeViewer'
 import ThemeImplementationScreen from './components/theme-implementation/ThemeImplementationScreen'
+import ThemeValidationScreen from './components/validation/ThemeValidationScreen'
 import { ThemeConfig, ThemeGeneratorSettings } from './types/theme'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { DarkModeProvider, useDarkMode } from './contexts/DarkModeContext'
@@ -86,15 +87,15 @@ function AppContent() {
           // If theme already exists, show immediately with fade
           setTimeout(() => setShowContent(true), 100)
         }
-      } else if (themeConfig && !localThemeConfig) {
-        setLocalThemeConfig(themeConfig)
-        setLocalThemeSettings(themeSettings)
-        setTimeout(() => setShowContent(true), 100)
       } else {
-        // For non-edit routes, show immediately
+        // For normal preview flow, always sync with global themeConfig
+        if (themeConfig) {
+          setLocalThemeConfig(themeConfig)
+          setLocalThemeSettings(themeSettings)
+        }
         setShowContent(true)
       }
-    }, [searchParams, localThemeConfig])
+    }, [searchParams, themeConfig, themeSettings])
 
     // Enhanced loading screen with better animations
     if (hasEditShared && isLoading) {
@@ -296,6 +297,29 @@ function AppContent() {
               onBack={() => navigate('/preview')}
               darkMode={darkMode}
             />
+          }
+        />
+
+        {/* Theme Validation Route */}
+        <Route
+          path="/validation"
+          element={
+            themeConfig ? (
+              <ThemeValidationScreen
+                theme={themeConfig}
+                darkMode={darkMode}
+                onBack={() => navigate('/preview')}
+                onUpdateTheme={(newTheme: ThemeConfig) => setThemeConfig(newTheme)}
+              />
+            ) : (
+              <HomePage
+                onNavigateToGenerator={handleNavigateToGenerator}
+                onNavigateToGuide={handleNavigateToGuide}
+                onNavigateToRoadmap={handleNavigateToRoadmap}
+                darkMode={darkMode}
+                onToggleDarkMode={toggleDarkMode}
+              />
+            )
           }
         />
 

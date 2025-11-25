@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { PreviewHeaderProps, PreviewMode } from './PreviewScreenTypes'
 import { ThemeGeneratorSettings } from '../../types/theme'
+import { Tooltip } from './Tooltip';
 
 
 export default function PreviewHeader({
@@ -27,6 +28,9 @@ export default function PreviewHeader({
     if (!settings?.themeVariants) return true // Show all if no settings
     return settings.themeVariants[option.variantKey as keyof typeof settings.themeVariants]
   })
+
+  // Map onDownload to onExport for clarity in the UI
+  const onExport = onDownload;
 
   return (
     <div className={`${darkMode ? 'bg-gray-900/90 border-gray-800' : 'bg-white/90 border-gray-200'
@@ -77,41 +81,55 @@ export default function PreviewHeader({
               ))}
             </div>
 
-            <div className="flex items-center gap-3 ml-auto md:ml-0">
-              {/* View Mockups Button */}
-              <button
-                onClick={() => navigate('/implementation')}
-                className={`px-5 py-2.5 rounded-full font-medium transition-all duration-300 flex items-center space-x-2 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${darkMode
-                  ? 'bg-gray-800 text-white hover:bg-gray-700 border border-gray-700'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
-                  }`}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-                <span className="hidden sm:inline">Mockups</span>
-              </button>
+            <div className="flex items-center space-x-3">
+              <Tooltip content="Validate Theme" position="bottom" darkMode={darkMode}>
+                <button
+                  onClick={() => navigate('/validation')}
+                  className={`p-2.5 rounded-full transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${darkMode
+                    ? 'bg-gray-800 text-white hover:bg-gray-700 border border-gray-700'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                    }`}
+                  aria-label="Validate Theme"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </button>
+              </Tooltip>
 
-              {/* Download Button */}
-              <button
-                onClick={onDownload}
-                disabled={isDownloading}
-                className="px-6 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold rounded-full shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center space-x-2"
-              >
-                {isDownloading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <span>Exporting...</span>
-                  </>
-                ) : (
-                  <>
+              <Tooltip content="View Mockups" position="bottom" darkMode={darkMode}>
+                <button
+                  onClick={() => navigate('/implementation')}
+                  className={`p-2.5 rounded-full transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${darkMode
+                    ? 'bg-gray-800 text-white hover:bg-gray-700 border border-gray-700'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                    }`}
+                  aria-label="View Mockups"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </button>
+              </Tooltip>
+
+              <Tooltip content="Export Theme" position="bottom" darkMode={darkMode}>
+                <button
+                  onClick={onExport}
+                  className={`p-2.5 rounded-full transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${darkMode
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-500 border border-indigo-500'
+                    : 'bg-indigo-600 text-white hover:bg-indigo-700 border border-indigo-600'
+                    }`}
+                  aria-label="Export Theme"
+                >
+                  {isDownloading ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
-                    <span>Export</span>
-                  </>
-                )}
-              </button>
+                  )}
+                </button>
+              </Tooltip>
             </div>
           </div>
         </div>

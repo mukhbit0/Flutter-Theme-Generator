@@ -1,7 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { ColorPaletteProps } from './PreviewScreenTypes'
 import { Tooltip } from './Tooltip'
-import { DESIGN_CONSTANTS, A11Y_CONSTANTS } from './constants'
+import { A11Y_CONSTANTS } from './constants'
+import { DESIGN_CONSTANTS } from './constants'
+import { ThemeValidator } from '../../utils/ThemeValidator'
 
 interface ColorHistory {
   colorName: string
@@ -41,7 +43,7 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
       const b = rgb & 255
       return (0.299 * r + 0.587 * g + 0.114 * b) / 255
     }
-    
+
     const l1 = getLuminance(color1)
     const l2 = getLuminance(color2)
     const lighter = Math.max(l1, l2)
@@ -56,7 +58,7 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
       newValue,
       timestamp: Date.now()
     }
-    
+
     setColorHistory(prev => {
       // Remove any history after current index (when user made changes after undo)
       const newHistory = prev.slice(0, historyIndex + 1)
@@ -152,19 +154,26 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
     setOriginalColor('')
   }
 
+  const handleFixColor = (name: string, color: string, bg: string) => {
+    if (onColorChange) {
+      const fixedColor = ThemeValidator.fixColor(color, bg, 3.0);
+      if (fixedColor !== color) {
+        addToHistory(name, color, fixedColor);
+        onColorChange(name, fixedColor);
+      }
+    }
+  }
+
   const canUndo = historyIndex >= 0
   const canRedo = historyIndex < colorHistory.length - 1
 
   return (
-    <div className={`${
-      darkMode ? 'bg-gray-800/70' : 'bg-white/70'
-    } backdrop-blur-lg rounded-xl p-3 lg:p-4 border ${
-      darkMode ? 'border-gray-700/50' : 'border-gray-200/50'
-    } sticky top-32 max-h-[calc(100vh-10rem)] flex flex-col relative ${
-      isInitialLoad ? 'transition-all duration-300' : ''
-    }`}
-    style={{ zIndex: DESIGN_CONSTANTS.Z_INDEX.STICKY }}>
-      
+    <div className={`${darkMode ? 'bg-gray-800/70' : 'bg-white/70'
+      } backdrop-blur-lg rounded-xl p-3 lg:p-4 border ${darkMode ? 'border-gray-700/50' : 'border-gray-200/50'
+      } sticky top-32 max-h-[calc(100vh-10rem)] flex flex-col relative ${isInitialLoad ? 'transition-all duration-300' : ''
+      }`}
+      style={{ zIndex: DESIGN_CONSTANTS.Z_INDEX.STICKY }}>
+
       {/* Header with Controls */}
       <div className="flex items-start justify-between mb-3 flex-shrink-0 relative">
         <div className="min-w-0 flex-1">
@@ -177,7 +186,7 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
             </p>
           )}
         </div>
-        
+
         {isEditable && (
           <div className="flex items-center space-x-1 flex-shrink-0 ml-2 relative">
             {/* Undo/Redo buttons with no transition animations */}
@@ -186,13 +195,12 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
                 <button
                   onClick={undo}
                   disabled={!canUndo}
-                  className={`p-1.5 rounded-lg ${
-                    canUndo
-                      ? darkMode 
-                        ? 'hover:bg-gray-600 text-gray-300' 
+                  className={`p-1.5 rounded-lg ${canUndo
+                      ? darkMode
+                        ? 'hover:bg-gray-600 text-gray-300'
                         : 'hover:bg-gray-100 text-gray-600'
                       : 'opacity-50 cursor-not-allowed text-gray-400'
-                  }`}
+                    }`}
                   aria-label="Undo color change"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,19 +209,18 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
                 </button>
               </Tooltip>
             </div>
-            
+
             <div className="relative">
               <Tooltip content="Redo (Ctrl+Y)" darkMode={darkMode} position="top">
                 <button
                   onClick={redo}
                   disabled={!canRedo}
-                  className={`p-1.5 rounded-lg ${
-                    canRedo
-                      ? darkMode 
-                        ? 'hover:bg-gray-600 text-gray-300' 
+                  className={`p-1.5 rounded-lg ${canRedo
+                      ? darkMode
+                        ? 'hover:bg-gray-600 text-gray-300'
                         : 'hover:bg-gray-100 text-gray-600'
                       : 'opacity-50 cursor-not-allowed text-gray-400'
-                  }`}
+                    }`}
                   aria-label="Redo color change"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -224,41 +231,43 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
             </div>
           </div>
         )}
-        
+
         {/* Edit indicator with minimal animation */}
         {isEditable && (
           <div className="flex-shrink-0 ml-2">
-            <span className={`text-xs px-2 py-1 rounded-full ${
-              darkMode ? 'bg-purple-900/30 text-purple-300' : 'bg-purple-100 text-purple-700'
-            } whitespace-nowrap`}>
+            <span className={`text-xs px-2 py-1 rounded-full ${darkMode ? 'bg-purple-900/30 text-purple-300' : 'bg-purple-100 text-purple-700'
+              } whitespace-nowrap`}>
               {editingColor ? 'Editing' : 'Edit'}
             </span>
           </div>
         )}
       </div>
-      
+
       {/* Main content - scrollable color list */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3 scrollbar-hide">
         {Object.entries(currentColors).map(([name, color]) => {
-          const contrastRatio = getContrastRatio(color as string, darkMode ? '#ffffff' : '#000000')
-          const hasGoodContrast = contrastRatio >= 4.5
-          
+          // Check contrast against the APP BACKGROUND to ensure visibility
+          // In Dark Mode, background is dark (gray-900), so we check against that.
+          // In Light Mode, background is light (white), so we check against that.
+          const bgForContrast = darkMode ? '#111827' : '#ffffff'
+          const contrastRatio = getContrastRatio(color as string, bgForContrast)
+          const hasGoodContrast = contrastRatio >= 3.0 // 3.0 is good for UI components/graphics (WCAG 2.1)
+
           return (
-            <div 
-              key={name} 
+            <div
+              key={name}
               className="space-y-2 px-1"
             >
               <div className="flex items-center space-x-3">
                 <div className="relative">
-                  <Tooltip 
-                    content={isEditable ? 'Click to edit color' : `Color: ${color}`} 
+                  <Tooltip
+                    content={isEditable ? 'Click to edit color' : `Color: ${color}`}
                     darkMode={darkMode}
                     position="right"
                   >
-                    <div 
-                      className={`w-10 h-10 rounded-lg shadow-sm border border-black/10 flex-shrink-0 ${
-                        isEditable ? 'cursor-pointer' : ''
-                      } ${editingColor === name ? 'ring-2 ring-purple-500' : ''}`}
+                    <div
+                      className={`w-10 h-10 rounded-lg shadow-sm border border-black/10 flex-shrink-0 ${isEditable ? 'cursor-pointer' : ''
+                        } ${editingColor === name ? 'ring-2 ring-purple-500' : ''}`}
                       style={{ backgroundColor: color as string }}
                       onClick={() => handleColorClick(name)}
                       onKeyDown={(e) => {
@@ -273,7 +282,7 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
                     />
                   </Tooltip>
                 </div>
-                
+
                 <div className="min-w-0 flex-1">
                   <div className={`text-sm font-medium truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                     {name.replace(/([A-Z])/g, ' $1').replace(/^./, (str: string) => str.toUpperCase())}
@@ -283,21 +292,49 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
                       {color as string}
                     </div>
                     {/* Contrast indicator with no animation */}
-                    <div className="relative">
-                      <Tooltip 
-                        content={`Contrast ratio: ${contrastRatio.toFixed(1)} ${hasGoodContrast ? '(Good)' : '(Poor)'}`}
-                        darkMode={darkMode}
-                        position="right"
-                      >
-                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                          hasGoodContrast ? 'bg-green-500' : 'bg-red-500'
-                        }`} />
-                      </Tooltip>
+                    <div className="flex items-center space-x-2">
+                      <div className="relative">
+                        <Tooltip
+                          content={`Contrast with background: ${contrastRatio.toFixed(1)} ${hasGoodContrast ? '(Good)' : '(Poor)'}`}
+                          darkMode={darkMode}
+                          position="right"
+                        >
+                          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${hasGoodContrast ? 'bg-green-500' : 'bg-red-500'
+                            }`} />
+                        </Tooltip>
+                      </div>
+
+                      {/* Fix Button for Poor Contrast */}
+                      {!hasGoodContrast && isEditable && (
+                        <div className="relative">
+                          <Tooltip
+                            content="Auto-fix contrast"
+                            darkMode={darkMode}
+                            position="right"
+                          >
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleFixColor(name, color as string, bgForContrast);
+                              }}
+                              className={`p-1 rounded-full transition-colors ${darkMode
+                                  ? 'bg-blue-900/30 text-blue-300 hover:bg-blue-800/50'
+                                  : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                                }`}
+                              aria-label={`Fix contrast for ${name}`}
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                              </svg>
+                            </button>
+                          </Tooltip>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               {editingColor === name && (
                 <div className="pt-2 space-y-3 bg-black/5 dark:bg-white/5 rounded-lg p-2 ml-1">
                   <div className="flex space-x-2">
@@ -314,43 +351,40 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
                       value={tempColor}
                       onChange={(e) => handleColorInputChange(e.target.value)}
                       placeholder="#000000"
-                      className={`flex-1 px-2 py-2 text-sm border rounded-lg ${
-                        isValidColor(tempColor)
-                          ? darkMode 
-                            ? 'bg-gray-700 border-gray-600 text-gray-200 focus:ring-purple-500' 
+                      className={`flex-1 px-2 py-2 text-sm border rounded-lg ${isValidColor(tempColor)
+                          ? darkMode
+                            ? 'bg-gray-700 border-gray-600 text-gray-200 focus:ring-purple-500'
                             : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-500'
                           : 'border-red-500 bg-red-50 dark:bg-red-900/20'
-                      } focus:ring-2 focus:border-transparent`}
+                        } focus:ring-2 focus:border-transparent`}
                       aria-label={`Hex value for ${name}`}
                     />
                   </div>
-                  
+
                   {!isValidColor(tempColor) && (
                     <p className="text-xs text-red-500">Please enter a valid hex color (e.g., #FF0000)</p>
                   )}
-                  
+
                   <div className="flex justify-start items-center">
                     <div className="flex space-x-2">
                       <button
                         onClick={handleSaveColor}
                         disabled={!isValidColor(tempColor)}
-                        className={`px-3 py-1.5 text-sm rounded-lg font-medium ${
-                          isValidColor(tempColor)
-                            ? darkMode 
-                              ? 'bg-purple-600 hover:bg-purple-500 text-white' 
+                        className={`px-3 py-1.5 text-sm rounded-lg font-medium ${isValidColor(tempColor)
+                            ? darkMode
+                              ? 'bg-purple-600 hover:bg-purple-500 text-white'
                               : 'bg-purple-600 hover:bg-purple-700 text-white'
                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        }`}
+                          }`}
                       >
                         Save
                       </button>
                       <button
                         onClick={handleCancelEdit}
-                        className={`px-3 py-1.5 text-sm rounded-lg font-medium ${
-                          darkMode 
-                            ? 'bg-gray-600 hover:bg-gray-500 text-gray-200' 
+                        className={`px-3 py-1.5 text-sm rounded-lg font-medium ${darkMode
+                            ? 'bg-gray-600 hover:bg-gray-500 text-gray-200'
                             : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                        }`}
+                          }`}
                       >
                         Cancel
                       </button>
