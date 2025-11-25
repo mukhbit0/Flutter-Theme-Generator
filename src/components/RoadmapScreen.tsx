@@ -134,8 +134,6 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
         'Best practices'
       ]
     },
-
-    // In Progress Features
     {
       id: 'roadmap-visualization',
       title: 'Interactive Roadmap',
@@ -157,8 +155,6 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
         'Priority indicators'
       ]
     },
-
-    // Recently Completed Features
     {
       id: 'shareable-themes',
       title: 'Shareable Theme Links',
@@ -501,15 +497,30 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'from-green-500 to-emerald-500'
+        return 'from-emerald-400 to-teal-500'
       case 'in-progress':
-        return 'from-blue-500 to-cyan-500'
+        return 'from-blue-400 to-indigo-500'
       case 'planned':
-        return 'from-yellow-500 to-orange-500'
+        return 'from-amber-400 to-orange-500'
       case 'future':
-        return 'from-purple-500 to-pink-500'
+        return 'from-fuchsia-400 to-purple-500'
       default:
-        return 'from-gray-500 to-gray-600'
+        return 'from-gray-400 to-gray-500'
+    }
+  }
+
+  const getStatusGlow = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'shadow-emerald-500/20'
+      case 'in-progress':
+        return 'shadow-blue-500/20'
+      case 'planned':
+        return 'shadow-orange-500/20'
+      case 'future':
+        return 'shadow-purple-500/20'
+      default:
+        return 'shadow-gray-500/20'
     }
   }
 
@@ -517,45 +528,30 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
     switch (status) {
       case 'completed':
         return (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
           </svg>
         )
       case 'in-progress':
         return (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         )
       case 'planned':
         return (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m0 0h10a2 2 0 002-2V7a2 2 0 00-2-2H9m0 0V3" />
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m0 0h10a2 2 0 002-2V7a2 2 0 00-2-2H9m0 0V3" />
           </svg>
         )
       case 'future':
         return (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
         )
       default:
         return null
-    }
-  }
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'critical':
-        return 'bg-red-500'
-      case 'high':
-        return 'bg-orange-500'
-      case 'medium':
-        return 'bg-yellow-500'
-      case 'low':
-        return 'bg-green-500'
-      default:
-        return 'bg-gray-500'
     }
   }
 
@@ -567,222 +563,193 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
   }
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen relative overflow-hidden transition-colors duration-500 ${darkMode ? 'bg-slate-950' : 'bg-gray-50'}`}>
+
+      {/* Ambient Background Effects */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className={`absolute -top-[20%] -left-[10%] w-[70%] h-[70%] rounded-full mix-blend-multiply filter blur-[120px] opacity-20 animate-blob ${darkMode ? 'bg-purple-900' : 'bg-purple-200'}`} />
+        <div className={`absolute top-[20%] -right-[10%] w-[70%] h-[70%] rounded-full mix-blend-multiply filter blur-[120px] opacity-20 animate-blob animation-delay-2000 ${darkMode ? 'bg-cyan-900' : 'bg-cyan-200'}`} />
+        <div className={`absolute -bottom-[20%] left-[20%] w-[70%] h-[70%] rounded-full mix-blend-multiply filter blur-[120px] opacity-20 animate-blob animation-delay-4000 ${darkMode ? 'bg-emerald-900' : 'bg-emerald-200'}`} />
+      </div>
+
       {/* Header */}
-      <div className={`${darkMode ? 'bg-gray-800/80' : 'bg-white/80'} backdrop-blur-lg border-b ${darkMode ? 'border-gray-700/50' : 'border-gray-200/50'} sticky top-0 z-50`}>
+      <div className={`sticky top-0 z-50 backdrop-blur-xl border-b transition-colors duration-300 ${darkMode ? 'bg-slate-900/70 border-white/5' : 'bg-white/70 border-gray-200/50'}`}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center space-x-6">
               <button
                 onClick={onBack}
-                className={`p-2 rounded-lg transition-all duration-200 ${darkMode
-                    ? 'text-gray-400 hover:text-white hover:bg-gray-700/50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                className={`p-2.5 rounded-xl transition-all duration-300 group ${darkMode
+                    ? 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
+                    : 'bg-white hover:bg-gray-100 text-gray-600 hover:text-gray-900 border border-gray-200 shadow-sm'
                   }`}
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
               <div>
-                <h1 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
                   Project Roadmap
                 </h1>
-                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'} mt-1`}>
-                  Track our progress and upcoming features
+                <p className={`text-sm font-medium mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Building the future of Flutter theming
                 </p>
               </div>
             </div>
 
             {/* Progress Overview */}
-            <div className="hidden md:flex items-center space-x-8">
-              {/* Overall Progress */}
-              <div className="flex items-center space-x-3">
-                <div className="text-center">
-                  <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            <div className="flex items-center gap-8">
+              <div className="hidden md:block">
+                <div className="flex items-end gap-2 mb-2">
+                  <span className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                     {Math.round((statusCounts.completed / roadmapData.length) * 100)}%
-                  </div>
-                  <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  </span>
+                  <span className={`text-sm font-medium mb-1.5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     Complete
-                  </div>
+                  </span>
                 </div>
-                <div className="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className={`w-48 h-2 rounded-full overflow-hidden ${darkMode ? 'bg-white/5' : 'bg-gray-200'}`}>
                   <div
-                    className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-1000"
+                    className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full shadow-[0_0_10px_rgba(52,211,153,0.5)] transition-all duration-1000 ease-out"
                     style={{ width: `${(statusCounts.completed / roadmapData.length) * 100}%` }}
                   />
                 </div>
               </div>
-
-              {/* Status Counts */}
-              {Object.entries(statusCounts).map(([status, count]) => (
-                <div key={status} className="text-center">
-                  <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {count}
-                  </div>
-                  <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} capitalize`}>
-                    {status.replace('-', ' ')}
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12 relative z-10">
         {/* Filters */}
-        <div className="mb-8 space-y-4">
-          <div className="flex flex-wrap gap-4">
-            <div className="flex items-center space-x-2">
-              <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                Status:
-              </span>
-              {['all', 'completed', 'in-progress', 'planned', 'future'].map((status) => (
-                <button
-                  key={status}
-                  onClick={() => setFilter(status as any)}
-                  className={`px-3 py-1 text-xs font-medium rounded-full transition-all duration-200 ${filter === status
-                      ? `bg-gradient-to-r ${getStatusColor(status)} text-white shadow-lg`
-                      : darkMode
-                        ? 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
-                        : 'bg-gray-200/50 text-gray-600 hover:bg-gray-300/50'
-                    }`}
-                >
-                  {status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-4">
-            <div className="flex items-center space-x-2">
-              <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                Category:
-              </span>
-              {['all', 'core', 'ui', 'performance', 'developer-experience', 'integration'].map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setCategoryFilter(category as any)}
-                  className={`px-3 py-1 text-xs font-medium rounded-full transition-all duration-200 ${categoryFilter === category
-                      ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg'
-                      : darkMode
-                        ? 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
-                        : 'bg-gray-200/50 text-gray-600 hover:bg-gray-300/50'
-                    }`}
-                >
-                  {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Roadmap Timeline */}
-        <div className="relative">
-          {/* Timeline Line */}
-          <div className={`absolute left-8 top-0 bottom-0 w-0.5 ${darkMode ? 'bg-gray-700' : 'bg-gray-300'}`} />
-
-          {/* Roadmap Items */}
-          <div className="space-y-8">
-            {filteredItems.map((item, index) => (
-              <div
-                key={item.id}
-                className={`relative pl-20 transform transition-all duration-700 ${visibleItems.includes(item.id)
-                    ? 'translate-x-0 opacity-100'
-                    : 'translate-x-8 opacity-0'
+        <div className="mb-12 flex flex-col gap-6">
+          {/* Status Filter */}
+          <div className="flex flex-wrap gap-3">
+            {['all', 'completed', 'in-progress', 'planned', 'future'].map((status) => (
+              <button
+                key={status}
+                onClick={() => setFilter(status as any)}
+                className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 border ${filter === status
+                    ? `bg-gradient-to-r ${getStatusColor(status)} text-white border-transparent shadow-lg transform scale-105`
+                    : darkMode
+                      ? 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:border-white/10'
+                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
                   }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
               >
-                {/* Timeline Dot */}
-                <div className={`absolute left-6 -ml-2 w-4 h-4 rounded-full bg-gradient-to-r ${getStatusColor(item.status)} shadow-lg flex items-center justify-center`}>
-                  <div className="w-2 h-2 bg-white rounded-full" />
-                </div>
+                {status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
+              </button>
+            ))}
+          </div>
 
-                {/* Content Card */}
-                <div className={`${darkMode ? 'bg-gray-800/70' : 'bg-white/70'} backdrop-blur-lg rounded-2xl p-6 border ${darkMode ? 'border-gray-700/50' : 'border-gray-200/50'} hover:shadow-2xl transition-all duration-300 group`}>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${getStatusColor(item.status)} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                        {item.icon}
-                      </div>
-                      <div>
-                        <h3 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                          {item.title}
-                        </h3>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <span className={`text-sm font-medium px-2 py-1 rounded-full bg-gradient-to-r ${getStatusColor(item.status)} text-white flex items-center space-x-1`}>
-                            {getStatusIcon(item.status)}
-                            <span>{item.status.charAt(0).toUpperCase() + item.status.slice(1).replace('-', ' ')}</span>
-                          </span>
-                          <span className={`text-xs px-2 py-1 rounded-full ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'}`}>
-                            {item.version}
-                          </span>
-                          {item.version.startsWith('v2.') && (
-                            <span className="text-xs px-2 py-1 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium">
-                              🚀 Next-Gen
-                            </span>
-                          )}
-                          {item.date && (
-                            <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                              {item.date}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <div className={`w-2 h-2 rounded-full ${getPriorityColor(item.priority)}`} title={`${item.priority} priority`} />
-                      <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} capitalize`}>
-                        {item.category.replace('-', ' ')}
-                      </span>
-                    </div>
-                  </div>
-
-                  <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} mb-4 leading-relaxed`}>
-                    {item.description}
-                  </p>
-
-                  {item.features && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {item.features.map((feature, featureIndex) => (
-                        <div
-                          key={featureIndex}
-                          className={`flex items-center space-x-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                        >
-                          <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span>{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+          {/* Category Filter */}
+          <div className="flex flex-wrap gap-2">
+            {['all', 'core', 'ui', 'performance', 'developer-experience', 'integration'].map((category) => (
+              <button
+                key={category}
+                onClick={() => setCategoryFilter(category as any)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-300 border ${categoryFilter === category
+                    ? 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20'
+                    : darkMode
+                      ? 'text-gray-500 border-transparent hover:text-gray-300'
+                      : 'text-gray-500 border-transparent hover:text-gray-700'
+                  }`}
+              >
+                {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Statistics */}
-        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
-          {Object.entries(statusCounts).map(([status, count]) => (
-            <div
-              key={status}
-              className={`${darkMode ? 'bg-gray-800/70' : 'bg-white/70'} backdrop-blur-lg rounded-2xl p-6 border ${darkMode ? 'border-gray-700/50' : 'border-gray-200/50'} text-center`}
-            >
-              <div className={`w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-r ${getStatusColor(status)} flex items-center justify-center text-white shadow-lg`}>
-                {getStatusIcon(status)}
+        {/* Roadmap Timeline */}
+        <div className="relative pl-8 md:pl-0">
+          {/* Timeline Line */}
+          <div className={`absolute left-8 md:left-1/2 top-0 bottom-0 w-px transform -translate-x-1/2 bg-gradient-to-b ${darkMode
+              ? 'from-emerald-500/50 via-blue-500/50 to-purple-500/50'
+              : 'from-emerald-500/30 via-blue-500/30 to-purple-500/30'
+            }`} />
+
+          <div className="space-y-12">
+            {filteredItems.map((item, index) => (
+              <div
+                key={item.id}
+                className={`relative flex items-center md:justify-between md:odd:flex-row-reverse group ${visibleItems.includes(item.id) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                  }`}
+                style={{ transition: `all 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${index * 100}ms` }}
+              >
+                {/* Timeline Dot */}
+                <div className={`absolute left-0 md:left-1/2 w-4 h-4 rounded-full transform -translate-x-1/2 border-2 transition-all duration-500 z-10 ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-white'
+                  } group-hover:scale-150`}>
+                  <div className={`w-full h-full rounded-full bg-gradient-to-r ${getStatusColor(item.status)} opacity-80 group-hover:opacity-100`} />
+                </div>
+
+                {/* Content Card */}
+                <div className="w-full md:w-[calc(50%-3rem)] ml-12 md:ml-0">
+                  <div className={`relative p-6 rounded-2xl border backdrop-blur-md transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-2xl ${darkMode
+                      ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                      : 'bg-white/60 border-white/40 hover:bg-white/80 hover:border-white/60 shadow-sm'
+                    } ${getStatusGlow(item.status)}`}>
+
+                    {/* Card Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-4">
+                        <div className={`p-3 rounded-xl bg-gradient-to-br ${getStatusColor(item.status)} text-white shadow-lg transform group-hover:rotate-6 transition-transform duration-300`}>
+                          {item.icon}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${darkMode
+                                ? 'bg-white/5 border-white/10 text-gray-300'
+                                : 'bg-gray-100 border-gray-200 text-gray-600'
+                              }`}>
+                              {item.version}
+                            </span>
+                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${darkMode
+                                ? 'bg-white/5 border-white/10 text-gray-400'
+                                : 'bg-gray-100 border-gray-200 text-gray-500'
+                              }`}>
+                              {item.date}
+                            </span>
+                          </div>
+                          <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {item.title}
+                          </h3>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className={`text-sm leading-relaxed mb-6 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {item.description}
+                    </p>
+
+                    {/* Features Grid */}
+                    {item.features && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {item.features.map((feature, i) => (
+                          <div key={i} className={`flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg ${darkMode
+                              ? 'bg-white/5 text-gray-300'
+                              : 'bg-gray-50 text-gray-600'
+                            }`}>
+                            <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${getStatusColor(item.status)}`} />
+                            {feature}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Status Badge (Absolute) */}
+                    <div className="absolute top-4 right-4">
+                      <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg bg-gradient-to-r ${getStatusColor(item.status)}`}>
+                        {getStatusIcon(item.status)}
+                        <span className="capitalize">{item.status.replace('-', ' ')}</span>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
               </div>
-              <div className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'} mb-2`}>
-                {count}
-              </div>
-              <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'} capitalize`}>
-                {status.replace('-', ' ')} Features
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
