@@ -129,23 +129,23 @@ function generateDarkMaterial3Colors(colors: { primary: string, secondary: strin
   return {
     // Core Colors
     primary: adjustColor(colors.primary, -20),
-    onPrimary: adjustColor(colors.primary, -80),
+    onPrimary: getOptimalTextColor(adjustColor(colors.primary, -20)),
     primaryContainer: adjustColor(colors.primary, -60),
-    onPrimaryContainer: adjustColor(colors.primary, 80),
+    onPrimaryContainer: getOptimalTextColor(adjustColor(colors.primary, -60)),
     secondary: adjustColor(colors.secondary, -20),
-    onSecondary: adjustColor(colors.secondary, -80),
+    onSecondary: getOptimalTextColor(adjustColor(colors.secondary, -20)),
     secondaryContainer: adjustColor(colors.secondary, -60),
-    onSecondaryContainer: adjustColor(colors.secondary, 80),
+    onSecondaryContainer: getOptimalTextColor(adjustColor(colors.secondary, -60)),
     tertiary: adjustColor(colors.tertiary, -20),
-    onTertiary: adjustColor(colors.tertiary, -80),
+    onTertiary: getOptimalTextColor(adjustColor(colors.tertiary, -20)),
     tertiaryContainer: adjustColor(colors.tertiary, -60),
-    onTertiaryContainer: adjustColor(colors.tertiary, 80),
+    onTertiaryContainer: getOptimalTextColor(adjustColor(colors.tertiary, -60)),
     
     // Error Colors
     error: '#FFB4AB',
-    onError: '#690005',
+    onError: getOptimalTextColor('#FFB4AB'),
     errorContainer: '#93000A',
-    onErrorContainer: '#FFDAD6',
+    onErrorContainer: getOptimalTextColor('#93000A'),
     
     // Surface Colors
     surface: '#10090D',
@@ -533,15 +533,13 @@ function getLuminance(hex: string): number {
   return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs
 }
 
-// Helper function to get optimal text color
+// Helper function to get optimal text color using Max Contrast method
 function getOptimalTextColor(backgroundColor: string, preferDark: boolean = false): string {
-  const luminance = getLuminance(backgroundColor)
+  const whiteContrast = getContrastRatio(backgroundColor, '#FFFFFF');
+  const blackContrast = getContrastRatio(backgroundColor, '#000000');
   
-  if (preferDark) {
-    return luminance > 0.7 ? '#000000' : '#FFFFFF'
-  }
-  
-  return luminance > 0.5 ? '#000000' : '#FFFFFF'
+  // Return the color with the higher contrast ratio
+  return whiteContrast >= blackContrast ? '#FFFFFF' : '#000000';
 }
 
 export class FlutterThemeGenerator {
