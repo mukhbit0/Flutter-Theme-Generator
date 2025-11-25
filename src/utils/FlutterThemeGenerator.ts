@@ -8,10 +8,10 @@ export function generateFlutterTheme(colors: {
 }, settings?: ThemeGeneratorSettings): ThemeConfig {
   const lightColors: ThemeColors = generateLightMaterial3Colors(colors)
   const darkColors: ThemeColors = generateDarkMaterial3Colors(colors)
-  
+
   // Build colors object based on enabled variants
   const colorsConfig: any = {}
-  
+
   // Always include basic light and dark if enabled
   if (settings?.themeVariants?.lightMode !== false) {
     colorsConfig.light = lightColors
@@ -19,7 +19,7 @@ export function generateFlutterTheme(colors: {
   if (settings?.themeVariants?.darkMode !== false) {
     colorsConfig.dark = darkColors
   }
-  
+
   // Add contrast variants if enabled
   if (settings?.themeVariants?.lightMedium) {
     colorsConfig.lightMediumContrast = generateLightMediumContrastColors(colors)
@@ -62,13 +62,13 @@ function generateLightMaterial3Colors(colors: { primary: string, secondary: stri
     onTertiary: getContrastColor(colors.tertiary),
     tertiaryContainer: adjustColor(colors.tertiary, 80),
     onTertiaryContainer: adjustColor(colors.tertiary, -40),
-    
+
     // Error Colors
     error: '#BA1A1A',
     onError: '#FFFFFF',
     errorContainer: '#FFDAD6',
     onErrorContainer: '#93000A',
-    
+
     // Surface Colors
     surface: '#FFFBFE',
     onSurface: '#1C1B1F',
@@ -80,24 +80,24 @@ function generateLightMaterial3Colors(colors: { primary: string, secondary: stri
     surfaceContainer: '#F3EDF7',
     surfaceContainerHigh: '#ECE6F0',
     surfaceContainerHighest: '#E6E0E9',
-    
+
     // Background Colors (deprecated but kept for compatibility)
     background: '#FFFBFE',
     onBackground: '#1C1B1F',
-    
+
     // Outline Colors
     outline: '#79747E',
     outlineVariant: '#CAC4D0',
-    
+
     // Utility Colors
     shadow: '#000000',
     scrim: '#000000',
-    
+
     // Inverse Colors
     inverseSurface: '#313033',
     inverseOnSurface: '#F4EFF4',
     inversePrimary: adjustColor(colors.primary, -20),
-    
+
     // Fixed Colors
     primaryFixed: adjustColor(colors.primary, 80),
     onPrimaryFixed: adjustColor(colors.primary, -60),
@@ -111,10 +111,10 @@ function generateLightMaterial3Colors(colors: { primary: string, secondary: stri
     onTertiaryFixed: adjustColor(colors.tertiary, -60),
     tertiaryFixedDim: adjustColor(colors.tertiary, 60),
     onTertiaryFixedVariant: adjustColor(colors.tertiary, -20),
-    
+
     // Surface Tint
     surfaceTint: colors.primary,
-    
+
     // Additional Colors (custom)
     success: '#2E7D32',
     warning: '#F57C00',
@@ -140,13 +140,13 @@ function generateDarkMaterial3Colors(colors: { primary: string, secondary: strin
     onTertiary: getOptimalTextColor(adjustColor(colors.tertiary, -20)),
     tertiaryContainer: adjustColor(colors.tertiary, -60),
     onTertiaryContainer: getOptimalTextColor(adjustColor(colors.tertiary, -60)),
-    
+
     // Error Colors
     error: '#FFB4AB',
     onError: getOptimalTextColor('#FFB4AB'),
     errorContainer: '#93000A',
     onErrorContainer: getOptimalTextColor('#93000A'),
-    
+
     // Surface Colors
     surface: '#10090D',
     onSurface: '#E6E0E9',
@@ -158,24 +158,24 @@ function generateDarkMaterial3Colors(colors: { primary: string, secondary: strin
     surfaceContainer: '#211A1E',
     surfaceContainerHigh: '#2B2329',
     surfaceContainerHighest: '#362F33',
-    
+
     // Background Colors (deprecated but kept for compatibility)
     background: '#10090D',
     onBackground: '#E6E0E9',
-    
+
     // Outline Colors
     outline: '#938F99',
     outlineVariant: '#49454F',
-    
+
     // Utility Colors
     shadow: '#000000',
     scrim: '#000000',
-    
+
     // Inverse Colors
     inverseSurface: '#E6E0E9',
     inverseOnSurface: '#313033',
     inversePrimary: colors.primary,
-    
+
     // Fixed Colors
     primaryFixed: adjustColor(colors.primary, 80),
     onPrimaryFixed: adjustColor(colors.primary, -60),
@@ -189,10 +189,10 @@ function generateDarkMaterial3Colors(colors: { primary: string, secondary: strin
     onTertiaryFixed: adjustColor(colors.tertiary, -60),
     tertiaryFixedDim: adjustColor(colors.tertiary, 60),
     onTertiaryFixedVariant: adjustColor(colors.tertiary, -20),
-    
+
     // Surface Tint
     surfaceTint: adjustColor(colors.primary, -20),
-    
+
     // Additional Colors (custom)
     success: '#66BB6A',
     warning: '#FFB74D',
@@ -488,7 +488,7 @@ function validateColorContrast(backgroundColor: string, textColor: string): {
   level: 'AA' | 'AAA' | 'FAIL';
 } {
   const ratio = getContrastRatio(backgroundColor, textColor)
-  
+
   return {
     ratio,
     isAccessible: ratio >= 4.5,
@@ -501,20 +501,20 @@ function adjustColorWithContrast(baseColor: string, targetBackground: string, is
   let adjustedColor = baseColor
   let attempts = 0
   const maxAttempts = 10
-  
+
   while (attempts < maxAttempts) {
     const contrast = validateColorContrast(targetBackground, adjustedColor)
-    
+
     if (contrast.isAccessible) {
       return adjustedColor
     }
-    
+
     // Adjust color to improve contrast
     const adjustment = isDark ? 20 : -20
     adjustedColor = adjustColor(adjustedColor, adjustment)
     attempts++
   }
-  
+
   // Fallback to optimal text color if adjustment fails
   return getOptimalTextColor(targetBackground, isDark)
 }
@@ -534,10 +534,10 @@ function getLuminance(hex: string): number {
 }
 
 // Helper function to get optimal text color using Max Contrast method
-function getOptimalTextColor(backgroundColor: string, preferDark: boolean = false): string {
+function getOptimalTextColor(backgroundColor: string, _preferDark: boolean = false): string {
   const whiteContrast = getContrastRatio(backgroundColor, '#FFFFFF');
   const blackContrast = getContrastRatio(backgroundColor, '#000000');
-  
+
   // Return the color with the higher contrast ratio
   return whiteContrast >= blackContrast ? '#FFFFFF' : '#000000';
 }

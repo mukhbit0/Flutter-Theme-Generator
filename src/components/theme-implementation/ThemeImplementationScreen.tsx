@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ThemeConfig, ThemeGeneratorSettings, ThemeColors } from '../../types/theme';
 import MobileFrame from './MobileFrame';
 import EcommerceMockup from './mockups/EcommerceMockup';
