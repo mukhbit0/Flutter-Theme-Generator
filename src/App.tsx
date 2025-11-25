@@ -7,6 +7,7 @@ import GuideScreen from './components/GuideScreen'
 import RoadmapScreen from './components/RoadmapScreen'
 import PreviewScreen from './components/PreviewScreen'
 import SharedThemeViewer from './components/SharedThemeViewer'
+import ThemeImplementationScreen from './components/theme-implementation/ThemeImplementationScreen'
 import { ThemeConfig, ThemeGeneratorSettings } from './types/theme'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { DarkModeProvider, useDarkMode } from './contexts/DarkModeContext'
@@ -55,7 +56,7 @@ function AppContent() {
     useEffect(() => {
       const editSharedId = searchParams.get('editShared')
       const returnPath = searchParams.get('returnTo')
-      
+
       if (editSharedId) {
         setHasEditShared(true)
         if (!localThemeConfig) {
@@ -67,7 +68,7 @@ function AppContent() {
                 console.log('Loading shared theme for editing in preview:', sharedTheme.name)
                 setLocalThemeConfig(sharedTheme.themeConfig)
                 setReturnRoute(returnPath || `/shared/${editSharedId}`)
-                
+
                 // Add a small delay for smooth transition
                 setTimeout(() => {
                   setShowContent(true)
@@ -98,9 +99,8 @@ function AppContent() {
     // Enhanced loading screen with better animations
     if (hasEditShared && isLoading) {
       return (
-        <div className={`min-h-screen flex items-center justify-center transition-all-smooth animate-fadeInFast ${
-          darkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
-        }`}>
+        <div className={`min-h-screen flex items-center justify-center transition-all-smooth animate-fadeInFast ${darkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
+          }`}>
           <div className="text-center animate-fadeIn">
             {/* Animated logo/icon */}
             <div className="relative mb-8">
@@ -109,29 +109,27 @@ function AppContent() {
                 <div className="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
                 <div className="absolute inset-2 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                   <svg className="w-8 h-8 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                   </svg>
                 </div>
               </div>
             </div>
 
             {/* Loading text with animation */}
-            <h2 className={`text-2xl font-bold mb-2 animate-pulse ${
-              darkMode ? 'text-white' : 'text-gray-900'
-            }`}>
+            <h2 className={`text-2xl font-bold mb-2 animate-pulse ${darkMode ? 'text-white' : 'text-gray-900'
+              }`}>
               Loading Theme
             </h2>
-            <p className={`text-sm animate-bounce ${
-              darkMode ? 'text-gray-400' : 'text-gray-600'
-            }`}>
+            <p className={`text-sm animate-bounce ${darkMode ? 'text-gray-400' : 'text-gray-600'
+              }`}>
               Preparing your beautiful theme preview...
             </p>
 
             {/* Progress dots */}
             <div className="flex justify-center space-x-1 mt-6">
-              <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-              <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-              <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+              <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
             </div>
           </div>
         </div>
@@ -141,10 +139,9 @@ function AppContent() {
     // Show preview with fade-in transition
     if (localThemeConfig) {
       return (
-        <div className={`transition-opacity-smooth transition-all-smooth ${
-          showContent ? 'opacity-100 translate-y-0 animate-fadeInSlide' : 'opacity-0 translate-y-4'
-        }`}>
-          <PreviewScreen 
+        <div className={`transition-opacity-smooth transition-all-smooth ${showContent ? 'opacity-100 translate-y-0 animate-fadeInSlide' : 'opacity-0 translate-y-4'
+          }`}>
+          <PreviewScreen
             themeConfig={localThemeConfig}
             settings={localThemeSettings}
             onBack={handleBackToGenerator}
@@ -157,10 +154,9 @@ function AppContent() {
     // Only show homepage if we're not editing a shared theme
     if (!hasEditShared) {
       return (
-        <div className={`transition-all duration-500 ease-out ${
-          showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-        }`}>
-          <HomePage 
+        <div className={`transition-all duration-500 ease-out ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}>
+          <HomePage
             onNavigateToGenerator={handleNavigateToGenerator}
             onNavigateToGuide={handleNavigateToGuide}
             onNavigateToRoadmap={handleNavigateToRoadmap}
@@ -173,9 +169,8 @@ function AppContent() {
 
     // Fallback loading for edit mode
     return (
-      <div className={`min-h-screen flex items-center justify-center transition-all duration-500 ease-out ${
-        darkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
-      }`}>
+      <div className={`min-h-screen flex items-center justify-center transition-all duration-500 ease-out ${darkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
+        }`}>
         <div className="text-center animate-fadeIn">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -227,23 +222,23 @@ function AppContent() {
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-slate-50 to-blue-50'}`}>
       <Routes>
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
-            <HomePage 
+            <HomePage
               onNavigateToGenerator={handleNavigateToGenerator}
               onNavigateToGuide={handleNavigateToGuide}
               onNavigateToRoadmap={handleNavigateToRoadmap}
               darkMode={darkMode}
               onToggleDarkMode={toggleDarkMode}
             />
-          } 
+          }
         />
-        
-        <Route 
-          path="/generator" 
+
+        <Route
+          path="/generator"
           element={
-            <ThemeGeneratorComponent 
+            <ThemeGeneratorComponent
               onBack={handleBackToHome}
               onPreview={handleNavigateToPreview}
               darkMode={darkMode}
@@ -255,44 +250,57 @@ function AppContent() {
               extractedColors={extractedColors}
               setExtractedColors={setExtractedColors}
             />
-          } 
+          }
         />
 
-        <Route 
-          path="/guide" 
+        <Route
+          path="/guide"
           element={
-            <GuideScreen 
+            <GuideScreen
               onBack={handleBackToHome}
               darkMode={darkMode}
             />
-          } 
+          }
         />
 
-        <Route 
-          path="/roadmap" 
+        <Route
+          path="/roadmap"
           element={
-            <RoadmapScreen 
+            <RoadmapScreen
               onBack={handleBackToHome}
               darkMode={darkMode}
               onNavigateToGenerator={handleNavigateToGenerator}
               onNavigateToGuide={handleNavigateToGuide}
             />
-          } 
+          }
         />
 
-        <Route 
-          path="/preview" 
+        <Route
+          path="/preview"
           element={<PreviewRoute />}
         />
 
         {/* Shared Theme Viewer */}
-        <Route 
-          path="/shared/:shareId" 
-          element={<SharedThemeViewer />} 
+        <Route
+          path="/shared/:shareId"
+          element={<SharedThemeViewer />}
+        />
+
+        {/* Theme Implementation / Mockups Route */}
+        <Route
+          path="/implementation"
+          element={
+            <ThemeImplementationScreen
+              themeConfig={themeConfig}
+              settings={themeSettings}
+              onBack={() => navigate('/preview')}
+              darkMode={darkMode}
+            />
+          }
         />
 
         {/* Catch all route - redirect to home */}
-        <Route path="*" element={<HomePage 
+        <Route path="*" element={<HomePage
           onNavigateToGenerator={handleNavigateToGenerator}
           onNavigateToGuide={handleNavigateToGuide}
           onNavigateToRoadmap={handleNavigateToRoadmap}

@@ -182,7 +182,28 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
         'Cross-browser clipboard support'
       ]
     },
-    
+    {
+      id: 'theme-mockups',
+      title: 'Theme Implementation Mockups',
+      description: 'Interactive, multi-page UI mockups for E-commerce and Social Media apps to visualize generated themes',
+      status: 'completed',
+      category: 'ui',
+      version: 'v2.1',
+      date: 'August 15, 2025',
+      priority: 'high',
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+      ),
+      features: [
+        'E-commerce & Social Media templates',
+        'Real-time theme application',
+        'Independent theme variant preview',
+        'Realistic data & micro-interactions'
+      ]
+    },
+
     // Planned Features
     {
       id: 'firebase-integration',
@@ -190,7 +211,7 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
       description: 'Complete backend integration with user authentication, like system, and theme history',
       status: 'planned',
       category: 'integration',
-      version: 'v2.1',
+      version: 'v2.2',
       date: 'September 1, 2025',
       priority: 'critical',
       icon: (
@@ -214,7 +235,7 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
       description: 'Generate complete Flutter app examples with theme integration',
       status: 'planned',
       category: 'developer-experience',
-      version: 'v2.2',
+      version: 'v2.3',
       date: 'September 15, 2025',
       priority: 'high',
       icon: (
@@ -235,7 +256,7 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
       description: 'WCAG AAA compliance checking and brand consistency analysis',
       status: 'planned',
       category: 'core',
-      version: 'v2.2',
+      version: 'v2.3',
       date: 'September 15, 2025',
       priority: 'high',
       icon: (
@@ -256,7 +277,7 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
       description: 'Generate design tokens for Figma, Adobe XD, and Sketch',
       status: 'planned',
       category: 'integration',
-      version: 'v2.3',
+      version: 'v2.4',
       date: 'October 1, 2025',
       priority: 'medium',
       icon: (
@@ -554,11 +575,10 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
             <div className="flex items-center space-x-4">
               <button
                 onClick={onBack}
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  darkMode 
-                    ? 'text-gray-400 hover:text-white hover:bg-gray-700/50' 
+                className={`p-2 rounded-lg transition-all duration-200 ${darkMode
+                    ? 'text-gray-400 hover:text-white hover:bg-gray-700/50'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
-                }`}
+                  }`}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -587,7 +607,7 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
                   </div>
                 </div>
                 <div className="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-1000"
                     style={{ width: `${(statusCounts.completed / roadmapData.length) * 100}%` }}
                   />
@@ -622,13 +642,12 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
                 <button
                   key={status}
                   onClick={() => setFilter(status as any)}
-                  className={`px-3 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
-                    filter === status
+                  className={`px-3 py-1 text-xs font-medium rounded-full transition-all duration-200 ${filter === status
                       ? `bg-gradient-to-r ${getStatusColor(status)} text-white shadow-lg`
                       : darkMode
-                      ? 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
-                      : 'bg-gray-200/50 text-gray-600 hover:bg-gray-300/50'
-                  }`}
+                        ? 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
+                        : 'bg-gray-200/50 text-gray-600 hover:bg-gray-300/50'
+                    }`}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
                 </button>
@@ -645,13 +664,12 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
                 <button
                   key={category}
                   onClick={() => setCategoryFilter(category as any)}
-                  className={`px-3 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
-                    categoryFilter === category
+                  className={`px-3 py-1 text-xs font-medium rounded-full transition-all duration-200 ${categoryFilter === category
                       ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg'
                       : darkMode
-                      ? 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
-                      : 'bg-gray-200/50 text-gray-600 hover:bg-gray-300/50'
-                  }`}
+                        ? 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
+                        : 'bg-gray-200/50 text-gray-600 hover:bg-gray-300/50'
+                    }`}
                 >
                   {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
                 </button>
@@ -670,11 +688,10 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
             {filteredItems.map((item, index) => (
               <div
                 key={item.id}
-                className={`relative pl-20 transform transition-all duration-700 ${
-                  visibleItems.includes(item.id)
+                className={`relative pl-20 transform transition-all duration-700 ${visibleItems.includes(item.id)
                     ? 'translate-x-0 opacity-100'
                     : 'translate-x-8 opacity-0'
-                }`}
+                  }`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
                 {/* Timeline Dot */}
