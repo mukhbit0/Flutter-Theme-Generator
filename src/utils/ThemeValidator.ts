@@ -17,6 +17,7 @@ export interface ThemeValidationReport {
     score: number;
     brandConsistencyScore: number;
     performanceScore: number;
+    harmonyName?: string; // New field
     results: ValidationResult[];
     passedCount: number;
     warningCount: number; // AA but not AAA
@@ -75,22 +76,20 @@ export class ThemeValidator {
         });
 
         // Calculate score (0-100)
-        // Simple scoring: (Passed * 1 + Warnings * 0.5) / Total * 100
         const total = pairs.length;
         const score = Math.round(((passedCount + (warningCount * 0.5)) / total) * 100);
 
         // Calculate Brand Consistency Score
-        // Check if primary, secondary, and tertiary are distinct enough
-        const brandConsistencyScore = ThemeValidator.calculateBrandConsistency(colors);
+        const { score: brandConsistencyScore, harmony } = ThemeValidator.calculateBrandConsistency(colors);
 
-        // Calculate Performance Score
-        // Based on number of unique colors (simulating complexity)
-        const performanceScore = ThemeValidator.calculatePerformanceImpact(colors);
+        // Calculate Performance Score (System Efficiency)
+        const performanceScore = ThemeValidator.calculateSystemEfficiency(colors);
 
         return {
             score,
             brandConsistencyScore,
             performanceScore,
+            harmonyName: harmony,
             results,
             passedCount,
             warningCount,
@@ -98,65 +97,103 @@ export class ThemeValidator {
         };
     }
 
-    static calculateBrandConsistency(colors: any): number {
-        // Simple heuristic: Check distance between key brand colors
-        // If they are too close, it might look muddy or inconsistent
-        const getHue = (hex: string) => {
-            const r = parseInt(hex.slice(1, 3), 16) / 255;
-            const g = parseInt(hex.slice(3, 5), 16) / 255;
-            const b = parseInt(hex.slice(5, 7), 16) / 255;
-            const max = Math.max(r, g, b), min = Math.min(r, g, b);
-            let h = 0;
+    static calculateBrandConsistency(colors: any): { score: number, harmony: string } {
+        // 1. Harmony Detection
+        const getHue = (hex: string) => FlutterThemeGenerator.hexToHsl(hex).h;
+        const getSat = (hex: string) => FlutterThemeGenerator.hexToHsl(hex).s;
 
-            if (max === min) return 0;
-            const d = max - min;
-            switch (max) {
-                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                case g: h = (b - r) / d + 2; break;
-                case b: h = (r - g) / d + 4; break;
-            }
-            return h * 60;
+        const h1 = getHue(colors.primary);
+        const h2 = getHue(colors.secondary);
+        const h3 = getHue(colors.tertiary);
+
+        const hues = [h1, h2, h3].sort((a, b) => a - b);
+
+        const diff = (a: number, b: number) => {
+            const d = Math.abs(a - b);
+            return Math.min(d, 360 - d);
         };
 
-        const primaryHue = getHue(colors.primary);
-        const secondaryHue = getHue(colors.secondary);
-        const tertiaryHue = getHue(colors.tertiary);
+        const d1 = diff(hues[0], hues[1]);
+        const d2 = diff(hues[1], hues[2]);
+        const d3 = diff(hues[0], hues[2]);
 
-        // Calculate minimum distance between hues
-        const diff1 = Math.abs(primaryHue - secondaryHue);
-        const diff2 = Math.abs(secondaryHue - tertiaryHue);
-        const diff3 = Math.abs(primaryHue - tertiaryHue);
+        let harmony = 'Custom';
+        let harmonyScore = 80;
 
-        // Normalize diffs to be within 180 degrees
-        const normDiff = (d: number) => Math.min(d, 360 - d);
+        // Check for Monochromatic
+        if (d1 < 15 && d2 < 15 && d3 < 15) {
+            harmony = 'Monochromatic';
+            harmonyScore = 95;
+        }
+        // Check for Analogous
+        else if (d1 < 60 && d2 < 60 && d3 < 90) {
+            harmony = 'Analogous';
+            harmonyScore = 98;
+        }
+        // Check for Triadic
+        else if (Math.abs(d1 - 120) < 20 && Math.abs(d2 - 120) < 20) {
+            harmony = 'Triadic';
+            harmonyScore = 95;
+        }
+        // Check for Split Complementary
+        else if ((Math.abs(d1 - 150) < 30 || Math.abs(d2 - 150) < 30)) {
+            harmony = 'Split Complementary';
+            harmonyScore = 92;
+        }
+        // Check for Complementary
+        else if (Math.abs(d1 - 180) < 20 || Math.abs(d2 - 180) < 20 || Math.abs(d3 - 180) < 20) {
+            harmony = 'Complementary';
+            harmonyScore = 90;
+        }
 
-        const minDiff = Math.min(normDiff(diff1), normDiff(diff2), normDiff(diff3));
+        // 2. Saturation Consistency
+        const s1 = getSat(colors.primary);
+        const s2 = getSat(colors.secondary);
+        const s3 = getSat(colors.tertiary);
 
-        // If colors are too close (e.g. < 15 degrees), score is lower
-        // If they are distinct (> 30 degrees), score is higher
-        // This is just a heuristic for "visual distinction"
-        if (minDiff < 10) return 70; // Monochromatic-ish but maybe unintentional
-        if (minDiff < 20) return 85; // Analogous
-        return 95; // Distinct
+        const avgS = (s1 + s2 + s3) / 3;
+        const variance = ((s1 - avgS) ** 2 + (s2 - avgS) ** 2 + (s3 - avgS) ** 2) / 3;
+        const stdDev = Math.sqrt(variance);
+
+        const saturationBonus = Math.max(-10, Math.min(10, 10 - (stdDev / 2)));
+
+        return {
+            score: Math.min(100, Math.round(harmonyScore + saturationBonus)),
+            harmony
+        };
     }
 
-    static calculatePerformanceImpact(colors: any): number {
-        // In Flutter, more unique colors = slightly more memory, but negligible.
-        // This is mostly a "complexity" score.
-        // Let's count unique hex values in the scheme.
+    static calculateSystemEfficiency(colors: any): number {
+        // 1. Redundancy Check
+        const getHue = (hex: string) => FlutterThemeGenerator.hexToHsl(hex).h;
+        const h1 = getHue(colors.primary);
+        const h2 = getHue(colors.secondary);
+        const h3 = getHue(colors.tertiary);
+
+        const diff = (a: number, b: number) => {
+            const d = Math.abs(a - b);
+            return Math.min(d, 360 - d);
+        };
+
+        const d1 = diff(h1, h2);
+        const d2 = diff(h2, h3);
+        const d3 = diff(h1, h3);
+
+        let redundancyPenalty = 0;
+        if (d1 > 0 && d1 < 10) redundancyPenalty += 5;
+        if (d2 > 0 && d2 < 10) redundancyPenalty += 5;
+        if (d3 > 0 && d3 < 10) redundancyPenalty += 5;
+
+        // 2. Palette Complexity
         const uniqueColors = new Set(Object.values(colors)).size;
         const totalSlots = Object.keys(colors).length;
+        const uniquenessRatio = uniqueColors / totalSlots;
 
-        // If we reuse colors (e.g. primary = onSecondary), it's more efficient?
-        // Actually, for a theme generator, we usually want unique colors for flexibility.
-        // Let's say: 
-        // Too few unique colors (< 5) = 100 (Simple, fast)
-        // Moderate (5-15) = 90
-        // Many (> 15) = 80 (Complex)
+        let complexityScore = 90;
+        if (uniquenessRatio > 0.9) complexityScore = 80;
+        if (uniquenessRatio < 0.5) complexityScore = 95;
 
-        if (uniqueColors < 10) return 98;
-        if (uniqueColors < 20) return 92;
-        return 85;
+        return Math.max(0, Math.min(100, complexityScore - redundancyPenalty));
     }
 
     static fixColor(color: string, bg: string, targetRatio: number = 3.0): string {
@@ -166,18 +203,12 @@ export class ThemeValidator {
         const bgLuminance = FlutterThemeGenerator.getLuminance(bg);
         const isBgDark = bgLuminance < 0.5;
 
-        // Binary search for the minimum adjustment needed
-        // If background is dark, we generally want lighter colors (higher L)
-        // If background is light, we generally want darker colors (lower L)
-        // However, we should try both directions to see which is closer/better
-
         const tryDirection = (direction: 'lighten' | 'darken'): string | null => {
             let low = 0;
             let high = 100;
             let foundColor = null;
 
-            // We want the SMALLEST change that passes
-            for (let i = 0; i < 10; i++) { // 10 iterations is enough precision
+            for (let i = 0; i < 10; i++) {
                 const mid = (low + high) / 2;
                 const adjustment = direction === 'lighten' ? mid : -mid;
                 const testColor = FlutterThemeGenerator.adjustColorHsl(color, adjustment);
@@ -185,23 +216,18 @@ export class ThemeValidator {
 
                 if (ratio >= targetRatio) {
                     foundColor = testColor;
-                    high = mid; // Try to find a smaller adjustment
+                    high = mid;
                 } else {
-                    low = mid; // Need more adjustment
+                    low = mid;
                 }
             }
             return foundColor;
         };
 
-        // Try both directions and pick the one that requires less change (conceptually)
-        // or simply the one that works if only one works.
-        // Usually, if bg is dark, lightening is the way to go, and vice versa.
         const lighter = tryDirection('lighten');
         const darker = tryDirection('darken');
 
         if (lighter && darker) {
-            // Compare which one is closer to original lightness? 
-            // For now, let's stick to the natural direction based on BG luminance for consistency
             return isBgDark ? lighter : darker;
         }
 
@@ -209,41 +235,30 @@ export class ThemeValidator {
     }
 
     static getFixedTheme(theme: ThemeConfig, isDark: boolean): ThemeConfig {
-        // Create a deep copy to avoid mutation
         const newTheme = JSON.parse(JSON.stringify(theme)) as ThemeConfig;
         const colors = isDark ? newTheme.colors.dark : newTheme.colors.light;
-        const appBg = colors.background; // Check against app background
+        const appBg = colors.background;
 
-        // 1. Fix Main Colors against Background (Target 3.0 for UI visibility)
-        // We iterate through all colors that are NOT "on" colors (content colors)
         Object.keys(colors).forEach(key => {
             if (!key.startsWith('on') && typeof colors[key as keyof typeof colors] === 'string') {
                 const colorVal = colors[key as keyof typeof colors] as string;
-                // Only fix if it's really bad, otherwise preserve design intent for main UI elements
                 if (FlutterThemeGenerator.getContrastRatio(appBg, colorVal) < 3.0) {
                     colors[key as keyof typeof colors] = ThemeValidator.fixColor(colorVal, appBg, 3.0);
                 }
             }
         });
 
-        // 2. Fix Content Pairs (Text on Backgrounds) - Target AAA (7.0)
         const fixPair = (bg: string, fg: string, targetRatio: number = 7.0): string => {
-            // Use the shared fixColor logic but with higher target and fallback
             let fixed = ThemeValidator.fixColor(fg, bg, targetRatio);
-
-            // If AAA fails (e.g. impossible with this hue), try AA (4.5)
             if (FlutterThemeGenerator.getContrastRatio(bg, fixed) < targetRatio && targetRatio > 4.5) {
                 fixed = ThemeValidator.fixColor(fg, bg, 4.5);
             }
-
-            // If still fails (rare), fallback to B/W
             if (FlutterThemeGenerator.getContrastRatio(bg, fixed) < 4.5) {
                 return FlutterThemeGenerator.getOptimalTextColor(bg, isDark);
             }
             return fixed;
         };
 
-        // Apply fixes to all critical pairs
         colors.onPrimary = fixPair(colors.primary, colors.onPrimary);
         colors.onPrimaryContainer = fixPair(colors.primaryContainer, colors.onPrimaryContainer);
         colors.onSecondary = fixPair(colors.secondary, colors.onSecondary);

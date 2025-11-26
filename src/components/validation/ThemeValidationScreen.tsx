@@ -189,6 +189,9 @@ export default function ThemeValidationScreen({ theme, darkMode, onBack, onUpdat
                                 <div>
                                     <div className={`text-sm font-bold uppercase tracking-wider mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Brand Consistency</div>
                                     <div className={`text-3xl font-black ${getScoreColor(report.brandConsistencyScore)}`}>{report.brandConsistencyScore}%</div>
+                                    <div className={`text-xs mt-1 font-medium ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                        {report.harmonyName ? `${report.harmonyName} Harmony` : 'Custom Palette'}
+                                    </div>
                                 </div>
                                 <div className={`w-12 h-12 rounded-full flex items-center justify-center ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
                                     <svg className={`w-6 h-6 ${getScoreColor(report.brandConsistencyScore)}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,8 +201,11 @@ export default function ThemeValidationScreen({ theme, darkMode, onBack, onUpdat
                             </div>
                             <div className={`p-6 rounded-3xl border backdrop-blur-xl flex items-center justify-between ${darkMode ? 'bg-white/5 border-white/10' : 'bg-white/60 border-white/40'}`}>
                                 <div>
-                                    <div className={`text-sm font-bold uppercase tracking-wider mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Performance Impact</div>
+                                    <div className={`text-sm font-bold uppercase tracking-wider mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>System Efficiency</div>
                                     <div className={`text-3xl font-black ${getScoreColor(report.performanceScore)}`}>{report.performanceScore}%</div>
+                                    <div className={`text-xs mt-1 font-medium ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                        Palette Complexity & Redundancy
+                                    </div>
                                 </div>
                                 <div className={`w-12 h-12 rounded-full flex items-center justify-center ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
                                     <svg className={`w-6 h-6 ${getScoreColor(report.performanceScore)}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
