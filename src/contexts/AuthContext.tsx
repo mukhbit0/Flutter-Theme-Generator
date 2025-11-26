@@ -4,7 +4,9 @@ import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
-    onAuthStateChanged
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithPopup
 } from 'firebase/auth';
 import { initializeFirebase, getFirebaseAuth } from '../firebase/config';
 
@@ -13,6 +15,7 @@ interface AuthContextType {
     loading: boolean;
     login: (email: string, pass: string) => Promise<void>;
     signup: (email: string, pass: string) => Promise<void>;
+    signInWithGoogle: () => Promise<void>;
     logout: () => Promise<void>;
     error: string | null;
     clearError: () => void;
@@ -79,6 +82,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const signInWithGoogle = async () => {
+        setError(null);
+        try {
+            const auth = getFirebaseAuth();
+            const provider = new GoogleAuthProvider();
+            await signInWithPopup(auth, provider);
+        } catch (err: any) {
+            console.error("Google Sign-In Error:", err);
+            setError(err.message || "Failed to sign in with Google");
+            throw err;
+        }
+    };
+
     const logout = async () => {
         setError(null);
         try {
@@ -98,6 +114,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         login,
         signup,
+        signInWithGoogle,
         logout,
         error,
         clearError
