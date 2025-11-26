@@ -10,6 +10,7 @@ export default function PreviewHeader({
   setPreviewMode,
   onBack,
   onDownload,
+  onSave,
   isDownloading,
   settings
 }: PreviewHeaderProps) {
@@ -108,6 +109,21 @@ export default function PreviewHeader({
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </button>
+              </Tooltip>
+
+              <Tooltip content="Save Theme" position="bottom" darkMode={darkMode}>
+                <button
+                  onClick={onSave}
+                  className={`p-2.5 rounded-full transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${darkMode
+                    ? 'bg-green-600 text-white hover:bg-green-500 border border-green-500'
+                    : 'bg-green-600 text-white hover:bg-green-700 border border-green-600'
+                    }`}
+                  aria-label="Save Theme"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                   </svg>
                 </button>
               </Tooltip>

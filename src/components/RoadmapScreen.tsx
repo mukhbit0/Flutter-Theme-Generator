@@ -197,6 +197,27 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
       ]
     },
     {
+      id: 'firebase-integration',
+      title: 'Firebase Integration & User System',
+      description: 'User authentication, profile management, and cloud storage for themes.',
+      status: 'completed',
+      category: 'integration',
+      version: 'v2.2',
+      date: 'Q4 2024',
+      priority: 'critical',
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+        </svg>
+      ),
+      features: [
+        'User Authentication (Login/Signup)',
+        'Cloud Storage for Themes',
+        'User Profiles',
+        'Cross-device Sync'
+      ]
+    },
+    {
       id: 'theme-validation',
       title: 'Theme Validation & Analysis',
       description: 'WCAG AAA compliance checking, brand consistency scoring, and performance impact analysis',
@@ -219,30 +240,6 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
     },
 
     // Planned Features
-    {
-      id: 'firebase-integration',
-      title: 'Firebase Integration & User System',
-      description: 'Complete backend integration with user authentication, like system, and theme history',
-      status: 'planned',
-      category: 'integration',
-      version: 'v2.2',
-      date: 'September 1, 2025',
-      priority: 'critical',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-        </svg>
-      ),
-      features: [
-        'User authentication (Google, GitHub, Email)',
-        'Like system with user tracking',
-        'Theme history and favorites',
-        'Real-time sharing statistics',
-        'User profiles and theme galleries',
-        'Cloud storage for themes',
-        'Social features and following system'
-      ]
-    },
     {
       id: 'flutter-templates',
       title: 'Flutter Code Templates',

@@ -43,6 +43,7 @@ export interface PreviewHeaderProps {
   setPreviewMode: (mode: PreviewMode) => void
   onBack: () => void
   onDownload: () => void
+  onSave?: () => void
   isDownloading: boolean
   settings?: ThemeGeneratorSettings | null
 }

@@ -13,6 +13,10 @@ import { ThemeConfig, ThemeGeneratorSettings } from './types/theme'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { DarkModeProvider, useDarkMode } from './contexts/DarkModeContext'
 import { sharingService } from './services/SharingService'
+import { AuthProvider } from './contexts/AuthContext';
+import { LoginScreen } from './components/auth/LoginScreen';
+import { SignupScreen } from './components/auth/SignupScreen';
+import { UserProfile } from './components/auth/UserProfile';
 
 function AppContent() {
   const [themeConfig, setThemeConfig] = useState<ThemeConfig | null>(null)
@@ -235,6 +239,9 @@ function AppContent() {
             />
           }
         />
+        <Route path="/login" element={<LoginScreen />} />
+        <Route path="/signup" element={<SignupScreen />} />
+        <Route path="/profile" element={<UserProfile />} />
 
         <Route
           path="/generator"
@@ -349,15 +356,17 @@ function App() {
 
   return (
     <DarkModeProvider>
-      <ThemeProvider>
-        {showSplash ? (
-          <SplashScreen />
-        ) : (
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
-        )}
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          {showSplash ? (
+            <SplashScreen />
+          ) : (
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          )}
+        </ThemeProvider>
+      </AuthProvider>
     </DarkModeProvider>
   );
 }

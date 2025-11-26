@@ -1,5 +1,7 @@
 import { Footer } from './Footer'
 import { ThemeCounter } from './ThemeCounter'
+import { useAuth } from '../contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
 
 interface HomePageProps {
   onNavigateToGenerator: () => void
@@ -10,6 +12,9 @@ interface HomePageProps {
 }
 
 export default function HomePage({ onNavigateToGenerator, onNavigateToGuide, onNavigateToRoadmap, darkMode, onToggleDarkMode }: HomePageProps) {
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <div className={`min-h-screen flex flex-col ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
       {/* Header */}
@@ -18,9 +23,9 @@ export default function HomePage({ onNavigateToGenerator, onNavigateToGuide, onN
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
               <div className={`w-20 h-20 rounded-xl ${darkMode ? 'bg-gray-700/50' : 'bg-gray-100/50'} flex items-center justify-center shadow-lg overflow-hidden`}>
-                <img 
-                  src={darkMode ? "https://img.ionicerrrrscode.com/company-projects/logo-dark.webp" : "https://img.ionicerrrrscode.com/company-projects/logo-light.webp"} 
-                  alt="Flutter Theme Generator Logo" 
+                <img
+                  src={darkMode ? "https://img.ionicerrrrscode.com/company-projects/logo-dark.webp" : "https://img.ionicerrrrscode.com/company-projects/logo-light.webp"}
+                  alt="Flutter Theme Generator Logo"
                   className="w-24 h-24 object-contain"
                 />
               </div>
@@ -33,37 +38,64 @@ export default function HomePage({ onNavigateToGenerator, onNavigateToGuide, onN
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
+              {currentUser ? (
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => navigate('/profile')}
+                    className={`text-sm font-medium hover:underline ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+                  >
+                    {currentUser.email}
+                  </button>
+                  <button
+                    onClick={() => logout()}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${darkMode
+                      ? 'text-red-400 hover:text-red-300 hover:bg-red-900/20'
+                      : 'text-red-600 hover:text-red-700 hover:bg-red-50'
+                      }`}
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => navigate('/login')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${darkMode
+                    ? 'text-indigo-400 hover:text-indigo-300 hover:bg-indigo-900/20'
+                    : 'text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50'
+                    }`}
+                >
+                  Login
+                </button>
+              )}
+
               <button
                 onClick={onNavigateToGuide}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                  darkMode 
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-700/50' 
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${darkMode
+                  ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                  }`}
               >
                 Documentation
               </button>
-              
+
               <button
                 onClick={onNavigateToRoadmap}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                  darkMode 
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-700/50' 
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${darkMode
+                  ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                  }`}
               >
                 Roadmap
               </button>
-              
+
               <button
                 onClick={onToggleDarkMode}
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  darkMode 
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-700/50' 
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
-                }`}
+                className={`p-2 rounded-lg transition-all duration-200 ${darkMode
+                  ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                  }`}
               >
                 {darkMode ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,25 +117,24 @@ export default function HomePage({ onNavigateToGenerator, onNavigateToGuide, onN
         <div className="max-w-6xl w-full">
           <div className="text-center mb-16">
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-8">
-              <div className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium ${
-                darkMode 
-                  ? 'bg-purple-900/20 text-purple-300 border border-purple-700/30' 
-                  : 'bg-purple-50 text-purple-700 border border-purple-200'
-              }`}>
+              <div className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium ${darkMode
+                ? 'bg-purple-900/20 text-purple-300 border border-purple-700/30'
+                : 'bg-purple-50 text-purple-700 border border-purple-200'
+                }`}>
                 <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
                 Create Professional Flutter Themes
               </div>
             </div>
-            
+
             <h1 className={`text-6xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               Build Beautiful
               <span className="block bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
                 Flutter Themes
               </span>
             </h1>
-            
+
             <p className={`text-xl leading-relaxed max-w-3xl mx-auto mb-12 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              Generate comprehensive Flutter themes with clean architecture. Support for both light and dark modes, 
+              Generate comprehensive Flutter themes with clean architecture. Support for both light and dark modes,
               color extraction from logos, custom color palettes, and Material 3 compliance.
             </p>
 
@@ -117,25 +148,23 @@ export default function HomePage({ onNavigateToGenerator, onNavigateToGuide, onN
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </button>
-              
+
               <button
                 onClick={onNavigateToGuide}
-                className={`px-8 py-4 font-semibold rounded-xl border-2 transition-all duration-300 ${
-                  darkMode 
-                    ? 'border-gray-600 text-gray-300 hover:border-gray-500 hover:text-white hover:bg-gray-800/50' 
-                    : 'border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-900 hover:bg-gray-50'
-                }`}
+                className={`px-8 py-4 font-semibold rounded-xl border-2 transition-all duration-300 ${darkMode
+                  ? 'border-gray-600 text-gray-300 hover:border-gray-500 hover:text-white hover:bg-gray-800/50'
+                  : 'border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
               >
                 View Documentation
               </button>
-              
+
               <button
                 onClick={onNavigateToRoadmap}
-                className={`px-8 py-4 font-semibold rounded-xl border-2 transition-all duration-300 flex items-center space-x-2 ${
-                  darkMode 
-                    ? 'border-indigo-600 text-indigo-400 hover:border-indigo-500 hover:text-indigo-300 hover:bg-indigo-900/20' 
-                    : 'border-indigo-300 text-indigo-600 hover:border-indigo-400 hover:text-indigo-700 hover:bg-indigo-50'
-                }`}
+                className={`px-8 py-4 font-semibold rounded-xl border-2 transition-all duration-300 flex items-center space-x-2 ${darkMode
+                  ? 'border-indigo-600 text-indigo-400 hover:border-indigo-500 hover:text-indigo-300 hover:bg-indigo-900/20'
+                  : 'border-indigo-300 text-indigo-600 hover:border-indigo-400 hover:text-indigo-700 hover:bg-indigo-50'
+                  }`}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -143,6 +172,18 @@ export default function HomePage({ onNavigateToGenerator, onNavigateToGuide, onN
                 <span>Project Roadmap</span>
               </button>
             </div>
+
+            {!currentUser && (
+              <div className={`mt-8 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Want to save your themes?{' '}
+                <button
+                  onClick={() => navigate('/login')}
+                  className={`font-medium hover:underline ${darkMode ? 'text-indigo-400' : 'text-indigo-600'}`}
+                >
+                  Login to your account
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Features Grid */}
@@ -232,7 +273,7 @@ export default function HomePage({ onNavigateToGenerator, onNavigateToGuide, onN
           <div className={`mt-20 text-center p-12 rounded-3xl ${darkMode ? 'bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-700/50' : 'bg-gradient-to-r from-blue-50/50 to-purple-50/50 border border-gray-200/50'} backdrop-blur-lg`}>
             <div className="flex flex-col items-center space-y-6">
               <ThemeCounter darkMode={darkMode} />
-              
+
               <h2 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 Ready to Create Your Theme?
               </h2>

@@ -7,11 +7,17 @@ import PreviewContainer from './preview-screen/PreviewContainer'
 import { ThemeConfig } from '../types/theme'
 import { useTheme } from '../contexts/ThemeContext'
 
+import { useAuth } from '../contexts/AuthContext'
+import { themeService } from '../services/ThemeService'
+import { useNavigate } from 'react-router-dom'
+
 export default function PreviewScreen({ themeConfig, settings, onBack, darkMode }: PreviewScreenProps) {
   const [previewMode, setPreviewMode] = useState<PreviewMode>('light')
   const [isDownloading, setIsDownloading] = useState(false)
   const [modifiedThemeConfig, setModifiedThemeConfig] = useState<ThemeConfig>(themeConfig)
   const { setThemeConfig } = useTheme()
+  const { currentUser } = useAuth()
+  const navigate = useNavigate()
 
   // Update theme context when themeConfig prop changes
   useEffect(() => {
@@ -86,7 +92,7 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
       default:
         colors = modifiedThemeConfig.colors.light
     }
-    
+
     console.log(`Preview mode: ${previewMode}`, colors)
     return colors
   }
@@ -144,6 +150,30 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
     }))
   }
 
+  const handleSave = async () => {
+    if (!currentUser) {
+      if (window.confirm('You need to be logged in to save themes. Would you like to log in now?')) {
+        navigate('/login');
+      }
+      return;
+    }
+
+    const themeName = prompt('Enter a name for your theme:', settings?.themeName || 'My Theme');
+    if (!themeName) return;
+
+    try {
+      const result = await themeService.saveTheme(currentUser.uid, themeName, modifiedThemeConfig);
+      if (result.success) {
+        alert('Theme saved successfully!');
+      } else {
+        alert('Failed to save theme: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error saving theme:', error);
+      alert('An error occurred while saving the theme.');
+    }
+  };
+
   const handleDownload = async () => {
     try {
       setIsDownloading(true)
@@ -157,12 +187,11 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
   }
 
   return (
-    <div 
-      className={`min-h-screen transition-all duration-300 ${
-        darkMode 
-          ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' 
-          : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
-      }`}
+    <div
+      className={`min-h-screen transition-all duration-300 ${darkMode
+        ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'
+        : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
+        }`}
     >
       {/* Header */}
       <PreviewHeader
@@ -171,6 +200,7 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
         setPreviewMode={setPreviewMode}
         onBack={onBack}
         onDownload={handleDownload}
+        onSave={handleSave}
         isDownloading={isDownloading}
         settings={settings}
       />
@@ -178,12 +208,12 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 lg:px-6 py-8">
         <div className="grid grid-cols-1 xl:grid-cols-7 lg:grid-cols-4 gap-6 lg:gap-8">
-          
+
           {/* Color Palette Sidebar - Optimized width */}
           <div className="xl:col-span-2 lg:col-span-1">
-            <ColorPalette 
-              currentColors={currentColors} 
-              darkMode={darkMode} 
+            <ColorPalette
+              currentColors={currentColors}
+              darkMode={darkMode}
               onColorChange={handleColorChange}
               isEditable={true}
             />
@@ -191,10 +221,10 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
 
           {/* Preview Content - More space allocated */}
           <div className="xl:col-span-5 lg:col-span-3">
-            <PreviewContainer 
-              currentColors={currentColors} 
-              previewMode={previewMode} 
-              darkMode={darkMode} 
+            <PreviewContainer
+              currentColors={currentColors}
+              previewMode={previewMode}
+              darkMode={darkMode}
             />
           </div>
         </div>
