@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { themeService, SavedTheme } from '../../services/ThemeService';
-import { useNavigate } from 'react-router-dom';
+
 
 export const UserProfile: React.FC = () => {
     const { currentUser, logout } = useAuth();
     const [themes, setThemes] = useState<SavedTheme[]>([]);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+
 
     useEffect(() => {
         if (currentUser) {

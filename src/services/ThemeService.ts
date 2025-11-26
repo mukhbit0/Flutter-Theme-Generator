@@ -10,6 +10,10 @@ export interface SavedTheme {
     created_at: string;
 }
 
+interface RawSavedTheme extends Omit<SavedTheme, 'config'> {
+    config: string | ThemeConfig;
+}
+
 export const themeService = {
     async saveTheme(userId: string, name: string, themeConfig: ThemeConfig): Promise<{ success: boolean; id?: string; error?: string }> {
         try {
@@ -34,7 +38,7 @@ export const themeService = {
 
             if (data.success && data.themes) {
                 // Parse the config string back to object
-                data.themes = data.themes.map((theme: any) => ({
+                data.themes = data.themes.map((theme: RawSavedTheme) => ({
                     ...theme,
                     config: typeof theme.config === 'string' ? JSON.parse(theme.config) : theme.config
                 }));

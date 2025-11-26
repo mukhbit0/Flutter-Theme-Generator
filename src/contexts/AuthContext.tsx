@@ -4,10 +4,9 @@ import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
-    onAuthStateChanged,
-    AuthError
+    onAuthStateChanged
 } from 'firebase/auth';
-import { auth } from '../firebase/config';
+import { initializeFirebase, getFirebaseAuth } from '../firebase/config';
 
 interface AuthContextType {
     currentUser: User | null;
@@ -33,16 +32,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setCurrentUser(user);
-            setLoading(false);
-        });
-        return unsubscribe;
+        let unsubscribe: (() => void) | undefined;
+
+        const init = async () => {
+            try {
+                const auth = await initializeFirebase();
+                unsubscribe = onAuthStateChanged(auth, (user) => {
+                    setCurrentUser(user);
+                    setLoading(false);
+                });
+            } catch (err: any) {
+                console.error("Failed to initialize Firebase:", err);
+                setError("Failed to initialize application");
+                setLoading(false);
+            }
+        };
+
+        init();
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
     }, []);
 
     const login = async (email: string, pass: string) => {
         setError(null);
         try {
+            const auth = getFirebaseAuth();
             await signInWithEmailAndPassword(auth, email, pass);
         } catch (err: any) {
             console.error("Login Error:", err);
@@ -54,6 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const signup = async (email: string, pass: string) => {
         setError(null);
         try {
+            const auth = getFirebaseAuth();
             await createUserWithEmailAndPassword(auth, email, pass);
         } catch (err: any) {
             console.error("Signup Error:", err);
@@ -65,6 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const logout = async () => {
         setError(null);
         try {
+            const auth = getFirebaseAuth();
             await signOut(auth);
         } catch (err: any) {
             console.error("Logout Error:", err);
