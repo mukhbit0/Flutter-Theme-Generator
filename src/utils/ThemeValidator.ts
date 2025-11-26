@@ -15,6 +15,8 @@ export interface ValidationResult {
 
 export interface ThemeValidationReport {
     score: number;
+    brandConsistencyScore: number;
+    performanceScore: number;
     results: ValidationResult[];
     passedCount: number;
     warningCount: number; // AA but not AAA
@@ -77,13 +79,84 @@ export class ThemeValidator {
         const total = pairs.length;
         const score = Math.round(((passedCount + (warningCount * 0.5)) / total) * 100);
 
+        // Calculate Brand Consistency Score
+        // Check if primary, secondary, and tertiary are distinct enough
+        const brandConsistencyScore = ThemeValidator.calculateBrandConsistency(colors);
+
+        // Calculate Performance Score
+        // Based on number of unique colors (simulating complexity)
+        const performanceScore = ThemeValidator.calculatePerformanceImpact(colors);
+
         return {
             score,
+            brandConsistencyScore,
+            performanceScore,
             results,
             passedCount,
             warningCount,
             errorCount
         };
+    }
+
+    static calculateBrandConsistency(colors: any): number {
+        // Simple heuristic: Check distance between key brand colors
+        // If they are too close, it might look muddy or inconsistent
+        const getHue = (hex: string) => {
+            const r = parseInt(hex.slice(1, 3), 16) / 255;
+            const g = parseInt(hex.slice(3, 5), 16) / 255;
+            const b = parseInt(hex.slice(5, 7), 16) / 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h = 0;
+
+            if (max === min) return 0;
+            const d = max - min;
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            return h * 60;
+        };
+
+        const primaryHue = getHue(colors.primary);
+        const secondaryHue = getHue(colors.secondary);
+        const tertiaryHue = getHue(colors.tertiary);
+
+        // Calculate minimum distance between hues
+        const diff1 = Math.abs(primaryHue - secondaryHue);
+        const diff2 = Math.abs(secondaryHue - tertiaryHue);
+        const diff3 = Math.abs(primaryHue - tertiaryHue);
+
+        // Normalize diffs to be within 180 degrees
+        const normDiff = (d: number) => Math.min(d, 360 - d);
+
+        const minDiff = Math.min(normDiff(diff1), normDiff(diff2), normDiff(diff3));
+
+        // If colors are too close (e.g. < 15 degrees), score is lower
+        // If they are distinct (> 30 degrees), score is higher
+        // This is just a heuristic for "visual distinction"
+        if (minDiff < 10) return 70; // Monochromatic-ish but maybe unintentional
+        if (minDiff < 20) return 85; // Analogous
+        return 95; // Distinct
+    }
+
+    static calculatePerformanceImpact(colors: any): number {
+        // In Flutter, more unique colors = slightly more memory, but negligible.
+        // This is mostly a "complexity" score.
+        // Let's count unique hex values in the scheme.
+        const uniqueColors = new Set(Object.values(colors)).size;
+        const totalSlots = Object.keys(colors).length;
+
+        // If we reuse colors (e.g. primary = onSecondary), it's more efficient?
+        // Actually, for a theme generator, we usually want unique colors for flexibility.
+        // Let's say: 
+        // Too few unique colors (< 5) = 100 (Simple, fast)
+        // Moderate (5-15) = 90
+        // Many (> 15) = 80 (Complex)
+
+        if (uniqueColors < 10) return 98;
+        if (uniqueColors < 20) return 92;
+        return 85;
     }
 
     static fixColor(color: string, bg: string, targetRatio: number = 3.0): string {

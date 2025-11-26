@@ -183,6 +183,32 @@ export default function ThemeValidationScreen({ theme, darkMode, onBack, onUpdat
 
                     {/* Stats & Actions */}
                     <div className="md:col-span-2 flex flex-col gap-6">
+                        {/* Secondary Metrics */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className={`p-6 rounded-3xl border backdrop-blur-xl flex items-center justify-between ${darkMode ? 'bg-white/5 border-white/10' : 'bg-white/60 border-white/40'}`}>
+                                <div>
+                                    <div className={`text-sm font-bold uppercase tracking-wider mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Brand Consistency</div>
+                                    <div className={`text-3xl font-black ${getScoreColor(report.brandConsistencyScore)}`}>{report.brandConsistencyScore}%</div>
+                                </div>
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+                                    <svg className={`w-6 h-6 ${getScoreColor(report.brandConsistencyScore)}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div className={`p-6 rounded-3xl border backdrop-blur-xl flex items-center justify-between ${darkMode ? 'bg-white/5 border-white/10' : 'bg-white/60 border-white/40'}`}>
+                                <div>
+                                    <div className={`text-sm font-bold uppercase tracking-wider mb-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Performance Impact</div>
+                                    <div className={`text-3xl font-black ${getScoreColor(report.performanceScore)}`}>{report.performanceScore}%</div>
+                                </div>
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+                                    <svg className={`w-6 h-6 ${getScoreColor(report.performanceScore)}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-3 gap-4">
                             {[
                                 { label: 'Passed', count: report.passedCount, color: 'text-emerald-500', bg: darkMode ? 'bg-emerald-500/10' : 'bg-emerald-50' },

@@ -193,10 +193,28 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
         </svg>
       ),
       features: [
-        'E-commerce & Social Media templates',
-        'Real-time theme application',
-        'Independent theme variant preview',
         'Realistic data & micro-interactions'
+      ]
+    },
+    {
+      id: 'theme-validation',
+      title: 'Theme Validation & Analysis',
+      description: 'WCAG AAA compliance checking, brand consistency scoring, and performance impact analysis',
+      status: 'completed',
+      category: 'core',
+      version: 'v2.3',
+      date: 'November 26, 2025',
+      priority: 'high',
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      features: [
+        'WCAG AAA compliance',
+        'Color contrast analysis',
+        'Brand consistency scoring',
+        'Performance impact analysis'
       ]
     },
 
@@ -246,27 +264,7 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
         'Hot reload ready'
       ]
     },
-    {
-      id: 'theme-validation',
-      title: 'Theme Validation & Analysis',
-      description: 'WCAG AAA compliance checking and brand consistency analysis',
-      status: 'planned',
-      category: 'core',
-      version: 'v2.3',
-      date: 'September 15, 2025',
-      priority: 'high',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-      features: [
-        'WCAG AAA compliance',
-        'Color contrast analysis',
-        'Brand consistency scoring',
-        'Performance impact analysis'
-      ]
-    },
+
     {
       id: 'design-system-export',
       title: 'Design System Export',
@@ -580,8 +578,8 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
               <button
                 onClick={onBack}
                 className={`p-2.5 rounded-xl transition-all duration-300 group ${darkMode
-                    ? 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
-                    : 'bg-white hover:bg-gray-100 text-gray-600 hover:text-gray-900 border border-gray-200 shadow-sm'
+                  ? 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
+                  : 'bg-white hover:bg-gray-100 text-gray-600 hover:text-gray-900 border border-gray-200 shadow-sm'
                   }`}
               >
                 <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -631,10 +629,10 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
                 key={status}
                 onClick={() => setFilter(status as any)}
                 className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 border ${filter === status
-                    ? `bg-gradient-to-r ${getStatusColor(status)} text-white border-transparent shadow-lg transform scale-105`
-                    : darkMode
-                      ? 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:border-white/10'
-                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                  ? `bg-gradient-to-r ${getStatusColor(status)} text-white border-transparent shadow-lg transform scale-105`
+                  : darkMode
+                    ? 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:border-white/10'
+                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
                   }`}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
@@ -649,10 +647,10 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
                 key={category}
                 onClick={() => setCategoryFilter(category as any)}
                 className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-300 border ${categoryFilter === category
-                    ? 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20'
-                    : darkMode
-                      ? 'text-gray-500 border-transparent hover:text-gray-300'
-                      : 'text-gray-500 border-transparent hover:text-gray-700'
+                  ? 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20'
+                  : darkMode
+                    ? 'text-gray-500 border-transparent hover:text-gray-300'
+                    : 'text-gray-500 border-transparent hover:text-gray-700'
                   }`}
               >
                 {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
@@ -665,8 +663,8 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
         <div className="relative pl-8 md:pl-0">
           {/* Timeline Line */}
           <div className={`absolute left-8 md:left-1/2 top-0 bottom-0 w-px transform -translate-x-1/2 bg-gradient-to-b ${darkMode
-              ? 'from-emerald-500/50 via-blue-500/50 to-purple-500/50'
-              : 'from-emerald-500/30 via-blue-500/30 to-purple-500/30'
+            ? 'from-emerald-500/50 via-blue-500/50 to-purple-500/50'
+            : 'from-emerald-500/30 via-blue-500/30 to-purple-500/30'
             }`} />
 
           <div className="space-y-12">
@@ -686,8 +684,8 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
                 {/* Content Card */}
                 <div className="w-full md:w-[calc(50%-3rem)] ml-12 md:ml-0">
                   <div className={`relative p-6 rounded-2xl border backdrop-blur-md transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-2xl ${darkMode
-                      ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
-                      : 'bg-white/60 border-white/40 hover:bg-white/80 hover:border-white/60 shadow-sm'
+                    ? 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                    : 'bg-white/60 border-white/40 hover:bg-white/80 hover:border-white/60 shadow-sm'
                     } ${getStatusGlow(item.status)}`}>
 
                     {/* Card Header */}
@@ -699,14 +697,14 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${darkMode
-                                ? 'bg-white/5 border-white/10 text-gray-300'
-                                : 'bg-gray-100 border-gray-200 text-gray-600'
+                              ? 'bg-white/5 border-white/10 text-gray-300'
+                              : 'bg-gray-100 border-gray-200 text-gray-600'
                               }`}>
                               {item.version}
                             </span>
                             <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${darkMode
-                                ? 'bg-white/5 border-white/10 text-gray-400'
-                                : 'bg-gray-100 border-gray-200 text-gray-500'
+                              ? 'bg-white/5 border-white/10 text-gray-400'
+                              : 'bg-gray-100 border-gray-200 text-gray-500'
                               }`}>
                               {item.date}
                             </span>
@@ -727,8 +725,8 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {item.features.map((feature, i) => (
                           <div key={i} className={`flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg ${darkMode
-                              ? 'bg-white/5 text-gray-300'
-                              : 'bg-gray-50 text-gray-600'
+                            ? 'bg-white/5 text-gray-300'
+                            : 'bg-gray-50 text-gray-600'
                             }`}>
                             <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${getStatusColor(item.status)}`} />
                             {feature}
