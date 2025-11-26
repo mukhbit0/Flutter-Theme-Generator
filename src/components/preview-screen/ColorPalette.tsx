@@ -156,7 +156,10 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
 
   const handleFixColor = (name: string, color: string, bg: string) => {
     if (onColorChange) {
-      const fixedColor = ThemeValidator.fixColor(color, bg, 3.0);
+      // Use the enhanced fixColor from ThemeValidator which now uses HSL and binary search
+      // Target AAA (7.0) for best accessibility, but it will fallback to AA if needed
+      const fixedColor = ThemeValidator.fixColor(color, bg, 7.0);
+
       if (fixedColor !== color) {
         addToHistory(name, color, fixedColor);
         onColorChange(name, fixedColor);
@@ -196,10 +199,10 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
                   onClick={undo}
                   disabled={!canUndo}
                   className={`p-1.5 rounded-lg ${canUndo
-                      ? darkMode
-                        ? 'hover:bg-gray-600 text-gray-300'
-                        : 'hover:bg-gray-100 text-gray-600'
-                      : 'opacity-50 cursor-not-allowed text-gray-400'
+                    ? darkMode
+                      ? 'hover:bg-gray-600 text-gray-300'
+                      : 'hover:bg-gray-100 text-gray-600'
+                    : 'opacity-50 cursor-not-allowed text-gray-400'
                     }`}
                   aria-label="Undo color change"
                 >
@@ -216,10 +219,10 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
                   onClick={redo}
                   disabled={!canRedo}
                   className={`p-1.5 rounded-lg ${canRedo
-                      ? darkMode
-                        ? 'hover:bg-gray-600 text-gray-300'
-                        : 'hover:bg-gray-100 text-gray-600'
-                      : 'opacity-50 cursor-not-allowed text-gray-400'
+                    ? darkMode
+                      ? 'hover:bg-gray-600 text-gray-300'
+                      : 'hover:bg-gray-100 text-gray-600'
+                    : 'opacity-50 cursor-not-allowed text-gray-400'
                     }`}
                   aria-label="Redo color change"
                 >
@@ -318,8 +321,8 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
                                 handleFixColor(name, color as string, bgForContrast);
                               }}
                               className={`p-1 rounded-full transition-colors ${darkMode
-                                  ? 'bg-blue-900/30 text-blue-300 hover:bg-blue-800/50'
-                                  : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                                ? 'bg-blue-900/30 text-blue-300 hover:bg-blue-800/50'
+                                : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
                                 }`}
                               aria-label={`Fix contrast for ${name}`}
                             >
@@ -352,10 +355,10 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
                       onChange={(e) => handleColorInputChange(e.target.value)}
                       placeholder="#000000"
                       className={`flex-1 px-2 py-2 text-sm border rounded-lg ${isValidColor(tempColor)
-                          ? darkMode
-                            ? 'bg-gray-700 border-gray-600 text-gray-200 focus:ring-purple-500'
-                            : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-500'
-                          : 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                        ? darkMode
+                          ? 'bg-gray-700 border-gray-600 text-gray-200 focus:ring-purple-500'
+                          : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-500'
+                        : 'border-red-500 bg-red-50 dark:bg-red-900/20'
                         } focus:ring-2 focus:border-transparent`}
                       aria-label={`Hex value for ${name}`}
                     />
@@ -371,10 +374,10 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
                         onClick={handleSaveColor}
                         disabled={!isValidColor(tempColor)}
                         className={`px-3 py-1.5 text-sm rounded-lg font-medium ${isValidColor(tempColor)
-                            ? darkMode
-                              ? 'bg-purple-600 hover:bg-purple-500 text-white'
-                              : 'bg-purple-600 hover:bg-purple-700 text-white'
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          ? darkMode
+                            ? 'bg-purple-600 hover:bg-purple-500 text-white'
+                            : 'bg-purple-600 hover:bg-purple-700 text-white'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                           }`}
                       >
                         Save
@@ -382,8 +385,8 @@ export default function ColorPalette({ currentColors, darkMode, onColorChange, i
                       <button
                         onClick={handleCancelEdit}
                         className={`px-3 py-1.5 text-sm rounded-lg font-medium ${darkMode
-                            ? 'bg-gray-600 hover:bg-gray-500 text-gray-200'
-                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                          ? 'bg-gray-600 hover:bg-gray-500 text-gray-200'
+                          : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
                           }`}
                       >
                         Cancel

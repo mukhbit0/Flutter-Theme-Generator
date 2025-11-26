@@ -5,6 +5,8 @@ export interface ValidationResult {
     pair: string;
     color1: string;
     color2: string;
+    bgKey: string; // Added key for auto-fix
+    fgKey: string; // Added key for auto-fix
     ratio: number;
     level: 'AA' | 'AAA' | 'FAIL';
     isAccessible: boolean;
@@ -26,17 +28,17 @@ export class ThemeValidator {
 
         // Define critical pairs to check
         const pairs = [
-            { name: 'Primary / OnPrimary', bg: colors.primary, fg: colors.onPrimary },
-            { name: 'Primary Container / OnPrimaryContainer', bg: colors.primaryContainer, fg: colors.onPrimaryContainer },
-            { name: 'Secondary / OnSecondary', bg: colors.secondary, fg: colors.onSecondary },
-            { name: 'Secondary Container / OnSecondaryContainer', bg: colors.secondaryContainer, fg: colors.onSecondaryContainer },
-            { name: 'Tertiary / OnTertiary', bg: colors.tertiary, fg: colors.onTertiary },
-            { name: 'Tertiary Container / OnTertiaryContainer', bg: colors.tertiaryContainer, fg: colors.onTertiaryContainer },
-            { name: 'Error / OnError', bg: colors.error, fg: colors.onError },
-            { name: 'Error Container / OnErrorContainer', bg: colors.errorContainer, fg: colors.onErrorContainer },
-            { name: 'Surface / OnSurface', bg: colors.surface, fg: colors.onSurface },
-            { name: 'Surface Variant / OnSurfaceVariant', bg: colors.surfaceContainerHighest, fg: colors.onSurfaceVariant },
-            { name: 'Background / OnBackground', bg: colors.background, fg: colors.onBackground },
+            { name: 'Primary / OnPrimary', bg: colors.primary, fg: colors.onPrimary, bgKey: 'primary', fgKey: 'onPrimary' },
+            { name: 'Primary Container / OnPrimaryContainer', bg: colors.primaryContainer, fg: colors.onPrimaryContainer, bgKey: 'primaryContainer', fgKey: 'onPrimaryContainer' },
+            { name: 'Secondary / OnSecondary', bg: colors.secondary, fg: colors.onSecondary, bgKey: 'secondary', fgKey: 'onSecondary' },
+            { name: 'Secondary Container / OnSecondaryContainer', bg: colors.secondaryContainer, fg: colors.onSecondaryContainer, bgKey: 'secondaryContainer', fgKey: 'onSecondaryContainer' },
+            { name: 'Tertiary / OnTertiary', bg: colors.tertiary, fg: colors.onTertiary, bgKey: 'tertiary', fgKey: 'onTertiary' },
+            { name: 'Tertiary Container / OnTertiaryContainer', bg: colors.tertiaryContainer, fg: colors.onTertiaryContainer, bgKey: 'tertiaryContainer', fgKey: 'onTertiaryContainer' },
+            { name: 'Error / OnError', bg: colors.error, fg: colors.onError, bgKey: 'error', fgKey: 'onError' },
+            { name: 'Error Container / OnErrorContainer', bg: colors.errorContainer, fg: colors.onErrorContainer, bgKey: 'errorContainer', fgKey: 'onErrorContainer' },
+            { name: 'Surface / OnSurface', bg: colors.surface, fg: colors.onSurface, bgKey: 'surface', fgKey: 'onSurface' },
+            { name: 'Surface Variant / OnSurfaceVariant', bg: colors.surfaceContainerHighest, fg: colors.onSurfaceVariant, bgKey: 'surfaceContainerHighest', fgKey: 'onSurfaceVariant' },
+            { name: 'Background / OnBackground', bg: colors.background, fg: colors.onBackground, bgKey: 'background', fgKey: 'onBackground' },
         ];
 
         let passedCount = 0;
@@ -61,6 +63,8 @@ export class ThemeValidator {
                 pair: pair.name,
                 color1: pair.bg,
                 color2: pair.fg,
+                bgKey: pair.bgKey,
+                fgKey: pair.fgKey,
                 ratio: contrast.ratio,
                 level: contrast.level,
                 isAccessible: contrast.isAccessible,
@@ -86,19 +90,49 @@ export class ThemeValidator {
         const currentRatio = FlutterThemeGenerator.getContrastRatio(bg, color);
         if (currentRatio >= targetRatio) return color;
 
-        // Try to lighten/darken to meet contrast
-        for (let i = 1; i <= 50; i++) {
-            const bgLuminance = FlutterThemeGenerator.getLuminance(bg);
-            // If bg is dark, lighten color. If bg is light, darken color.
-            // We use a dynamic step to reach the target faster but with precision
-            const adjustment = bgLuminance < 0.5 ? 4 * i : -4 * i;
+        const bgLuminance = FlutterThemeGenerator.getLuminance(bg);
+        const isBgDark = bgLuminance < 0.5;
 
-            const testColor = FlutterThemeGenerator.adjustColor(color, adjustment);
-            if (FlutterThemeGenerator.getContrastRatio(bg, testColor) >= targetRatio) {
-                return testColor;
+        // Binary search for the minimum adjustment needed
+        // If background is dark, we generally want lighter colors (higher L)
+        // If background is light, we generally want darker colors (lower L)
+        // However, we should try both directions to see which is closer/better
+
+        const tryDirection = (direction: 'lighten' | 'darken'): string | null => {
+            let low = 0;
+            let high = 100;
+            let foundColor = null;
+
+            // We want the SMALLEST change that passes
+            for (let i = 0; i < 10; i++) { // 10 iterations is enough precision
+                const mid = (low + high) / 2;
+                const adjustment = direction === 'lighten' ? mid : -mid;
+                const testColor = FlutterThemeGenerator.adjustColorHsl(color, adjustment);
+                const ratio = FlutterThemeGenerator.getContrastRatio(bg, testColor);
+
+                if (ratio >= targetRatio) {
+                    foundColor = testColor;
+                    high = mid; // Try to find a smaller adjustment
+                } else {
+                    low = mid; // Need more adjustment
+                }
             }
+            return foundColor;
+        };
+
+        // Try both directions and pick the one that requires less change (conceptually)
+        // or simply the one that works if only one works.
+        // Usually, if bg is dark, lightening is the way to go, and vice versa.
+        const lighter = tryDirection('lighten');
+        const darker = tryDirection('darken');
+
+        if (lighter && darker) {
+            // Compare which one is closer to original lightness? 
+            // For now, let's stick to the natural direction based on BG luminance for consistency
+            return isBgDark ? lighter : darker;
         }
-        return color; // Return original if no fix found (unlikely)
+
+        return lighter || darker || FlutterThemeGenerator.getOptimalTextColor(bg, isBgDark);
     }
 
     static getFixedTheme(theme: ThemeConfig, isDark: boolean): ThemeConfig {
@@ -112,7 +146,10 @@ export class ThemeValidator {
         Object.keys(colors).forEach(key => {
             if (!key.startsWith('on') && typeof colors[key as keyof typeof colors] === 'string') {
                 const colorVal = colors[key as keyof typeof colors] as string;
-                colors[key as keyof typeof colors] = ThemeValidator.fixColor(colorVal, appBg, 3.0);
+                // Only fix if it's really bad, otherwise preserve design intent for main UI elements
+                if (FlutterThemeGenerator.getContrastRatio(appBg, colorVal) < 3.0) {
+                    colors[key as keyof typeof colors] = ThemeValidator.fixColor(colorVal, appBg, 3.0);
+                }
             }
         });
 
@@ -121,7 +158,7 @@ export class ThemeValidator {
             // Use the shared fixColor logic but with higher target and fallback
             let fixed = ThemeValidator.fixColor(fg, bg, targetRatio);
 
-            // If AAA fails, try AA (4.5)
+            // If AAA fails (e.g. impossible with this hue), try AA (4.5)
             if (FlutterThemeGenerator.getContrastRatio(bg, fixed) < targetRatio && targetRatio > 4.5) {
                 fixed = ThemeValidator.fixColor(fg, bg, 4.5);
             }

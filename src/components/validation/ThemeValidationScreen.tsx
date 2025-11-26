@@ -12,10 +12,17 @@ interface ThemeValidationScreenProps {
 export default function ThemeValidationScreen({ theme, darkMode, onBack, onUpdateTheme }: ThemeValidationScreenProps) {
     const [report, setReport] = useState<ThemeValidationReport | null>(null);
     const [isFixing, setIsFixing] = useState(false);
+    const [showConfetti, setShowConfetti] = useState(false);
+
     useEffect(() => {
         // Run validation whenever theme or mode changes
         const validationReport = ThemeValidator.validateTheme(theme, darkMode);
         setReport(validationReport);
+
+        if (validationReport.score === 100) {
+            setShowConfetti(true);
+            setTimeout(() => setShowConfetti(false), 3000);
+        }
     }, [theme, darkMode]);
 
     const handleAutoFix = () => {
@@ -41,8 +48,41 @@ export default function ThemeValidationScreen({ theme, darkMode, onBack, onUpdat
         return 'from-rose-400 to-red-500';
     };
 
+    const handleFixPair = (fgKey: string, bg: string, fg: string) => {
+        // Fix the foreground color to meet AAA (7.0) standard against the background
+        const fixedFg = ThemeValidator.fixColor(fg, bg, 7.0);
+
+        // Create a copy of the theme
+        const newTheme = JSON.parse(JSON.stringify(theme)) as ThemeConfig;
+        const targetColors = darkMode ? newTheme.colors.dark : newTheme.colors.light;
+
+        // Update the specific color
+        // We need to cast to any or use keyof assertion because keys are strings
+        (targetColors as any)[fgKey] = fixedFg;
+
+        onUpdateTheme(newTheme);
+    };
+
     return (
         <div className={`min-h-screen relative overflow-hidden ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+            {/* Confetti Effect */}
+            {showConfetti && (
+                <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+                    {[...Array(50)].map((_, i) => (
+                        <div
+                            key={i}
+                            className={`absolute w-2 h-2 rounded-full animate-confetti ${['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500'][i % 5]}`}
+                            style={{
+                                left: `${Math.random() * 100}%`,
+                                top: `-10px`,
+                                animationDelay: `${Math.random() * 3}s`,
+                                animationDuration: `${2 + Math.random() * 3}s`
+                            }}
+                        />
+                    ))}
+                </div>
+            )}
+
             {/* Background Gradients */}
             <div className={`absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none`}>
                 <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] opacity-20 animate-blob ${darkMode ? 'bg-purple-600' : 'bg-purple-300'}`} />
@@ -205,12 +245,23 @@ export default function ThemeValidationScreen({ theme, darkMode, onBack, onUpdat
                                 </div>
 
                                 <div className="flex items-center gap-8 pl-16 md:pl-0">
-                                    <div className="text-right">
+                                    <div className="text-right flex flex-col items-end gap-1">
                                         <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Contrast Ratio</div>
                                         <div className={`text-2xl font-black tabular-nums ${result.ratio >= 7 ? 'text-emerald-500' : result.ratio >= 4.5 ? 'text-amber-500' : 'text-rose-500'
                                             }`}>
                                             {result.ratio.toFixed(2)}:1
                                         </div>
+                                        {result.level !== 'AAA' && (
+                                            <button
+                                                onClick={() => handleFixPair(result.fgKey, result.color1, result.color2)}
+                                                className={`text-xs font-bold px-2 py-1 rounded bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 transition-colors flex items-center gap-1`}
+                                            >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                </svg>
+                                                Fix
+                                            </button>
+                                        )}
                                     </div>
                                     <div className={`px-4 py-2 rounded-xl text-sm font-bold shadow-sm ${result.level === 'AAA'
                                         ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
