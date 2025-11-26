@@ -12,17 +12,10 @@ interface ThemeValidationScreenProps {
 export default function ThemeValidationScreen({ theme, darkMode, onBack, onUpdateTheme }: ThemeValidationScreenProps) {
     const [report, setReport] = useState<ThemeValidationReport | null>(null);
     const [isFixing, setIsFixing] = useState(false);
-    const [showConfetti, setShowConfetti] = useState(false);
-
     useEffect(() => {
         // Run validation whenever theme or mode changes
         const validationReport = ThemeValidator.validateTheme(theme, darkMode);
         setReport(validationReport);
-
-        if (validationReport.score === 100) {
-            setShowConfetti(true);
-            setTimeout(() => setShowConfetti(false), 3000);
-        }
     }, [theme, darkMode]);
 
     const handleAutoFix = () => {
