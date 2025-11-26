@@ -12,7 +12,9 @@ interface ThemeValidationScreenProps {
 export default function ThemeValidationScreen({ theme, darkMode, onBack, onUpdateTheme }: ThemeValidationScreenProps) {
     const [report, setReport] = useState<ThemeValidationReport | null>(null);
     const [isFixing, setIsFixing] = useState(false);
+    const [fixingKey, setFixingKey] = useState<string | null>(null);
     const [showConfetti, setShowConfetti] = useState(false);
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
 
     useEffect(() => {
         // Run validation whenever theme or mode changes
@@ -25,13 +27,19 @@ export default function ThemeValidationScreen({ theme, darkMode, onBack, onUpdat
         }
     }, [theme, darkMode]);
 
+    const showToast = (message: string) => {
+        setToastMessage(message);
+        setTimeout(() => setToastMessage(null), 3000);
+    };
+
     const handleAutoFix = () => {
         setIsFixing(true);
         setTimeout(() => {
             const fixedTheme = ThemeValidator.getFixedTheme(theme, darkMode);
             onUpdateTheme(fixedTheme);
             setIsFixing(false);
-        }, 1000); // Add a small delay for visual feedback
+            showToast("All accessibility issues have been auto-fixed!");
+        }, 1000);
     };
 
     if (!report) return null;
@@ -49,22 +57,42 @@ export default function ThemeValidationScreen({ theme, darkMode, onBack, onUpdat
     };
 
     const handleFixPair = (fgKey: string, bg: string, fg: string) => {
-        // Fix the foreground color to meet AAA (7.0) standard against the background
-        const fixedFg = ThemeValidator.fixColor(fg, bg, 7.0);
+        setFixingKey(fgKey);
 
-        // Create a copy of the theme
-        const newTheme = JSON.parse(JSON.stringify(theme)) as ThemeConfig;
-        const targetColors = darkMode ? newTheme.colors.dark : newTheme.colors.light;
+        // Add a small delay for better UX (perceived performance)
+        setTimeout(() => {
+            // Fix the foreground color to meet AAA (7.0) standard against the background
+            const fixedFg = ThemeValidator.fixColor(fg, bg, 7.0);
 
-        // Update the specific color
-        // We need to cast to any or use keyof assertion because keys are strings
-        (targetColors as any)[fgKey] = fixedFg;
+            // Create a copy of the theme
+            const newTheme = JSON.parse(JSON.stringify(theme)) as ThemeConfig;
+            const targetColors = darkMode ? newTheme.colors.dark : newTheme.colors.light;
 
-        onUpdateTheme(newTheme);
+            // Update the specific color
+            (targetColors as any)[fgKey] = fixedFg;
+
+            onUpdateTheme(newTheme);
+            setFixingKey(null);
+            showToast(`Fixed contrast for ${fgKey.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+        }, 600);
     };
 
     return (
         <div className={`min-h-screen relative overflow-hidden ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+            {/* Toast Notification */}
+            {toastMessage && (
+                <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-up">
+                    <div className={`px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 backdrop-blur-md border ${darkMode ? 'bg-gray-800/90 border-gray-700 text-white' : 'bg-white/90 border-gray-200 text-gray-900'}`}>
+                        <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <span className="font-medium text-sm">{toastMessage}</span>
+                    </div>
+                </div>
+            )}
+
             {/* Confetti Effect */}
             {showConfetti && (
                 <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
@@ -254,12 +282,28 @@ export default function ThemeValidationScreen({ theme, darkMode, onBack, onUpdat
                                         {result.level !== 'AAA' && (
                                             <button
                                                 onClick={() => handleFixPair(result.fgKey, result.color1, result.color2)}
-                                                className={`text-xs font-bold px-2 py-1 rounded bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 transition-colors flex items-center gap-1`}
+                                                disabled={fixingKey === result.fgKey}
+                                                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-2 ${fixingKey === result.fgKey
+                                                    ? 'bg-gray-100 text-gray-400 cursor-wait'
+                                                    : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:shadow-sm active:scale-95'
+                                                    }`}
                                             >
-                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                                </svg>
-                                                Fix
+                                                {fixingKey === result.fgKey ? (
+                                                    <>
+                                                        <svg className="animate-spin w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                        Fixing...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                        </svg>
+                                                        Fix Issue
+                                                    </>
+                                                )}
                                             </button>
                                         )}
                                     </div>
