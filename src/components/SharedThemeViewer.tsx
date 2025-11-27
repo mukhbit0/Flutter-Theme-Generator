@@ -62,20 +62,43 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
   }, [darkMode])
 
   // Get available theme modes from the theme config
+  // Uses both colors availability AND settings.themeVariants to determine available modes
   const getAvailableThemeModes = () => {
     if (!state.theme?.themeConfig.colors) return ['light']
 
     const colors = state.theme.themeConfig.colors
-    const modes = []
+    const variants = state.theme.themeConfig.settings?.themeVariants
+    const modes: string[] = []
 
-    if (colors.light) modes.push('light')
-    if (colors.lightMediumContrast) modes.push('lightMediumContrast')
-    if (colors.lightHighContrast) modes.push('lightHighContrast')
-    if (colors.dark) modes.push('dark')
-    if (colors.darkMediumContrast) modes.push('darkMediumContrast')
-    if (colors.darkHighContrast) modes.push('darkHighContrast')
+    // Map settings variant keys to color keys
+    const variantMap: Record<string, string> = {
+      lightMode: 'light',
+      lightMedium: 'lightMediumContrast',
+      lightHigh: 'lightHighContrast',
+      darkMode: 'dark',
+      darkMedium: 'darkMediumContrast',
+      darkHigh: 'darkHighContrast'
+    }
 
-    return modes
+    // If settings.themeVariants exists, use it to filter modes
+    if (variants) {
+      Object.entries(variantMap).forEach(([settingKey, colorKey]) => {
+        if (variants[settingKey as keyof typeof variants] && colors[colorKey as keyof typeof colors]) {
+          modes.push(colorKey)
+        }
+      })
+    } else {
+      // Fallback: check colors directly if no settings
+      if (colors.light) modes.push('light')
+      if (colors.lightMediumContrast) modes.push('lightMediumContrast')
+      if (colors.lightHighContrast) modes.push('lightHighContrast')
+      if (colors.dark) modes.push('dark')
+      if (colors.darkMediumContrast) modes.push('darkMediumContrast')
+      if (colors.darkHighContrast) modes.push('darkHighContrast')
+    }
+
+    // Ensure at least one mode is available
+    return modes.length > 0 ? modes : ['light']
   }
 
   // Load shared theme

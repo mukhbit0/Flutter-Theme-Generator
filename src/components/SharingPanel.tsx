@@ -9,6 +9,7 @@ import { Share2, X } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import ShareThemeComponent from './ShareThemeComponent'
 import SharingErrorBoundary from './SharingErrorBoundary'
+import { ThemeGeneratorSettings } from '../types/theme'
 
 interface SharingPanelProps {
   className?: string
@@ -17,6 +18,7 @@ interface SharingPanelProps {
   showButton?: boolean
   isOpen?: boolean
   onToggle?: (isOpen: boolean) => void
+  settings?: ThemeGeneratorSettings | null
 }
 
 export const SharingPanel: React.FC<SharingPanelProps> = ({
@@ -25,7 +27,8 @@ export const SharingPanel: React.FC<SharingPanelProps> = ({
   panelClassName = '',
   showButton = true,
   isOpen: controlledIsOpen,
-  onToggle
+  onToggle,
+  settings
 }) => {
   const { themeConfig } = useTheme()
   const [internalIsOpen, setInternalIsOpen] = useState(false)
@@ -102,7 +105,8 @@ export const SharingPanel: React.FC<SharingPanelProps> = ({
               <SharingErrorBoundary>
                 <ShareThemeComponent
                   themeConfig={themeConfig}
-                  themeName="My Theme"
+                  settings={settings}
+                  themeName={settings?.themeName || "My Theme"}
                   className="border-0 shadow-none"
                 />
               </SharingErrorBoundary>

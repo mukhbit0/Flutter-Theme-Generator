@@ -450,13 +450,40 @@ export default {
 
       await this.initializeDatabase(env);
       const results = await env.THEME_DB.prepare(`
-        SELECT id as shareId, name as themeName, created_at as createdAt, views, is_public as isPublic 
+        SELECT id as shareId, name as themeName, config, created_at as createdAt, views, is_public as isPublic 
         FROM shared_themes 
         WHERE user_id = ? 
         ORDER BY created_at DESC
       `).bind(userId).all();
 
-      return new Response(JSON.stringify({ success: true, themes: results.results }), {
+      // Parse config and extract theme colors for display
+      const themesWithColors = results.results.map(theme => {
+        let themeColors = null;
+        try {
+          const config = JSON.parse(theme.config);
+          if (config && config.colors && config.colors.light) {
+            themeColors = {
+              primary: config.colors.light.primary,
+              secondary: config.colors.light.secondary,
+              tertiary: config.colors.light.tertiary
+            };
+          }
+        } catch (e) {
+          console.error('Error parsing theme config:', e);
+        }
+        
+        // Return theme without full config but with extracted colors
+        return {
+          shareId: theme.shareId,
+          themeName: theme.themeName,
+          createdAt: theme.createdAt,
+          views: theme.views,
+          isPublic: theme.isPublic,
+          themeColors
+        };
+      });
+
+      return new Response(JSON.stringify({ success: true, themes: themesWithColors }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     } catch (error) {

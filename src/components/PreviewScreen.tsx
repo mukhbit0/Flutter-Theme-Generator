@@ -268,6 +268,7 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({ themeConfig, setti
               currentColors={currentColors}
               previewMode={previewMode}
               darkMode={darkMode}
+              settings={settings}
             />
           </div>
         </div>

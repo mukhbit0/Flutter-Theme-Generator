@@ -62,22 +62,10 @@ export const UserProfile: React.FC = () => {
 
     const handleLoadTheme = (theme: SavedTheme) => {
         // Navigate to preview with the theme config to load it
-        // We use the 'editShared' parameter logic but for personal themes
-        // Ideally we should have a cleaner way, but for now we can pass state
-        // or just navigate to generator with state.
-
-        // Let's use the generator route with state, assuming ThemeGeneratorComponent handles it.
-        // Actually, looking at App.tsx, the best way is to use the 'preview' route 
-        // if we want to visualize it first, or 'generator' to edit.
-
-        // Let's go to generator to allow editing.
-        // We need to pass the theme config.
-        // Since we don't have a direct "load" prop in the URL for generator, 
-        // we might need to use a shared context or local storage.
-        // HOWEVER, App.tsx has a 'preview' route that takes state.
-
-        // Let's try navigating to /preview with state, and from there user can "Edit".
-        // Create a default settings object since it's not saved with the theme
+        // Use saved settings if available, otherwise create defaults based on what's in the theme config
+        
+        // Determine which theme variants are available in the saved config
+        const colors = theme.config.colors;
         const defaultSettings = {
             themeName: theme.name,
             packageName: 'com.example.app',
@@ -87,19 +75,28 @@ export const UserProfile: React.FC = () => {
             includeAnimations: true,
             useScreenUtil: false,
             themeVariants: {
-                lightMode: true,
-                lightMedium: false,
-                lightHigh: false,
-                darkMode: true,
-                darkMedium: false,
-                darkHigh: false
+                lightMode: !!colors.light,
+                lightMedium: !!colors.lightMediumContrast,
+                lightHigh: !!colors.lightHighContrast,
+                darkMode: !!colors.dark,
+                darkMedium: !!colors.darkMediumContrast,
+                darkHigh: !!colors.darkHighContrast
             }
         };
+
+        // Use saved settings if they exist and have themeVariants, otherwise use defaults
+        const settingsToUse = theme.settings && theme.settings.themeVariants 
+            ? { ...theme.settings, themeName: theme.name }
+            : defaultSettings;
+
+        console.log('[UserProfile] Loading theme:', theme.name);
+        console.log('[UserProfile] Theme config colors:', Object.keys(colors));
+        console.log('[UserProfile] Settings to use:', settingsToUse);
 
         navigate('/preview', {
             state: {
                 themeConfig: theme.config,
-                settings: theme.settings || defaultSettings
+                settings: settingsToUse
             }
         });
     };
@@ -221,9 +218,32 @@ export const UserProfile: React.FC = () => {
                                                 </p>
                                             </div>
                                             <div className="flex space-x-1">
-                                                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: theme.config.colors.light.primary }}></div>
-                                                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: theme.config.colors.light.secondary }}></div>
+                                                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: theme.config.colors.light?.primary || '#6366F1' }}></div>
+                                                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: theme.config.colors.light?.secondary || '#EC4899' }}></div>
+                                                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: theme.config.colors.light?.tertiary || '#10B981' }}></div>
                                             </div>
+                                        </div>
+
+                                        {/* Show available theme variants */}
+                                        <div className="flex flex-wrap gap-1 mb-3">
+                                            {theme.config.colors.light && (
+                                                <span className={`text-xs px-2 py-0.5 rounded-full ${darkMode ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-100 text-yellow-700'}`}>Light</span>
+                                            )}
+                                            {theme.config.colors.lightMediumContrast && (
+                                                <span className={`text-xs px-2 py-0.5 rounded-full ${darkMode ? 'bg-orange-900/30 text-orange-400' : 'bg-orange-100 text-orange-700'}`}>Light Med</span>
+                                            )}
+                                            {theme.config.colors.lightHighContrast && (
+                                                <span className={`text-xs px-2 py-0.5 rounded-full ${darkMode ? 'bg-red-900/30 text-red-400' : 'bg-red-100 text-red-700'}`}>Light High</span>
+                                            )}
+                                            {theme.config.colors.dark && (
+                                                <span className={`text-xs px-2 py-0.5 rounded-full ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`}>Dark</span>
+                                            )}
+                                            {theme.config.colors.darkMediumContrast && (
+                                                <span className={`text-xs px-2 py-0.5 rounded-full ${darkMode ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-100 text-purple-700'}`}>Dark Med</span>
+                                            )}
+                                            {theme.config.colors.darkHighContrast && (
+                                                <span className={`text-xs px-2 py-0.5 rounded-full ${darkMode ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-700'}`}>Dark High</span>
+                                            )}
                                         </div>
 
                                         <div className="flex items-center gap-3 mt-6">
@@ -289,10 +309,20 @@ export const UserProfile: React.FC = () => {
                                                     Shared on {new Date(theme.createdAt).toLocaleDateString()}
                                                 </p>
                                             </div>
-                                            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-600 dark:text-blue-400">
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                                                </svg>
+                                            <div className="flex items-center gap-2">
+                                                {/* Show theme colors if available */}
+                                                {theme.themeColors && (
+                                                    <div className="flex space-x-1 mr-2">
+                                                        <div className="w-4 h-4 rounded-full" style={{ backgroundColor: theme.themeColors.primary || '#6366F1' }}></div>
+                                                        <div className="w-4 h-4 rounded-full" style={{ backgroundColor: theme.themeColors.secondary || '#EC4899' }}></div>
+                                                        <div className="w-4 h-4 rounded-full" style={{ backgroundColor: theme.themeColors.tertiary || '#10B981' }}></div>
+                                                    </div>
+                                                )}
+                                                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-600 dark:text-blue-400">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                                    </svg>
+                                                </div>
                                             </div>
                                         </div>
 
