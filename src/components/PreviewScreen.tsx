@@ -26,6 +26,10 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({ themeConfig, setti
   const [modifiedThemeConfig, setModifiedThemeConfig] = useState<ThemeConfig>(themeConfig)
   const [isDownloading, setIsDownloading] = useState(false)
 
+  useEffect(() => {
+    console.log('[PreviewScreen] Mounted with themeConfig primary:', themeConfig.colors.light.primary);
+  }, [themeConfig]);
+
   // Update preview mode when dark mode changes
   useEffect(() => {
     setPreviewMode(darkMode ? 'dark' : 'light')

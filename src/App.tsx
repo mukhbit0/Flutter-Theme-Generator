@@ -213,6 +213,7 @@ function AppContent() {
   }
 
   const handleNavigateToPreview = (config: ThemeConfig, settings?: ThemeGeneratorSettings) => {
+    console.log('[App] Navigating to preview with config primary:', config.colors.light.primary);
     setThemeConfig(config)
     setThemeSettings(settings || null)
     navigate('/preview')

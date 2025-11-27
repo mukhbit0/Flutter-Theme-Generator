@@ -24,12 +24,12 @@ interface ThemeGeneratorComponentProps {
   setExtractedColors: (colors: string[]) => void
 }
 
-export default function ThemeGeneratorComponent({ 
-  onBack, 
-  onPreview, 
-  darkMode, 
-  onToggleDarkMode, 
-  settings, 
+export default function ThemeGeneratorComponent({
+  onBack,
+  onPreview,
+  darkMode,
+  onToggleDarkMode,
+  settings,
   onSettingsChange,
   uploadedLogo,
   setUploadedLogo,
@@ -73,20 +73,22 @@ export default function ThemeGeneratorComponent({
       if (!settings.baseColors) {
         throw new Error('Base colors are required')
       }
-      
+
       // Validate that at least one theme variant is selected
       const hasEnabledVariant = Object.values(settings.themeVariants).some(v => v)
       if (!hasEnabledVariant) {
         throw new Error('At least one theme variant must be selected')
       }
-      
+
       const colors = {
         primary: settings.baseColors.primary,
         secondary: settings.baseColors.secondary,
         tertiary: settings.baseColors.accent
       }
-      
+
+      console.log('[ThemeGenerator] Generating theme with colors:', colors);
       const themeConfig = generateFlutterTheme(colors, settings)
+      console.log('[ThemeGenerator] Generated config primary:', themeConfig.colors.light.primary);
       onPreview(themeConfig, settings)
     } catch (error) {
       console.error('Error generating theme:', error)
@@ -104,11 +106,10 @@ export default function ThemeGeneratorComponent({
             <div className="flex items-center space-x-4">
               <button
                 onClick={onBack}
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  darkMode 
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-700/50' 
+                className={`p-2 rounded-lg transition-all duration-200 ${darkMode
+                    ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
-                }`}
+                  }`}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -123,15 +124,14 @@ export default function ThemeGeneratorComponent({
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <button
                 onClick={onToggleDarkMode}
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  darkMode 
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-700/50' 
+                className={`p-2 rounded-lg transition-all duration-200 ${darkMode
+                    ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
-                }`}
+                  }`}
               >
                 {darkMode ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
