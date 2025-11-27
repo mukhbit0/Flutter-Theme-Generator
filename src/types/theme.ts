@@ -12,13 +12,13 @@ export interface ThemeColors {
   onTertiary: string;
   tertiaryContainer: string;
   onTertiaryContainer: string;
-  
+
   // Error Colors
   error: string;
   onError: string;
   errorContainer: string;
   onErrorContainer: string;
-  
+
   // Surface Colors
   surface: string;
   onSurface: string;
@@ -30,24 +30,24 @@ export interface ThemeColors {
   surfaceContainer: string;
   surfaceContainerHigh: string;
   surfaceContainerHighest: string;
-  
+
   // Background Colors (deprecated but kept for compatibility)
   background: string;
   onBackground: string;
-  
+
   // Outline Colors
   outline: string;
   outlineVariant: string;
-  
+
   // Utility Colors
   shadow: string;
   scrim: string;
-  
+
   // Inverse Colors
   inverseSurface: string;
   inverseOnSurface: string;
   inversePrimary: string;
-  
+
   // Fixed Colors
   primaryFixed: string;
   onPrimaryFixed: string;
@@ -61,10 +61,10 @@ export interface ThemeColors {
   onTertiaryFixed: string;
   tertiaryFixedDim: string;
   onTertiaryFixedVariant: string;
-  
+
   // Surface Tint
   surfaceTint: string;
-  
+
   // Additional Colors (custom)
   success?: string;
   warning?: string;
@@ -168,3 +168,5 @@ export interface GeneratedTheme {
   constantsFile?: string;
   animationsFile?: string;
 }
+
+export type PreviewMode = 'light' | 'lightMediumContrast' | 'lightHighContrast' | 'dark' | 'darkMediumContrast' | 'darkHighContrast';

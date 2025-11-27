@@ -140,7 +140,7 @@ class SharingService {
    * Delete a shared theme (Not yet implemented in backend for specific share deletion, 
    * but we can implement it if needed. For now, we'll just return false or implement stub)
    */
-  async deleteSharedTheme(shareId: string): Promise<boolean> {
+  async deleteSharedTheme(_shareId: string): Promise<boolean> {
     // TODO: Implement delete endpoint in backend if needed
     console.warn('Delete shared theme not implemented in backend yet');
     return false;

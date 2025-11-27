@@ -1,33 +1,37 @@
-import { useState, useEffect } from 'react'
-import { Snackbar } from './Snackbar'
-import { ShareThemeComponent } from './ShareThemeComponent'
-import { downloadThemeFiles } from '../utils/FileDownloader'
-import { PreviewScreenProps, PreviewMode } from './preview-screen/PreviewScreenTypes'
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import PreviewHeader from './preview-screen/PreviewHeader'
 import ColorPalette from './preview-screen/ColorPalette'
 import PreviewContainer from './preview-screen/PreviewContainer'
-import { ThemeConfig } from '../types/theme'
-import { useTheme } from '../contexts/ThemeContext'
+import { ThemeConfig, PreviewMode, ThemeGeneratorSettings } from '../types/theme'
 
+import { downloadThemeFiles } from '../utils/FileDownloader'
 import { useAuth } from '../contexts/AuthContext'
 import { themeService } from '../services/ThemeService'
-import { useNavigate } from 'react-router-dom'
+import { Snackbar } from './Snackbar'
+import { ShareThemeComponent } from './ShareThemeComponent'
 
-export default function PreviewScreen({ themeConfig, settings, onBack, darkMode }: PreviewScreenProps) {
-  const [previewMode, setPreviewMode] = useState<PreviewMode>('light')
-  const [isDownloading, setIsDownloading] = useState(false)
-  const [modifiedThemeConfig, setModifiedThemeConfig] = useState<ThemeConfig>(themeConfig)
-  const { setThemeConfig } = useTheme()
-  const { currentUser } = useAuth()
+interface PreviewScreenProps {
+  themeConfig: ThemeConfig
+  settings?: ThemeGeneratorSettings
+  onBack: () => void
+  darkMode: boolean
+}
+
+export const PreviewScreen: React.FC<PreviewScreenProps> = ({ themeConfig, settings, onBack, darkMode }) => {
   const navigate = useNavigate()
 
-  // Update theme context when themeConfig prop changes
-  useEffect(() => {
-    setThemeConfig(themeConfig)
-    setModifiedThemeConfig(themeConfig)
-  }, [themeConfig, setThemeConfig])
+  const { currentUser } = useAuth()
+  const [previewMode, setPreviewMode] = useState<PreviewMode>(darkMode ? 'dark' : 'light')
+  const [modifiedThemeConfig, setModifiedThemeConfig] = useState<ThemeConfig>(themeConfig)
+  const [isDownloading, setIsDownloading] = useState(false)
 
-  // Auto-select first available theme variant on mount or settings change
+  // Update preview mode when dark mode changes
+  useEffect(() => {
+    setPreviewMode(darkMode ? 'dark' : 'light')
+  }, [darkMode])
+
+  // Handle initial preview mode based on settings
   useEffect(() => {
     if (settings?.themeVariants) {
       const variantMap: Record<keyof typeof settings.themeVariants, PreviewMode> = {
@@ -100,6 +104,8 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
   }
 
   const currentColors = getCurrentColors()
+
+
 
   // Safety check for colors
   if (!currentColors) {
@@ -234,7 +240,6 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
         onBack={onBack}
         onDownload={handleDownload}
         onSave={handleSave}
-        onShare={() => setIsShareModalOpen(true)}
         isDownloading={isDownloading}
         settings={settings}
       />

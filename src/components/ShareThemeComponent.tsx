@@ -8,7 +8,6 @@ import { sharingService, ShareOptions, ShareResult, ShareableTheme } from '../se
 import { ThemeConfig } from '../types/theme'
 import { Share2, Copy, Eye, EyeOff, Trash2, Clock, Tag, AlertCircle, CheckCircle } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { themeService } from '../services/ThemeService'
 
 interface ShareThemeComponentProps {
   themeConfig: ThemeConfig
@@ -448,7 +447,7 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div >
   )
 }
 

@@ -5,9 +5,8 @@ import HomePage from './components/HomePage'
 import ThemeGeneratorComponent from './components/ThemeGeneratorComponent'
 import GuideScreen from './components/GuideScreen'
 import RoadmapScreen from './components/RoadmapScreen'
-import PreviewScreen from './components/PreviewScreen'
+import { PreviewScreen } from './components/PreviewScreen'
 import SharedThemeViewer from './components/SharedThemeViewer'
-import ThemeImplementationScreen from './components/theme-implementation/ThemeImplementationScreen'
 import ThemeValidationScreen from './components/validation/ThemeValidationScreen'
 import { ThemeConfig, ThemeGeneratorSettings } from './types/theme'
 import { ThemeProvider } from './contexts/ThemeContext'
@@ -162,7 +161,7 @@ function AppContent() {
           }`}>
           <PreviewScreen
             themeConfig={localThemeConfig}
-            settings={localThemeSettings}
+            settings={localThemeSettings || undefined}
             onBack={handleBackToGenerator}
             darkMode={darkMode}
           />
@@ -309,18 +308,6 @@ function AppContent() {
         />
 
         {/* Theme Implementation / Mockups Route */}
-        <Route
-          path="/implementation"
-          element={
-            <ThemeImplementationScreen
-              themeConfig={themeConfig}
-              settings={themeSettings}
-              onBack={() => navigate('/preview')}
-              darkMode={darkMode}
-            />
-          }
-        />
-
         {/* Theme Validation Route */}
         <Route
           path="/validation"
