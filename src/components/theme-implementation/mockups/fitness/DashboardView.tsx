@@ -1,5 +1,5 @@
 import { ThemeColors } from '../../../../types/theme';
-import { Stats, Workout, WeeklyActivity, Achievement, weeklyActivity, achievements } from '../../../../data/fitnessData';
+import { Stats, Workout, weeklyActivity, achievements } from '../../../../data/fitnessData';
 import { FitnessView } from '../../../../hooks/useFitness';
 import CircularProgress from './CircularProgress';
 

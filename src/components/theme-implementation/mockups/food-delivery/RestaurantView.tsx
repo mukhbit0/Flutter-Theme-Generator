@@ -1,5 +1,5 @@
 import { ThemeColors } from '../../../../types/theme';
-import { Restaurant, MenuItem, restaurants, menuItems, menuCategories } from '../../../../data/foodDeliveryData';
+import { MenuItem, restaurants, menuItems, menuCategories } from '../../../../data/foodDeliveryData';
 import { FoodView } from '../../../../hooks/useFoodDelivery';
 
 interface RestaurantViewProps {

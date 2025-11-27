@@ -13,3 +13,7 @@ export type { FitnessView, UseFitnessReturn } from './useFitness';
 
 export { useFoodDelivery } from './useFoodDelivery';
 export type { FoodView, UseFoodDeliveryReturn } from './useFoodDelivery';
+
+// Theme Generator State Management
+export { useThemeGenerator, defaultGeneratorSettings } from './useThemeGenerator';
+export type { UseThemeGeneratorReturn, ThemeGeneratorState } from './useThemeGenerator';

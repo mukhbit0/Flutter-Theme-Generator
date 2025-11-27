@@ -1,5 +1,5 @@
 import { ThemeColors } from '../../../../types/theme';
-import { Category, Restaurant, categories, restaurants } from '../../../../data/foodDeliveryData';
+import { categories, restaurants } from '../../../../data/foodDeliveryData';
 import { FoodView } from '../../../../hooks/useFoodDelivery';
 
 interface HomeViewProps {

@@ -5,6 +5,7 @@ import HomePage from './components/HomePage'
 import { ThemeConfig, ThemeGeneratorSettings } from './types/theme'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { DarkModeProvider, useDarkMode } from './contexts/DarkModeContext'
+import { ThemeGeneratorProvider, useThemeGeneratorContext } from './contexts/ThemeGeneratorContext'
 import { sharingService } from './services/SharingService'
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -35,33 +36,19 @@ function LoadingFallback({ darkMode }: { darkMode?: boolean }) {
 }
 
 function AppContent() {
-  const [themeConfig, setThemeConfig] = useState<ThemeConfig | null>(null)
-  const [themeSettings, setThemeSettings] = useState<ThemeGeneratorSettings | null>(null)
-  const [uploadedLogo, setUploadedLogo] = useState<File | null>(null)
-  const [extractedColors, setExtractedColors] = useState<string[]>([])
-  const [returnRoute, setReturnRoute] = useState<string>('')
-  const [generatorSettings, setGeneratorSettings] = useState<ThemeGeneratorSettings>({
-    themeName: 'AppTheme',
-    packageName: 'com.example.myapp',
-    customColors: [],
-    generateMaterialYou: true,
-    includeExtensions: true,
-    includeAnimations: false,
-    useScreenUtil: false,
-    themeVariants: {
-      lightMode: true,
-      lightMedium: true,
-      lightHigh: true,
-      darkMode: true,
-      darkMedium: true,
-      darkHigh: true
-    },
-    baseColors: {
-      primary: '#6366F1',
-      secondary: '#EC4899',
-      accent: '#10B981'
-    }
-  })
+  // Use the consolidated theme generator context
+  const {
+    state: themeState,
+    setThemeConfig,
+    setThemeSettings,
+    setGeneratorSettings,
+    setUploadedLogo,
+    setExtractedColors,
+    setReturnRoute,
+    loadSharedTheme,
+    resetTheme
+  } = useThemeGeneratorContext()
+
   const { darkMode, toggleDarkMode } = useDarkMode()
   const navigate = useNavigate()
 
@@ -69,8 +56,8 @@ function AppContent() {
   const PreviewRoute = () => {
     const [searchParams] = useSearchParams()
     const location = useLocation()
-    const [localThemeConfig, setLocalThemeConfig] = useState<ThemeConfig | null>(themeConfig)
-    const [localThemeSettings, setLocalThemeSettings] = useState<ThemeGeneratorSettings | null>(themeSettings)
+    const [localThemeConfig, setLocalThemeConfig] = useState<ThemeConfig | null>(themeState.themeConfig)
+    const [localThemeSettings, setLocalThemeSettings] = useState<ThemeGeneratorSettings | null>(themeState.themeSettings)
     const [isLoading, setIsLoading] = useState(false)
     const [hasEditShared, setHasEditShared] = useState(false)
     const [showContent, setShowContent] = useState(false)
@@ -96,13 +83,14 @@ function AppContent() {
         setHasEditShared(true)
         if (!localThemeConfig) {
           setIsLoading(true)
-          const loadSharedTheme = async () => {
+          const loadSharedThemeAsync = async () => {
             try {
               const sharedTheme = await sharingService.getSharedTheme(editSharedId)
               if (sharedTheme) {
                 console.log('Loading shared theme for editing in preview:', sharedTheme.name)
                 setLocalThemeConfig(sharedTheme.themeConfig)
-                setReturnRoute(returnPath || `/shared/${editSharedId}`)
+                // Update global state via context
+                loadSharedTheme(sharedTheme.themeConfig, returnPath || `/shared/${editSharedId}`)
 
                 // Add a small delay for smooth transition
                 setTimeout(() => {
@@ -116,20 +104,20 @@ function AppContent() {
               setIsLoading(false)
             }
           }
-          loadSharedTheme()
+          loadSharedThemeAsync()
         } else {
           // If theme already exists, show immediately with fade
           setTimeout(() => setShowContent(true), 100)
         }
       } else {
         // For normal preview flow, always sync with global themeConfig
-        if (themeConfig) {
-          setLocalThemeConfig(themeConfig)
-          setLocalThemeSettings(themeSettings)
+        if (themeState.themeConfig) {
+          setLocalThemeConfig(themeState.themeConfig)
+          setLocalThemeSettings(themeState.themeSettings)
         }
         setShowContent(true)
       }
-    }, [searchParams, themeConfig, themeSettings, location.state])
+    }, [searchParams, themeState.themeConfig, themeState.themeSettings, location.state])
 
     // Enhanced loading screen with better animations
     if (hasEditShared && isLoading) {
@@ -237,17 +225,16 @@ function AppContent() {
 
   const handleBackToHome = () => {
     navigate('/')
-    setThemeConfig(null)
-    setThemeSettings(null)
+    resetTheme()
     // Note: We're keeping generatorSettings, uploadedLogo, and extractedColors to persist user work
   }
 
   const handleBackToGenerator = () => {
     // Check if we should return to a shared theme instead
-    console.log('handleBackToGenerator called, returnRoute:', returnRoute)
-    if (returnRoute && returnRoute !== '' && returnRoute !== '/generator') {
-      console.log('Navigating to return route:', returnRoute)
-      navigate(returnRoute)
+    console.log('handleBackToGenerator called, returnRoute:', themeState.returnRoute)
+    if (themeState.returnRoute && themeState.returnRoute !== '' && themeState.returnRoute !== '/generator') {
+      console.log('Navigating to return route:', themeState.returnRoute)
+      navigate(themeState.returnRoute)
       setReturnRoute('') // Reset after using
     } else {
       console.log('Navigating to generator (no return route)')
@@ -283,11 +270,11 @@ function AppContent() {
               onPreview={handleNavigateToPreview}
               darkMode={darkMode}
               onToggleDarkMode={toggleDarkMode}
-              settings={generatorSettings}
+              settings={themeState.generatorSettings}
               onSettingsChange={setGeneratorSettings}
-              uploadedLogo={uploadedLogo}
+              uploadedLogo={themeState.uploadedLogo}
               setUploadedLogo={setUploadedLogo}
-              extractedColors={extractedColors}
+              extractedColors={themeState.extractedColors}
               setExtractedColors={setExtractedColors}
             />
           }
@@ -330,10 +317,10 @@ function AppContent() {
         <Route
           path="/implementation"
           element={
-            themeConfig ? (
+            themeState.themeConfig ? (
               <ThemeImplementationScreen
-                themeConfig={themeConfig}
-                settings={themeSettings}
+                themeConfig={themeState.themeConfig}
+                settings={themeState.themeSettings}
                 onBack={() => navigate('/preview')}
                 darkMode={darkMode}
               />
@@ -353,9 +340,9 @@ function AppContent() {
         <Route
           path="/validation"
           element={
-            themeConfig ? (
+            themeState.themeConfig ? (
               <ThemeValidationScreen
-                theme={themeConfig}
+                theme={themeState.themeConfig}
                 darkMode={darkMode}
                 onBack={() => navigate('/preview')}
                 onUpdateTheme={(newTheme: ThemeConfig) => setThemeConfig(newTheme)}
@@ -401,13 +388,15 @@ function App() {
     <DarkModeProvider>
       <AuthProvider>
         <ThemeProvider>
-          {showSplash ? (
-            <SplashScreen />
-          ) : (
-            <BrowserRouter>
-              <AppContent />
-            </BrowserRouter>
-          )}
+          <ThemeGeneratorProvider>
+            {showSplash ? (
+              <SplashScreen />
+            ) : (
+              <BrowserRouter>
+                <AppContent />
+              </BrowserRouter>
+            )}
+          </ThemeGeneratorProvider>
         </ThemeProvider>
       </AuthProvider>
     </DarkModeProvider>

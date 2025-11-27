@@ -52,7 +52,7 @@ export const Footer: React.FC<FooterProps> = ({ darkMode }) => {
           {/* Copyright */}
           <div className="text-sm text-center md:text-right">
             <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
-              © {new Date().getFullYear()} Flutter Screen Generator. All rights reserved.
+              © {new Date().getFullYear()} Flutter Theme Generator. All rights reserved.
             </span>
           </div>
         </div>
