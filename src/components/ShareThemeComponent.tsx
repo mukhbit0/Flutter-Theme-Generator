@@ -123,10 +123,11 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
 
   // Handle delete theme
   const handleDelete = useCallback(async (shareId: string) => {
+    if (!currentUser) return;
     try {
-      const success = await sharingService.deleteSharedTheme(shareId)
+      const success = await sharingService.deleteSharedTheme(shareId, currentUser.uid)
       if (success) {
-        const themes = await sharingService.getMySharedThemes(currentUser?.uid || '')
+        const themes = await sharingService.getMySharedThemes(currentUser.uid)
         setState(prev => ({ ...prev, myThemes: themes }))
       }
     } catch (error) {
@@ -426,7 +427,7 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
                     </div>
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() => handleCopy(`${sharingService['baseUrl']}/shared/${theme.id}`)}
+                        onClick={() => handleCopy(`${window.location.origin}/shared/${theme.id}`)}
                         className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                         title="Copy share link"
                       >

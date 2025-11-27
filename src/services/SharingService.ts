@@ -137,13 +137,24 @@ class SharingService {
   }
 
   /**
-   * Delete a shared theme (Not yet implemented in backend for specific share deletion, 
-   * but we can implement it if needed. For now, we'll just return false or implement stub)
+   * Delete a shared theme
    */
-  async deleteSharedTheme(_shareId: string): Promise<boolean> {
-    // TODO: Implement delete endpoint in backend if needed
-    console.warn('Delete shared theme not implemented in backend yet');
-    return false;
+  async deleteSharedTheme(shareId: string, userId: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/themes/share/${shareId}?userId=${userId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete shared theme');
+      }
+
+      const data = await response.json();
+      return data.success;
+    } catch (error) {
+      console.error('[SharingService] Error deleting shared theme:', error);
+      return false;
+    }
   }
 
   /**
