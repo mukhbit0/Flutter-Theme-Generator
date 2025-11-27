@@ -52,15 +52,18 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
 
   // Load user's shared themes on mount
   useEffect(() => {
-    try {
-      if (sharingService.isAvailable()) {
-        const themes = sharingService.getMySharedThemes()
-        setState(prev => ({ ...prev, myThemes: themes }))
+    const loadThemes = async () => {
+      try {
+        if (sharingService.isAvailable()) {
+          const themes = await sharingService.getMySharedThemes(currentUser?.uid || '')
+          setState(prev => ({ ...prev, myThemes: themes }))
+        }
+      } catch (error) {
+        console.error('Error loading shared themes:', error)
       }
-    } catch (error) {
-      console.error('Error loading shared themes:', error)
     }
-  }, [])
+    loadThemes()
+  }, [currentUser])
 
   // Handle sharing theme
   const handleShare = useCallback(async () => {
@@ -75,16 +78,12 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
     setState(prev => ({ ...prev, isSharing: true, error: null }))
 
     try {
-      const result = await sharingService.shareTheme(themeConfig, shareOptions)
+      const optionsWithUser = { ...shareOptions, userId: currentUser?.uid };
+      const result = await sharingService.shareTheme(themeConfig, optionsWithUser)
 
       if (result.success && result.shareId) {
-        // If user is logged in, save reference to backend
-        if (currentUser) {
-          await themeService.saveSharedThemeReference(currentUser.uid, result.shareId, shareOptions.name);
-        }
-
         // Refresh themes list
-        const themes = sharingService.getMySharedThemes()
+        const themes = await sharingService.getMySharedThemes(currentUser?.uid || '')
         setState(prev => ({
           ...prev,
           shareResult: result,
@@ -106,7 +105,7 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
         isSharing: false
       }))
     }
-  }, [themeConfig, shareOptions])
+  }, [themeConfig, shareOptions, currentUser])
 
   // Handle copy to clipboard
   const handleCopy = useCallback(async (text: string) => {
@@ -128,13 +127,13 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
     try {
       const success = await sharingService.deleteSharedTheme(shareId)
       if (success) {
-        const themes = sharingService.getMySharedThemes()
+        const themes = await sharingService.getMySharedThemes(currentUser?.uid || '')
         setState(prev => ({ ...prev, myThemes: themes }))
       }
     } catch (error) {
       console.error('Delete failed:', error)
     }
-  }, [])
+  }, [currentUser])
 
   // Add tag
   const addTag = useCallback(() => {
@@ -423,7 +422,7 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         Created {new Date(theme.createdAt).toLocaleDateString()}
-                        {theme.downloadCount > 0 && ` • ${theme.downloadCount} downloads`}
+                        {theme.views > 0 && ` • ${theme.views} views`}
                       </p>
                     </div>
                     <div className="flex items-center gap-1">

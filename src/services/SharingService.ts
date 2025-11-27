@@ -1,9 +1,10 @@
 /**
- * SharingService - Completely isolated sharing functionality
- * This service handles all sharing operations without affecting other parts of the app
+ * SharingService - Handles theme sharing via API
  */
 
 import { ThemeConfig } from '../types/theme'
+
+const API_BASE_URL = import.meta.env.PROD ? '' : 'http://localhost:8787';
 
 export interface ShareableTheme {
   id: string
@@ -13,7 +14,7 @@ export interface ShareableTheme {
   createdAt: string
   expiresAt?: string
   isPublic: boolean
-  downloadCount: number
+  views: number
   tags?: string[]
 }
 
@@ -23,6 +24,7 @@ export interface ShareOptions {
   isPublic: boolean
   expirationDays?: number
   tags?: string[]
+  userId?: string
 }
 
 export interface ShareResult {
@@ -34,52 +36,53 @@ export interface ShareResult {
 }
 
 class SharingService {
-  private readonly baseUrl = window.location.origin // Use current origin for development
-  private readonly localStorageKey = 'flutter_theme_generator_shared_themes'
-  private readonly maxLocalThemes = 10
+  private readonly baseUrl = window.location.origin
 
   /**
    * Share a theme and get a shareable link
    */
   async shareTheme(themeConfig: ThemeConfig, options: ShareOptions): Promise<ShareResult> {
     try {
-      // For now, use local storage simulation
-      // In production, this would call your API
-      const shareId = this.generateShareId()
-      const shareUrl = `${this.baseUrl}/shared/${shareId}`
-      
-      const shareableTheme: ShareableTheme = {
-        id: shareId,
-        name: options.name,
-        description: options.description,
-        themeConfig,
-        createdAt: new Date().toISOString(),
-        expiresAt: options.expirationDays 
-          ? new Date(Date.now() + options.expirationDays * 24 * 60 * 60 * 1000).toISOString()
-          : undefined,
-        isPublic: options.isPublic,
-        downloadCount: 0,
-        tags: options.tags || []
+      const response = await fetch(`${API_BASE_URL}/api/themes/share`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: options.userId,
+          themeConfig,
+          name: options.name,
+          description: options.description,
+          isPublic: options.isPublic,
+          tags: options.tags,
+          expirationDays: options.expirationDays
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to share theme');
       }
 
-      // Store locally (simulate API)
-      await this.storeThemeLocally(shareableTheme)
-      
+      const shareId = data.shareId;
+      const shareUrl = `${this.baseUrl}/shared/${shareId}`;
+
       // Generate QR code data URL
-      const qrCode = await this.generateQRCode(shareUrl)
+      const qrCode = await this.generateQRCode(shareUrl);
 
       return {
         success: true,
         shareId,
         shareUrl,
         qrCode
-      }
+      };
     } catch (error) {
-      console.error('[SharingService] Error sharing theme:', error)
+      console.error('[SharingService] Error sharing theme:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred'
-      }
+      };
     }
   }
 
@@ -88,52 +91,59 @@ class SharingService {
    */
   async getSharedTheme(shareId: string): Promise<ShareableTheme | null> {
     try {
-      // Simulate API call with local storage
-      const themes = this.getLocalThemes()
-      const theme = themes.find(t => t.id === shareId)
-      
-      if (!theme) {
-        return null
+      const response = await fetch(`${API_BASE_URL}/api/themes/share/${shareId}`);
+      const data = await response.json();
+
+      if (!data.success || !data.theme) {
+        return null;
       }
 
-      // Check expiration
-      if (theme.expiresAt && new Date() > new Date(theme.expiresAt)) {
-        await this.deleteSharedTheme(shareId)
-        return null
-      }
-
-      return theme
+      return {
+        id: data.theme.id,
+        name: data.theme.name,
+        description: data.theme.description,
+        themeConfig: data.theme.config,
+        createdAt: data.theme.created_at,
+        expiresAt: data.theme.expires_at,
+        isPublic: data.theme.isPublic,
+        views: data.theme.views,
+        tags: data.theme.tags
+      };
     } catch (error) {
-      console.error('[SharingService] Error retrieving shared theme:', error)
-      return null
+      console.error('[SharingService] Error retrieving shared theme:', error);
+      return null;
     }
   }
 
   /**
    * Get user's shared themes
    */
-  getMySharedThemes(): ShareableTheme[] {
+  async getMySharedThemes(userId: string): Promise<ShareableTheme[]> {
     try {
-      return this.getLocalThemes()
+      if (!userId) return [];
+
+      const response = await fetch(`${API_BASE_URL}/api/themes/shared?userId=${userId}`);
+      const data = await response.json();
+
+      if (!data.success || !data.themes) {
+        return [];
+      }
+
+      return data.themes;
     } catch (error) {
-      console.error('[SharingService] Error getting user themes:', error)
-      return []
+      console.error('[SharingService] Error getting user themes:', error);
+      return [];
     }
   }
 
   /**
-   * Delete a shared theme
+   * Delete a shared theme (Not yet implemented in backend for specific share deletion, 
+   * but we can implement it if needed. For now, we'll just return false or implement stub)
    */
   async deleteSharedTheme(shareId: string): Promise<boolean> {
-    try {
-      const themes = this.getLocalThemes()
-      const filteredThemes = themes.filter(t => t.id !== shareId)
-      localStorage.setItem(this.localStorageKey, JSON.stringify(filteredThemes))
-      return true
-    } catch (error) {
-      console.error('[SharingService] Error deleting shared theme:', error)
-      return false
-    }
+    // TODO: Implement delete endpoint in backend if needed
+    console.warn('Delete shared theme not implemented in backend yet');
+    return false;
   }
 
   /**
@@ -142,62 +152,24 @@ class SharingService {
   async copyToClipboard(text: string): Promise<boolean> {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text)
-        return true
+        await navigator.clipboard.writeText(text);
+        return true;
       } else {
         // Fallback for older browsers
-        const textArea = document.createElement('textarea')
-        textArea.value = text
-        textArea.style.position = 'fixed'
-        textArea.style.opacity = '0'
-        document.body.appendChild(textArea)
-        textArea.focus()
-        textArea.select()
-        const success = document.execCommand('copy')
-        document.body.removeChild(textArea)
-        return success
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        return success;
       }
     } catch (error) {
-      console.error('[SharingService] Error copying to clipboard:', error)
-      return false
-    }
-  }
-
-  /**
-   * Generate a unique share ID
-   */
-  private generateShareId(): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    let result = ''
-    for (let i = 0; i < 12; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
-    return result
-  }
-
-  /**
-   * Store theme locally (simulates API storage)
-   */
-  private async storeThemeLocally(theme: ShareableTheme): Promise<void> {
-    const themes = this.getLocalThemes()
-    themes.unshift(theme) // Add to beginning
-    
-    // Keep only the latest themes to avoid storage bloat
-    const trimmedThemes = themes.slice(0, this.maxLocalThemes)
-    
-    localStorage.setItem(this.localStorageKey, JSON.stringify(trimmedThemes))
-  }
-
-  /**
-   * Get themes from local storage
-   */
-  private getLocalThemes(): ShareableTheme[] {
-    try {
-      const stored = localStorage.getItem(this.localStorageKey)
-      return stored ? JSON.parse(stored) : []
-    } catch (error) {
-      console.error('[SharingService] Error parsing stored themes:', error)
-      return []
+      console.error('[SharingService] Error copying to clipboard:', error);
+      return false;
     }
   }
 
@@ -207,12 +179,11 @@ class SharingService {
   private async generateQRCode(url: string): Promise<string> {
     try {
       // Simple QR code generation using a service
-      // In production, you might want to use a proper QR code library
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`
-      return qrUrl
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+      return qrUrl;
     } catch (error) {
-      console.error('[SharingService] Error generating QR code:', error)
-      return ''
+      console.error('[SharingService] Error generating QR code:', error);
+      return '';
     }
   }
 
@@ -220,34 +191,17 @@ class SharingService {
    * Validate if sharing service is available
    */
   isAvailable(): boolean {
-    try {
-      // Check if localStorage is available
-      const test = 'test'
-      localStorage.setItem(test, test)
-      localStorage.removeItem(test)
-      return true
-    } catch (error) {
-      return false
-    }
+    return true; // API is always available
   }
 
   /**
-   * Get sharing statistics
+   * Get sharing statistics (Stubbed for now as we don't have a global stats endpoint)
    */
   getStats(): { totalShares: number; publicShares: number; privateShares: number } {
-    try {
-      const themes = this.getLocalThemes()
-      return {
-        totalShares: themes.length,
-        publicShares: themes.filter(t => t.isPublic).length,
-        privateShares: themes.filter(t => !t.isPublic).length
-      }
-    } catch (error) {
-      return { totalShares: 0, publicShares: 0, privateShares: 0 }
-    }
+    return { totalShares: 0, publicShares: 0, privateShares: 0 };
   }
 }
 
 // Export singleton instance
-export const sharingService = new SharingService()
-export default SharingService
+export const sharingService = new SharingService();
+export default SharingService;

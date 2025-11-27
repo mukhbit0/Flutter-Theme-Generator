@@ -10,6 +10,7 @@ export const UserProfile: React.FC = () => {
     const { currentUser, logout } = useAuth();
     const { darkMode } = useDarkMode();
     const [themes, setThemes] = useState<SavedTheme[]>([]);
+    const [sharedThemes, setSharedThemes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -22,10 +23,19 @@ export const UserProfile: React.FC = () => {
     const loadThemes = async () => {
         if (!currentUser) return;
         setLoading(true);
-        const result = await themeService.getUserThemes(currentUser.uid);
-        if (result.success && result.themes) {
-            setThemes(result.themes);
+
+        // Load saved themes
+        const savedResult = await themeService.getUserThemes(currentUser.uid);
+        if (savedResult.success && savedResult.themes) {
+            setThemes(savedResult.themes);
         }
+
+        // Load shared themes
+        const sharedResult = await themeService.getUserSharedThemes(currentUser.uid);
+        if (sharedResult.success && sharedResult.themes) {
+            setSharedThemes(sharedResult.themes);
+        }
+
         setLoading(false);
     };
 
@@ -222,6 +232,79 @@ export const UserProfile: React.FC = () => {
                                             >
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Shared Themes Section */}
+                    <div className="mb-8">
+                        <h2 className={`text-2xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                            Shared Themes
+                        </h2>
+
+                        {loading ? (
+                            <div className="flex justify-center py-12">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                            </div>
+                        ) : sharedThemes.length === 0 ? (
+                            <div className={`text-center py-16 rounded-3xl border-2 border-dashed ${darkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-300 bg-gray-50/50'}`}>
+                                <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-500'}`}>
+                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                    </svg>
+                                </div>
+                                <h3 className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>No themes shared yet</h3>
+                                <p className={`mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Share your themes with the world!</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {sharedThemes.map(theme => (
+                                    <div
+                                        key={theme.shareId}
+                                        className={`group relative rounded-2xl p-6 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${darkMode ? 'bg-gray-800/60 border border-gray-700 hover:border-blue-500/50' : 'bg-white border border-gray-200 hover:border-blue-300'}`}
+                                    >
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div>
+                                                <h3 className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                                    {theme.themeName || 'Untitled Theme'}
+                                                </h3>
+                                                <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                    Shared on {new Date(theme.createdAt).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-600 dark:text-blue-400">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-3 mt-6">
+                                            <button
+                                                onClick={() => window.open(`${window.location.origin}/shared/${theme.shareId}`, '_blank')}
+                                                className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${darkMode
+                                                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                                    : 'bg-blue-50 text-blue-700 hover:bg-blue-100'}`}
+                                            >
+                                                View Link
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(`${window.location.origin}/shared/${theme.shareId}`);
+                                                    alert('Link copied to clipboard!');
+                                                }}
+                                                className={`p-2 rounded-lg transition-colors ${darkMode
+                                                    ? 'text-gray-400 hover:bg-gray-700'
+                                                    : 'text-gray-500 hover:bg-gray-100'}`}
+                                                title="Copy Link"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                                                 </svg>
                                             </button>
                                         </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, useNavigate, useSearchParams } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import SplashScreen from './components/SplashScreen'
 import HomePage from './components/HomePage'
 import ThemeGeneratorComponent from './components/ThemeGeneratorComponent'
@@ -52,6 +52,7 @@ function AppContent() {
   // PreviewRoute component to handle editShared parameters
   const PreviewRoute = () => {
     const [searchParams] = useSearchParams()
+    const location = useLocation()
     const [localThemeConfig, setLocalThemeConfig] = useState<ThemeConfig | null>(themeConfig)
     const [localThemeSettings, setLocalThemeSettings] = useState<ThemeGeneratorSettings | null>(themeSettings)
     const [isLoading, setIsLoading] = useState(false)
@@ -61,6 +62,19 @@ function AppContent() {
     useEffect(() => {
       const editSharedId = searchParams.get('editShared')
       const returnPath = searchParams.get('returnTo')
+
+      // Check for state passed from UserProfile or other components
+      if (location.state && (location.state as any).themeConfig) {
+        const stateConfig = (location.state as any).themeConfig
+        const stateSettings = (location.state as any).settings
+        console.log('Loading theme from location state:', stateConfig)
+        setLocalThemeConfig(stateConfig)
+        if (stateSettings) {
+          setLocalThemeSettings(stateSettings)
+        }
+        setShowContent(true)
+        return
+      }
 
       if (editSharedId) {
         setHasEditShared(true)
@@ -99,7 +113,7 @@ function AppContent() {
         }
         setShowContent(true)
       }
-    }, [searchParams, themeConfig, themeSettings])
+    }, [searchParams, themeConfig, themeSettings, location.state])
 
     // Enhanced loading screen with better animations
     if (hasEditShared && isLoading) {

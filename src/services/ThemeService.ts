@@ -63,21 +63,7 @@ export const themeService = {
         }
     },
 
-    async saveSharedThemeReference(userId: string, shareId: string, themeName: string): Promise<{ success: boolean; error?: string }> {
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/themes/share`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ userId, shareId, themeName }),
-            });
-            return await response.json();
-        } catch (error) {
-            console.error('Error saving shared theme reference:', error);
-            return { success: false, error: 'Failed to save shared theme reference' };
-        }
-    },
+    // saveSharedThemeReference is no longer needed as sharing service handles DB persistence directly
 
     async getUserSharedThemes(userId: string): Promise<{ success: boolean; themes?: any[]; error?: string }> {
         try {

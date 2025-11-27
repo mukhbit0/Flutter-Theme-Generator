@@ -11,3 +11,19 @@ INSERT OR IGNORE INTO theme_counter (id, count) VALUES (1, 0);
 
 -- Create index for better performance
 CREATE INDEX IF NOT EXISTS idx_theme_counter_id ON theme_counter(id);
+
+-- Shared Themes Table
+CREATE TABLE IF NOT EXISTS shared_themes (
+  id TEXT PRIMARY KEY,
+  user_id TEXT, -- Nullable for anonymous shares
+  name TEXT NOT NULL,
+  description TEXT,
+  config TEXT NOT NULL, -- JSON string
+  is_public BOOLEAN DEFAULT 1,
+  views INTEGER DEFAULT 0,
+  tags TEXT DEFAULT '[]',
+  expires_at DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_shared_themes_user_id ON shared_themes(user_id);

@@ -147,6 +147,20 @@ export default {
         return this.deleteTheme(request, env, corsHeaders);
       }
 
+      // Shared Theme Endpoints
+      if (pathname === '/api/themes/share' && request.method === 'POST') {
+        return this.createSharedTheme(request, env, corsHeaders);
+      }
+
+      if (pathname.startsWith('/api/themes/share/') && request.method === 'GET') {
+        const shareId = pathname.split('/').pop();
+        return this.getSharedTheme(shareId, env, corsHeaders);
+      }
+
+      if (pathname === '/api/themes/shared' && request.method === 'GET') {
+        return this.getUserSharedThemes(request, env, corsHeaders);
+      }
+
       // Config Endpoint (Runtime Secrets)
       if (pathname === '/api/config' && request.method === 'GET') {
         return new Response(JSON.stringify({
@@ -286,6 +300,122 @@ export default {
     }
   },
 
+  // Create Shared Theme
+  async createSharedTheme(request, env, corsHeaders) {
+    try {
+      const { userId, themeConfig, name, description, isPublic, tags, expirationDays } = await request.json();
+
+      if (!themeConfig || !name) {
+        return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: corsHeaders });
+      }
+
+      await this.initializeDatabase(env);
+
+      // Generate a short ID for sharing (12 chars)
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let shareId = '';
+      for (let i = 0; i < 12; i++) {
+        shareId += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      let expiresAt = null;
+      if (expirationDays) {
+        const date = new Date();
+        date.setDate(date.getDate() + expirationDays);
+        expiresAt = date.toISOString();
+      }
+
+      await env.THEME_DB.prepare(`
+        INSERT INTO shared_themes (id, user_id, name, description, config, is_public, tags, expires_at, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `).bind(
+        shareId,
+        userId || null,
+        name,
+        description || null,
+        JSON.stringify(themeConfig),
+        isPublic ? 1 : 0,
+        tags ? JSON.stringify(tags) : '[]',
+        expiresAt
+      ).run();
+
+      return new Response(JSON.stringify({ success: true, shareId }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
+  // Get Shared Theme
+  async getSharedTheme(shareId, env, corsHeaders) {
+    try {
+      if (!shareId) {
+        return new Response(JSON.stringify({ error: 'Missing shareId' }), { status: 400, headers: corsHeaders });
+      }
+
+      await this.initializeDatabase(env);
+
+      // Increment view count
+      await env.THEME_DB.prepare(`
+        UPDATE shared_themes SET views = views + 1 WHERE id = ?
+      `).bind(shareId).run();
+
+      const result = await env.THEME_DB.prepare(`
+        SELECT * FROM shared_themes WHERE id = ?
+      `).bind(shareId).first();
+
+      if (!result) {
+        return new Response(JSON.stringify({ error: 'Theme not found' }), { status: 404, headers: corsHeaders });
+      }
+
+      // Check expiration
+      if (result.expires_at && new Date(result.expires_at) < new Date()) {
+        return new Response(JSON.stringify({ error: 'Theme expired' }), { status: 410, headers: corsHeaders });
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        theme: {
+          ...result,
+          config: JSON.parse(result.config),
+          tags: JSON.parse(result.tags || '[]'),
+          isPublic: !!result.is_public
+        }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
+  // Get User Shared Themes
+  async getUserSharedThemes(request, env, corsHeaders) {
+    try {
+      const url = new URL(request.url);
+      const userId = url.searchParams.get('userId');
+
+      if (!userId) {
+        return new Response(JSON.stringify({ error: 'Missing userId' }), { status: 400, headers: corsHeaders });
+      }
+
+      await this.initializeDatabase(env);
+      const results = await env.THEME_DB.prepare(`
+        SELECT id as shareId, name as themeName, created_at as createdAt, views, is_public as isPublic 
+        FROM shared_themes 
+        WHERE user_id = ? 
+        ORDER BY created_at DESC
+      `).bind(userId).all();
+
+      return new Response(JSON.stringify({ success: true, themes: results.results }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
   // Initialize database with required tables
   async initializeDatabase(env) {
     try {
@@ -312,7 +442,26 @@ export default {
       `).run();
 
       await env.THEME_DB.prepare(`
+        CREATE TABLE IF NOT EXISTS shared_themes (
+          id TEXT PRIMARY KEY,
+          user_id TEXT,
+          name TEXT NOT NULL,
+          description TEXT,
+          config TEXT NOT NULL,
+          is_public BOOLEAN DEFAULT 1,
+          views INTEGER DEFAULT 0,
+          tags TEXT DEFAULT '[]',
+          expires_at DATETIME,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `).run();
+
+      await env.THEME_DB.prepare(`
         CREATE INDEX IF NOT EXISTS idx_user_themes_user_id ON user_themes(user_id)
+      `).run();
+
+      await env.THEME_DB.prepare(`
+        CREATE INDEX IF NOT EXISTS idx_shared_themes_user_id ON shared_themes(user_id)
       `).run();
 
       // Insert initial value if doesn't exist
