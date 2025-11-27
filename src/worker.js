@@ -230,6 +230,23 @@ export default {
     }
   },
 
+  // Helper: Get Unique Name
+  async getUniqueName(env, table, userId, baseName) {
+    let name = baseName;
+    let counter = 2;
+    while (true) {
+      const query = `SELECT id FROM ${table} WHERE user_id = ? AND name = ?`;
+      const existing = await env.THEME_DB.prepare(query).bind(userId, name).first();
+
+      if (!existing) {
+        return name;
+      }
+
+      name = `${baseName} (${counter})`;
+      counter++;
+    }
+  },
+
   // Save Theme
   async saveTheme(request, env, corsHeaders) {
     try {
@@ -240,13 +257,16 @@ export default {
 
       await this.initializeDatabase(env);
 
+      // Handle duplicate names
+      const finalName = await this.getUniqueName(env, 'user_themes', userId, name);
+
       const id = crypto.randomUUID();
       await env.THEME_DB.prepare(`
         INSERT INTO user_themes (id, user_id, name, config, created_at)
         VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-      `).bind(id, userId, name, JSON.stringify(themeConfig)).run();
+      `).bind(id, userId, finalName, JSON.stringify(themeConfig)).run();
 
-      return new Response(JSON.stringify({ success: true, id }), {
+      return new Response(JSON.stringify({ success: true, id, name: finalName }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     } catch (error) {
@@ -325,13 +345,19 @@ export default {
         expiresAt = date.toISOString();
       }
 
+      // Handle duplicate names if user is logged in
+      let finalName = name;
+      if (userId) {
+        finalName = await this.getUniqueName(env, 'shared_themes', userId, name);
+      }
+
       await env.THEME_DB.prepare(`
         INSERT INTO shared_themes (id, user_id, name, description, config, is_public, tags, expires_at, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
       `).bind(
         shareId,
         userId || null,
-        name,
+        finalName,
         description || null,
         JSON.stringify(themeConfig),
         isPublic ? 1 : 0,
@@ -339,7 +365,7 @@ export default {
         expiresAt
       ).run();
 
-      return new Response(JSON.stringify({ success: true, shareId }), {
+      return new Response(JSON.stringify({ success: true, shareId, name: finalName }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     } catch (error) {
