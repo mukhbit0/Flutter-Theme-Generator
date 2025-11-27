@@ -89,6 +89,9 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
       };
 
       console.log('[ShareThemeComponent] Sharing theme config:', configToShare);
+      console.log('[ShareThemeComponent] Light primary color:', configToShare.colors?.light?.primary);
+      console.log('[ShareThemeComponent] Dark primary color:', configToShare.colors?.dark?.primary);
+      console.log('[ShareThemeComponent] Settings:', configToShare.settings);
       const optionsWithUser = { ...shareOptions, userId: currentUser?.uid };
       const result = await sharingService.shareTheme(configToShare, optionsWithUser)
 

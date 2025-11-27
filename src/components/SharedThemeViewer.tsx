@@ -163,6 +163,9 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
         }))
         console.log('[SharedThemeViewer] Loaded theme:', theme);
         console.log('[SharedThemeViewer] Theme colors:', theme.themeConfig.colors);
+        console.log('[SharedThemeViewer] Light primary:', theme.themeConfig.colors?.light?.primary);
+        console.log('[SharedThemeViewer] Dark primary:', theme.themeConfig.colors?.dark?.primary);
+        console.log('[SharedThemeViewer] Settings:', theme.themeConfig.settings);
         console.log('[SharedThemeViewer] Initial mode:', initialMode);
       } catch (error) {
         console.error('Error loading shared theme:', error)

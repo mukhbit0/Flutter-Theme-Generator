@@ -9,7 +9,7 @@ import { Share2, X } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import ShareThemeComponent from './ShareThemeComponent'
 import SharingErrorBoundary from './SharingErrorBoundary'
-import { ThemeGeneratorSettings } from '../types/theme'
+import { ThemeGeneratorSettings, ThemeConfig } from '../types/theme'
 
 interface SharingPanelProps {
   className?: string
@@ -19,6 +19,7 @@ interface SharingPanelProps {
   isOpen?: boolean
   onToggle?: (isOpen: boolean) => void
   settings?: ThemeGeneratorSettings | null
+  themeConfig?: ThemeConfig | null  // Allow passing themeConfig directly
 }
 
 export const SharingPanel: React.FC<SharingPanelProps> = ({
@@ -28,10 +29,14 @@ export const SharingPanel: React.FC<SharingPanelProps> = ({
   showButton = true,
   isOpen: controlledIsOpen,
   onToggle,
-  settings
+  settings,
+  themeConfig: propThemeConfig
 }) => {
-  const { themeConfig } = useTheme()
+  const { themeConfig: contextThemeConfig } = useTheme()
   const [internalIsOpen, setInternalIsOpen] = useState(false)
+  
+  // Use prop themeConfig if provided, otherwise fall back to context
+  const themeConfig = propThemeConfig || contextThemeConfig
   
   // Use controlled state if provided, otherwise use internal state
   const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen

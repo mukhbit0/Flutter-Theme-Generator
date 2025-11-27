@@ -43,6 +43,9 @@ class SharingService {
    */
   async shareTheme(themeConfig: ThemeConfig, options: ShareOptions): Promise<ShareResult> {
     try {
+      console.log('[SharingService] shareTheme called with config:', themeConfig);
+      console.log('[SharingService] Light primary:', themeConfig.colors?.light?.primary);
+      
       const response = await fetch(`${API_BASE_URL}/api/themes/share`, {
         method: 'POST',
         headers: {
@@ -98,6 +101,10 @@ class SharingService {
         return null;
       }
 
+      console.log('[SharingService] getSharedTheme response:', data.theme);
+      console.log('[SharingService] Fetched config:', data.theme.config);
+      console.log('[SharingService] Fetched light primary:', data.theme.config?.colors?.light?.primary);
+      
       return {
         id: data.theme.id,
         name: data.theme.name,

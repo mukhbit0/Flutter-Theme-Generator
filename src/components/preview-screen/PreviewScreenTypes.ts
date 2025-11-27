@@ -29,6 +29,7 @@ export interface WidgetPreviewsProps {
 
 export interface PreviewContainerProps extends WidgetPreviewsProps {
   settings?: ThemeGeneratorSettings | null
+  themeConfig?: ThemeConfig | null
 }
 
 export interface ColorPaletteProps {

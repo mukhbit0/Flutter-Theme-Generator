@@ -347,6 +347,11 @@ export default {
     try {
       const { userId, themeConfig, name, description, isPublic, tags, expirationDays } = await request.json();
 
+      // Debug logging
+      console.log('[Worker] createSharedTheme - Received themeConfig:', JSON.stringify(themeConfig).substring(0, 500));
+      console.log('[Worker] createSharedTheme - Light primary:', themeConfig?.colors?.light?.primary);
+      console.log('[Worker] createSharedTheme - Settings:', themeConfig?.settings);
+
       if (!themeConfig || !name) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: corsHeaders });
       }
@@ -373,6 +378,9 @@ export default {
         finalName = await this.getUniqueName(env, 'shared_themes', userId, name);
       }
 
+      const configString = JSON.stringify(themeConfig);
+      console.log('[Worker] createSharedTheme - Storing config length:', configString.length);
+
       await env.THEME_DB.prepare(`
         INSERT INTO shared_themes (id, user_id, name, description, config, is_public, tags, expires_at, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
@@ -381,16 +389,19 @@ export default {
         userId || null,
         finalName,
         description || null,
-        JSON.stringify(themeConfig),
+        configString,
         isPublic ? 1 : 0,
         tags ? JSON.stringify(tags) : '[]',
         expiresAt
       ).run();
 
+      console.log('[Worker] createSharedTheme - Successfully stored theme with shareId:', shareId);
+
       return new Response(JSON.stringify({ success: true, shareId, name: finalName }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     } catch (error) {
+      console.error('[Worker] createSharedTheme - Error:', error);
       return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
     }
   },
@@ -401,6 +412,8 @@ export default {
       if (!shareId) {
         return new Response(JSON.stringify({ error: 'Missing shareId' }), { status: 400, headers: corsHeaders });
       }
+
+      console.log('[Worker] getSharedTheme - Fetching shareId:', shareId);
 
       await this.initializeDatabase(env);
 
@@ -414,6 +427,7 @@ export default {
       `).bind(shareId).first();
 
       if (!result) {
+        console.log('[Worker] getSharedTheme - Theme not found for shareId:', shareId);
         return new Response(JSON.stringify({ error: 'Theme not found' }), { status: 404, headers: corsHeaders });
       }
 
@@ -422,11 +436,17 @@ export default {
         return new Response(JSON.stringify({ error: 'Theme expired' }), { status: 410, headers: corsHeaders });
       }
 
+      // Parse the stored config
+      const parsedConfig = JSON.parse(result.config);
+      console.log('[Worker] getSharedTheme - Raw config length:', result.config.length);
+      console.log('[Worker] getSharedTheme - Parsed light primary:', parsedConfig?.colors?.light?.primary);
+      console.log('[Worker] getSharedTheme - Parsed settings:', parsedConfig?.settings);
+
       return new Response(JSON.stringify({
         success: true,
         theme: {
           ...result,
-          config: JSON.parse(result.config),
+          config: parsedConfig,
           tags: JSON.parse(result.tags || '[]'),
           isPublic: !!result.is_public
         }
@@ -434,6 +454,7 @@ export default {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     } catch (error) {
+      console.error('[Worker] getSharedTheme - Error:', error);
       return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
     }
   },
