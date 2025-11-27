@@ -3,6 +3,9 @@ import { ThemeConfig, ThemeGeneratorSettings, ThemeColors } from '../../types/th
 import MobileFrame from './MobileFrame';
 import EcommerceMockup from './mockups/EcommerceMockup';
 import SocialMediaMockup from './mockups/SocialMediaMockup';
+import BankingMockup from './mockups/BankingMockup';
+import FitnessMockup from './mockups/FitnessMockup';
+import FoodDeliveryMockup from './mockups/FoodDeliveryMockup';
 
 interface ThemeImplementationScreenProps {
     themeConfig: ThemeConfig | null;
@@ -11,7 +14,7 @@ interface ThemeImplementationScreenProps {
     darkMode: boolean;
 }
 
-type MockupType = 'ecommerce' | 'social';
+type MockupType = 'ecommerce' | 'social' | 'banking' | 'fitness' | 'food';
 type PlatformType = 'ios' | 'android';
 type ThemeMode = 'light' | 'lightMediumContrast' | 'lightHighContrast' | 'dark' | 'darkMediumContrast' | 'darkHighContrast';
 
@@ -135,7 +138,7 @@ export default function ThemeImplementationScreen({
                         <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                             Select Mockup
                         </h3>
-                        <div className="space-y-2">
+                        <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                             <button
                                 onClick={() => setActiveMockup('ecommerce')}
                                 className={`w-full text-left px-4 py-3 rounded-xl transition-all flex items-center space-x-3 ${activeMockup === 'ecommerce'
@@ -157,6 +160,39 @@ export default function ThemeImplementationScreen({
                                 <span className="text-xl">📱</span>
                                 <span className="font-medium">Social Media App</span>
                             </button>
+
+                            <button
+                                onClick={() => setActiveMockup('banking')}
+                                className={`w-full text-left px-4 py-3 rounded-xl transition-all flex items-center space-x-3 ${activeMockup === 'banking'
+                                    ? 'bg-blue-500/10 text-blue-600 border-blue-500/20 border'
+                                    : darkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-600'
+                                    }`}
+                            >
+                                <span className="text-xl">🏦</span>
+                                <span className="font-medium">Banking / Fintech App</span>
+                            </button>
+
+                            <button
+                                onClick={() => setActiveMockup('fitness')}
+                                className={`w-full text-left px-4 py-3 rounded-xl transition-all flex items-center space-x-3 ${activeMockup === 'fitness'
+                                    ? 'bg-blue-500/10 text-blue-600 border-blue-500/20 border'
+                                    : darkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-600'
+                                    }`}
+                            >
+                                <span className="text-xl">💪</span>
+                                <span className="font-medium">Fitness / Health App</span>
+                            </button>
+
+                            <button
+                                onClick={() => setActiveMockup('food')}
+                                className={`w-full text-left px-4 py-3 rounded-xl transition-all flex items-center space-x-3 ${activeMockup === 'food'
+                                    ? 'bg-blue-500/10 text-blue-600 border-blue-500/20 border'
+                                    : darkMode ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-600'
+                                    }`}
+                            >
+                                <span className="text-xl">🍔</span>
+                                <span className="font-medium">Food Delivery App</span>
+                            </button>
                         </div>
                     </div>
 
@@ -174,11 +210,11 @@ export default function ThemeImplementationScreen({
                 {/* Mockup Display */}
                 <div className="lg:col-span-2 flex justify-center items-start pt-4">
                     <MobileFrame platform={platform} darkMode={isMockupDark}>
-                        {activeMockup === 'ecommerce' ? (
-                            <EcommerceMockup colors={mockupColors} />
-                        ) : (
-                            <SocialMediaMockup colors={mockupColors} />
-                        )}
+                        {activeMockup === 'ecommerce' && <EcommerceMockup colors={mockupColors} />}
+                        {activeMockup === 'social' && <SocialMediaMockup colors={mockupColors} />}
+                        {activeMockup === 'banking' && <BankingMockup colors={mockupColors} />}
+                        {activeMockup === 'fitness' && <FitnessMockup colors={mockupColors} />}
+                        {activeMockup === 'food' && <FoodDeliveryMockup colors={mockupColors} />}
                     </MobileFrame>
                 </div>
 
