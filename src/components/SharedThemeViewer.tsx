@@ -48,10 +48,18 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
     error: null,
     liked: false,
     downloadCount: 0,
-    previewMode: 'light',
+    previewMode: darkMode ? 'dark' : 'light',
     copySuccess: false,
     downloading: false
   })
+
+  // Sync preview mode with dark mode
+  useEffect(() => {
+    setState(prev => ({
+      ...prev,
+      previewMode: darkMode ? 'dark' : 'light'
+    }))
+  }, [darkMode])
 
   // Get available theme modes from the theme config
   const getAvailableThemeModes = () => {
@@ -96,11 +104,39 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
           return
         }
 
+        // Determine initial preview mode based on available variants and user preference
+        let initialMode: any = darkMode ? 'dark' : 'light'
+        const variants = theme.themeConfig.settings?.themeVariants
+
+        if (variants) {
+          const variantMap: Record<string, string> = {
+            lightMode: 'light',
+            lightMedium: 'lightMediumContrast',
+            lightHigh: 'lightHighContrast',
+            darkMode: 'dark',
+            darkMedium: 'darkMediumContrast',
+            darkHigh: 'darkHighContrast'
+          }
+
+          // Check if preferred mode is enabled
+          const preferredKey = Object.entries(variantMap).find(([_, mode]) => mode === initialMode)?.[0]
+          const isPreferredEnabled = preferredKey && variants[preferredKey as keyof typeof variants]
+
+          if (!isPreferredEnabled) {
+            // Fallback to first enabled variant
+            const firstEnabled = Object.entries(variants).find(([_, enabled]) => enabled)?.[0]
+            if (firstEnabled && variantMap[firstEnabled]) {
+              initialMode = variantMap[firstEnabled]
+            }
+          }
+        }
+
         setState(prev => ({
           ...prev,
           theme,
           downloadCount: theme.views,
-          loading: false
+          loading: false,
+          previewMode: initialMode
         }))
       } catch (error) {
         console.error('Error loading shared theme:', error)
@@ -113,7 +149,7 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
     }
 
     loadSharedTheme()
-  }, [shareId])
+  }, [shareId, darkMode])
 
   // Handle download
   const handleDownload = async () => {
@@ -219,8 +255,8 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
             <button
               onClick={() => window.history.back()}
               className={`w-full px-6 py-3 border rounded-lg font-medium transition-colors ${darkMode
-                  ? 'border-gray-600 text-gray-300 hover:bg-gray-800'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                ? 'border-gray-600 text-gray-300 hover:bg-gray-800'
+                : 'border-gray-300 text-gray-700 hover:bg-gray-50'
                 }`}
             >
               Go Back
@@ -238,8 +274,8 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
 
   return (
     <div className={`min-h-screen transition-all duration-300 ${darkMode
-        ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'
-        : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
+      ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'
+      : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
       }`}>
 
       {/* Hero Header */}
@@ -254,8 +290,8 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
             <button
               onClick={() => navigate('/')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${darkMode
-                  ? 'hover:bg-gray-700 text-gray-300'
-                  : 'hover:bg-gray-100 text-gray-600'
+                ? 'hover:bg-gray-700 text-gray-300'
+                : 'hover:bg-gray-100 text-gray-600'
                 }`}
             >
               <ArrowLeft className="w-5 h-5" />
@@ -266,10 +302,10 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
               <button
                 onClick={handleLike}
                 className={`p-2 rounded-lg transition-colors ${state.liked
-                    ? 'text-red-500 bg-red-50 dark:bg-red-900/20'
-                    : darkMode
-                      ? 'text-gray-400 hover:text-red-400 hover:bg-gray-700'
-                      : 'text-gray-400 hover:text-red-500 hover:bg-gray-100'
+                  ? 'text-red-500 bg-red-50 dark:bg-red-900/20'
+                  : darkMode
+                    ? 'text-gray-400 hover:text-red-400 hover:bg-gray-700'
+                    : 'text-gray-400 hover:text-red-500 hover:bg-gray-100'
                   }`}
               >
                 <Heart className={`w-5 h-5 ${state.liked ? 'fill-current' : ''}`} />
@@ -278,10 +314,10 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
               <button
                 onClick={handleCopyLink}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${state.copySuccess
-                    ? 'bg-green-500 text-white'
-                    : darkMode
-                      ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  ? 'bg-green-500 text-white'
+                  : darkMode
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                   }`}
               >
                 {state.copySuccess ? (
@@ -407,8 +443,8 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
                 <button
                   onClick={() => navigate(`/preview?editShared=${shareId}&returnTo=/shared/${shareId}`)}
                   className={`px-6 py-3 border-2 font-semibold rounded-lg transition-all duration-300 ${darkMode
-                      ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
-                      : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
+                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
                     }`}
                 >
                   <div className="flex items-center justify-center gap-2">
@@ -479,12 +515,12 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
                         previewMode: mode as any
                       }))}
                       className={`px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 whitespace-nowrap ${state.previewMode === mode
-                          ? mode.includes('dark')
-                            ? 'bg-gray-800 text-white shadow-sm'
-                            : 'bg-white text-gray-900 shadow-sm'
-                          : darkMode
-                            ? 'text-gray-300 hover:text-white hover:bg-gray-600'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+                        ? mode.includes('dark')
+                          ? 'bg-gray-800 text-white shadow-sm'
+                          : 'bg-white text-gray-900 shadow-sm'
+                        : darkMode
+                          ? 'text-gray-300 hover:text-white hover:bg-gray-600'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
                         }`}
                     >
                       {modeLabels[mode] || mode}

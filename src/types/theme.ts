@@ -123,6 +123,14 @@ export interface ThemeConfig {
   };
   settings?: {
     useScreenUtil?: boolean;
+    themeVariants?: {
+      lightMode: boolean;
+      lightMedium: boolean;
+      lightHigh: boolean;
+      darkMode: boolean;
+      darkMedium: boolean;
+      darkHigh: boolean;
+    };
   };
 }
 
