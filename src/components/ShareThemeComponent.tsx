@@ -77,6 +77,7 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
     setState(prev => ({ ...prev, isSharing: true, error: null }))
 
     try {
+      console.log('[ShareThemeComponent] Sharing theme config:', themeConfig);
       const optionsWithUser = { ...shareOptions, userId: currentUser?.uid };
       const result = await sharingService.shareTheme(themeConfig, optionsWithUser)
 

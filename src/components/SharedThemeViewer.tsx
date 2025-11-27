@@ -140,6 +140,7 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
         }))
         console.log('[SharedThemeViewer] Loaded theme:', theme);
         console.log('[SharedThemeViewer] Theme colors:', theme.themeConfig.colors);
+        console.log('[SharedThemeViewer] Initial mode:', initialMode);
       } catch (error) {
         console.error('Error loading shared theme:', error)
         setState(prev => ({
@@ -209,6 +210,7 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
       case 'darkHighContrast':
         return colors.darkHighContrast || colors.darkMediumContrast || colors.dark
       default:
+        console.log('[SharedThemeViewer] Defaulting to light mode colors');
         return colors.light
     }
   }
