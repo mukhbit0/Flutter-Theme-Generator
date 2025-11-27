@@ -254,23 +254,32 @@ export default {
   // Save Theme
   async saveTheme(request, env, corsHeaders) {
     try {
-      const { userId, themeConfig, name } = await request.json();
-      if (!userId || !themeConfig || !name) {
+      const { userId, name, themeConfig, settings } = await request.json();
+
+      if (!userId || !name || !themeConfig) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: corsHeaders });
       }
 
       await this.initializeDatabase(env);
 
-      // Handle duplicate names
-      const finalName = await this.getUniqueName(env, 'user_themes', userId, name);
+      // Add settings column if it doesn't exist (migration)
+      try {
+        await env.THEME_DB.prepare('ALTER TABLE user_themes ADD COLUMN settings TEXT').run();
+      } catch (e) {
+        // Column likely exists
+      }
 
       const id = crypto.randomUUID();
-      await env.THEME_DB.prepare(`
-        INSERT INTO user_themes (id, user_id, name, config, created_at)
-        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-      `).bind(id, userId, finalName, JSON.stringify(themeConfig)).run();
 
-      return new Response(JSON.stringify({ success: true, id, name: finalName }), {
+      // Check for duplicate names for this user
+      const uniqueName = await this.getUniqueName(env, 'user_themes', userId, name);
+
+      await env.THEME_DB.prepare(`
+        INSERT INTO user_themes (id, user_id, name, config, settings, created_at)
+        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `).bind(id, userId, uniqueName, JSON.stringify(themeConfig), settings ? JSON.stringify(settings) : null).run();
+
+      return new Response(JSON.stringify({ success: true, id, name: uniqueName }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     } catch (error) {
@@ -283,16 +292,25 @@ export default {
     try {
       const url = new URL(request.url);
       const userId = url.searchParams.get('userId');
+
       if (!userId) {
         return new Response(JSON.stringify({ error: 'Missing userId' }), { status: 400, headers: corsHeaders });
       }
 
       await this.initializeDatabase(env);
-      const results = await env.THEME_DB.prepare(`
+
+      // Ensure settings column exists
+      try {
+        await env.THEME_DB.prepare('ALTER TABLE user_themes ADD COLUMN settings TEXT').run();
+      } catch (e) {
+        // Column likely exists
+      }
+
+      const { results } = await env.THEME_DB.prepare(`
         SELECT * FROM user_themes WHERE user_id = ? ORDER BY created_at DESC
       `).bind(userId).all();
 
-      return new Response(JSON.stringify({ success: true, themes: results.results }), {
+      return new Response(JSON.stringify({ success: true, themes: results }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     } catch (error) {

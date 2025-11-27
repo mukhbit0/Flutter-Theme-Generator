@@ -7,22 +7,24 @@ export interface SavedTheme {
     user_id: string;
     name: string;
     config: ThemeConfig;
+    settings?: any;
     created_at: string;
 }
 
-interface RawSavedTheme extends Omit<SavedTheme, 'config'> {
+interface RawSavedTheme extends Omit<SavedTheme, 'config' | 'settings'> {
     config: string | ThemeConfig;
+    settings?: string | any;
 }
 
 export const themeService = {
-    async saveTheme(userId: string, name: string, themeConfig: ThemeConfig): Promise<{ success: boolean; id?: string; error?: string }> {
+    async saveTheme(userId: string, name: string, themeConfig: ThemeConfig, settings?: any): Promise<{ success: boolean; id?: string; error?: string }> {
         try {
             const response = await fetch(`${API_BASE_URL}/api/themes/save`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userId, name, themeConfig }),
+                body: JSON.stringify({ userId, name, themeConfig, settings }),
             });
             return await response.json();
         } catch (error) {
@@ -40,7 +42,8 @@ export const themeService = {
                 // Parse the config string back to object
                 data.themes = data.themes.map((theme: RawSavedTheme) => ({
                     ...theme,
-                    config: typeof theme.config === 'string' ? JSON.parse(theme.config) : theme.config
+                    config: typeof theme.config === 'string' ? JSON.parse(theme.config) : theme.config,
+                    settings: typeof theme.settings === 'string' ? JSON.parse(theme.settings) : theme.settings
                 }));
             }
 

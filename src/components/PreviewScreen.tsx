@@ -204,7 +204,7 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({ themeConfig, setti
     if (!themeName) return;
 
     try {
-      const result = await themeService.saveTheme(currentUser.uid, themeName, modifiedThemeConfig);
+      const result = await themeService.saveTheme(currentUser.uid, themeName, modifiedThemeConfig, settings);
       if (result.success && result.id) {
         setSavedThemeId(result.id);
         showSnackbar('Theme saved successfully!', 'success');
@@ -293,6 +293,7 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({ themeConfig, setti
             </button>
             <ShareThemeComponent
               themeConfig={modifiedThemeConfig}
+              settings={settings}
               themeName={settings?.themeName || 'My Theme'}
             />
           </div>

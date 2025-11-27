@@ -11,6 +11,7 @@ import { useAuth } from '../contexts/AuthContext'
 
 interface ShareThemeComponentProps {
   themeConfig: ThemeConfig
+  settings?: any
   themeName?: string
   className?: string
 }
@@ -26,6 +27,7 @@ interface ShareState {
 
 export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
   themeConfig,
+  settings,
   themeName = 'My Theme',
   className = ''
 }) => {
@@ -77,9 +79,18 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
     setState(prev => ({ ...prev, isSharing: true, error: null }))
 
     try {
-      console.log('[ShareThemeComponent] Sharing theme config:', themeConfig);
+      // Merge settings into themeConfig if provided
+      const configToShare = {
+        ...themeConfig,
+        settings: settings ? {
+          useScreenUtil: settings.useScreenUtil,
+          themeVariants: settings.themeVariants
+        } : themeConfig.settings
+      };
+
+      console.log('[ShareThemeComponent] Sharing theme config:', configToShare);
       const optionsWithUser = { ...shareOptions, userId: currentUser?.uid };
-      const result = await sharingService.shareTheme(themeConfig, optionsWithUser)
+      const result = await sharingService.shareTheme(configToShare, optionsWithUser)
 
       if (result.success && result.shareId) {
         // Refresh themes list

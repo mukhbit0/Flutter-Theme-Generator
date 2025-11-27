@@ -99,7 +99,7 @@ export const UserProfile: React.FC = () => {
         navigate('/preview', {
             state: {
                 themeConfig: theme.config,
-                settings: defaultSettings
+                settings: theme.settings || defaultSettings
             }
         });
     };
