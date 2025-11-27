@@ -1,22 +1,38 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import SplashScreen from './components/SplashScreen'
 import HomePage from './components/HomePage'
-import ThemeGeneratorComponent from './components/ThemeGeneratorComponent'
-import GuideScreen from './components/GuideScreen'
-import RoadmapScreen from './components/RoadmapScreen'
-import { PreviewScreen } from './components/PreviewScreen'
-import SharedThemeViewer from './components/SharedThemeViewer'
-import ThemeImplementationScreen from './components/theme-implementation/ThemeImplementationScreen'
-import ThemeValidationScreen from './components/validation/ThemeValidationScreen'
 import { ThemeConfig, ThemeGeneratorSettings } from './types/theme'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { DarkModeProvider, useDarkMode } from './contexts/DarkModeContext'
 import { sharingService } from './services/SharingService'
 import { AuthProvider } from './contexts/AuthContext';
-import { LoginScreen } from './components/auth/LoginScreen';
-import { SignupScreen } from './components/auth/SignupScreen';
-import { UserProfile } from './components/auth/UserProfile';
+
+// Lazy-loaded components for code splitting
+const ThemeGeneratorComponent = lazy(() => import('./components/ThemeGeneratorComponent'))
+const GuideScreen = lazy(() => import('./components/GuideScreen'))
+const RoadmapScreen = lazy(() => import('./components/RoadmapScreen'))
+const PreviewScreen = lazy(() => import('./components/PreviewScreen').then(m => ({ default: m.PreviewScreen })))
+const SharedThemeViewer = lazy(() => import('./components/SharedThemeViewer'))
+const ThemeImplementationScreen = lazy(() => import('./components/theme-implementation/ThemeImplementationScreen'))
+const ThemeValidationScreen = lazy(() => import('./components/validation/ThemeValidationScreen'))
+const LoginScreen = lazy(() => import('./components/auth/LoginScreen').then(m => ({ default: m.LoginScreen })))
+const SignupScreen = lazy(() => import('./components/auth/SignupScreen').then(m => ({ default: m.SignupScreen })))
+const UserProfile = lazy(() => import('./components/auth/UserProfile').then(m => ({ default: m.UserProfile })))
+
+// Loading fallback component
+function LoadingFallback({ darkMode }: { darkMode?: boolean }) {
+  return (
+    <div className={`min-h-screen flex items-center justify-center ${
+      darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-slate-50 to-blue-50'
+    }`}>
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Loading...</p>
+      </div>
+    </div>
+  )
+}
 
 function AppContent() {
   const [themeConfig, setThemeConfig] = useState<ThemeConfig | null>(null)
@@ -241,27 +257,28 @@ function AppContent() {
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-slate-50 to-blue-50'}`}>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <HomePage
-              onNavigateToGenerator={handleNavigateToGenerator}
-              onNavigateToGuide={handleNavigateToGuide}
-              onNavigateToRoadmap={handleNavigateToRoadmap}
-              darkMode={darkMode}
-              onToggleDarkMode={toggleDarkMode}
-            />
-          }
-        />
-        <Route path="/login" element={<LoginScreen />} />
-        <Route path="/signup" element={<SignupScreen />} />
-        <Route path="/profile" element={<UserProfile />} />
+      <Suspense fallback={<LoadingFallback darkMode={darkMode} />}>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <HomePage
+                onNavigateToGenerator={handleNavigateToGenerator}
+                onNavigateToGuide={handleNavigateToGuide}
+                onNavigateToRoadmap={handleNavigateToRoadmap}
+                darkMode={darkMode}
+                onToggleDarkMode={toggleDarkMode}
+              />
+            }
+          />
+          <Route path="/login" element={<LoginScreen />} />
+          <Route path="/signup" element={<SignupScreen />} />
+          <Route path="/profile" element={<UserProfile />} />
 
-        <Route
-          path="/generator"
-          element={
-            <ThemeGeneratorComponent
+          <Route
+            path="/generator"
+            element={
+              <ThemeGeneratorComponent
               onBack={handleBackToHome}
               onPreview={handleNavigateToPreview}
               darkMode={darkMode}
@@ -363,7 +380,8 @@ function AppContent() {
           darkMode={darkMode}
           onToggleDarkMode={toggleDarkMode}
         />} />
-      </Routes>
+        </Routes>
+      </Suspense>
     </div>
   )
 }
