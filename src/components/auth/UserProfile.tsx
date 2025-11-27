@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { themeService, SavedTheme } from '../../services/ThemeService';
-
+import { Header } from '../Header';
+import { Footer } from '../Footer';
+import { useDarkMode } from '../../contexts/DarkModeContext';
+import { useNavigate } from 'react-router-dom';
 
 export const UserProfile: React.FC = () => {
     const { currentUser, logout } = useAuth();
+    const { darkMode } = useDarkMode();
     const [themes, setThemes] = useState<SavedTheme[]>([]);
     const [loading, setLoading] = useState(true);
-
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (currentUser) {
@@ -35,76 +39,201 @@ export const UserProfile: React.FC = () => {
     };
 
     const handleLoadTheme = (theme: SavedTheme) => {
-        // Navigate to preview with the theme config
-        // We might need a way to pass this state. For now, let's use navigation state or local storage
-        // But wait, the app uses URL params or state for preview.
-        // Let's navigate to preview and pass state if possible, or maybe generator with state.
-        // Actually, the App.tsx handles preview with state.
-        // Let's try navigating to generator and pre-populating.
-        // Or better, navigate to preview directly.
-        // Since we don't have a global store for "current theme" that persists across refreshes easily without URL,
-        // we might need to update how we load themes.
-        // For now, let's just log it.
-        console.log("Load theme:", theme);
-        // TODO: Implement loading theme into generator/preview
-        alert("Loading themes is coming soon! (Need to wire up state)");
+        // Navigate to preview with the theme config to load it
+        // We use the 'editShared' parameter logic but for personal themes
+        // Ideally we should have a cleaner way, but for now we can pass state
+        // or just navigate to generator with state.
+
+        // Let's use the generator route with state, assuming ThemeGeneratorComponent handles it.
+        // Actually, looking at App.tsx, the best way is to use the 'preview' route 
+        // if we want to visualize it first, or 'generator' to edit.
+
+        // Let's go to generator to allow editing.
+        // We need to pass the theme config.
+        // Since we don't have a direct "load" prop in the URL for generator, 
+        // we might need to use a shared context or local storage.
+        // HOWEVER, App.tsx has a 'preview' route that takes state.
+
+        // Let's try navigating to /preview with state, and from there user can "Edit".
+        // Create a default settings object since it's not saved with the theme
+        const defaultSettings = {
+            themeName: theme.name,
+            packageName: 'com.example.app',
+            customColors: [],
+            generateMaterialYou: false,
+            includeExtensions: true,
+            includeAnimations: true,
+            useScreenUtil: false,
+            themeVariants: {
+                lightMode: true,
+                lightMedium: false,
+                lightHigh: false,
+                darkMode: true,
+                darkMedium: false,
+                darkHigh: false
+            }
+        };
+
+        navigate('/preview', {
+            state: {
+                themeConfig: theme.config,
+                settings: defaultSettings
+            }
+        });
+    };
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate('/');
+        } catch (error) {
+            console.error("Failed to logout", error);
+        }
     };
 
     if (!currentUser) {
-        return <div className="p-8 text-center">Please log in to view your profile.</div>;
+        return (
+            <div className={`min-h-screen flex flex-col items-center justify-center ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+                <p>Please log in to view your profile.</p>
+                <button
+                    onClick={() => navigate('/login')}
+                    className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                >
+                    Login
+                </button>
+            </div>
+        );
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
-                <div className="flex justify-between items-center mb-6">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Profile</h1>
-                        <p className="text-gray-600 dark:text-gray-400">{currentUser.email}</p>
-                    </div>
-                    <button
-                        onClick={() => logout()}
-                        className="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
-                    >
-                        Logout
-                    </button>
+        <div className={`min-h-screen flex flex-col ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+            <Header />
+
+            <div className="flex-1 relative overflow-hidden">
+                {/* Background Assets */}
+                <div className="absolute inset-0 z-0 pointer-events-none">
+                    <img
+                        src="/assets/images/auth-bg.png"
+                        alt="Background"
+                        className="w-full h-full object-cover opacity-30 blur-sm"
+                    />
+                    <div className={`absolute inset-0 ${darkMode ? 'bg-gray-900/90' : 'bg-white/80'} mix-blend-overlay`}></div>
                 </div>
 
-                <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Saved Themes</h2>
-
-                {loading ? (
-                    <div className="text-center py-8">Loading themes...</div>
-                ) : themes.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                        You haven't saved any themes yet.
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {themes.map(theme => (
-                            <div key={theme.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow bg-gray-50 dark:bg-gray-700/50">
-                                <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-white">{theme.name}</h3>
-                                <p className="text-xs text-gray-500 mb-4">
-                                    {new Date(theme.created_at).toLocaleDateString()}
-                                </p>
-                                <div className="flex space-x-2">
-                                    <button
-                                        onClick={() => handleLoadTheme(theme)}
-                                        className="flex-1 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded text-sm hover:bg-indigo-200"
-                                    >
-                                        Load
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(theme.id)}
-                                        className="px-3 py-1.5 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200"
-                                    >
-                                        Delete
-                                    </button>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+                    {/* Profile Header Card */}
+                    <div className={`rounded-3xl shadow-xl p-8 mb-12 backdrop-blur-xl ${darkMode ? 'bg-gray-800/60 border border-gray-700/50' : 'bg-white/70 border border-white/50'}`}>
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div className="flex items-center gap-6">
+                                <div className={`w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold shadow-lg ${darkMode ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white' : 'bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-600'}`}>
+                                    {currentUser.photoURL ? (
+                                        <img src={currentUser.photoURL} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                                    ) : (
+                                        currentUser.email?.charAt(0).toUpperCase()
+                                    )}
+                                </div>
+                                <div>
+                                    <h1 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                        {currentUser.displayName || 'User Profile'}
+                                    </h1>
+                                    <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                        {currentUser.email}
+                                    </p>
                                 </div>
                             </div>
-                        ))}
+                            <button
+                                onClick={handleLogout}
+                                className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 ${darkMode
+                                    ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20'
+                                    : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
+                                    }`}
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                Logout
+                            </button>
+                        </div>
                     </div>
-                )}
+
+                    {/* Saved Themes Section */}
+                    <div className="mb-8">
+                        <h2 className={`text-2xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                            Saved Themes
+                        </h2>
+
+                        {loading ? (
+                            <div className="flex justify-center py-12">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                            </div>
+                        ) : themes.length === 0 ? (
+                            <div className={`text-center py-16 rounded-3xl border-2 border-dashed ${darkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-300 bg-gray-50/50'}`}>
+                                <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-500'}`}>
+                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <h3 className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>No themes saved yet</h3>
+                                <p className={`mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Start creating amazing themes to see them here!</p>
+                                <button
+                                    onClick={() => navigate('/generator')}
+                                    className="mt-6 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                                >
+                                    Create New Theme
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {themes.map(theme => (
+                                    <div
+                                        key={theme.id}
+                                        className={`group relative rounded-2xl p-6 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${darkMode ? 'bg-gray-800/60 border border-gray-700 hover:border-indigo-500/50' : 'bg-white border border-gray-200 hover:border-indigo-300'}`}
+                                    >
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div>
+                                                <h3 className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                                    {theme.name}
+                                                </h3>
+                                                <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                    Created {new Date(theme.created_at).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                            <div className="flex space-x-1">
+                                                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: theme.config.colors.light.primary }}></div>
+                                                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: theme.config.colors.light.secondary }}></div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-3 mt-6">
+                                            <button
+                                                onClick={() => handleLoadTheme(theme)}
+                                                className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${darkMode
+                                                    ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                                                    : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'}`}
+                                            >
+                                                Load Theme
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(theme.id)}
+                                                className={`p-2 rounded-lg transition-colors ${darkMode
+                                                    ? 'text-red-400 hover:bg-red-900/30'
+                                                    : 'text-red-500 hover:bg-red-50'}`}
+                                                title="Delete Theme"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
+
+            <Footer darkMode={darkMode} />
         </div>
     );
 };

@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useDarkMode } from '../contexts/DarkModeContext';
 
 export const Header: React.FC = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser } = useAuth();
   const { darkMode, toggleDarkMode } = useDarkMode();
   const navigate = useNavigate();
 
@@ -34,23 +34,26 @@ export const Header: React.FC = () => {
           {/* Navigation & Actions */}
           <div className="flex items-center space-x-2 md:space-x-4">
             {currentUser ? (
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => navigate('/profile')}
-                  className={`hidden md:block text-sm font-medium hover:underline ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
-                >
-                  {currentUser.email}
-                </button>
-                <button
-                  onClick={() => logout()}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${darkMode
-                    ? 'text-red-400 hover:text-red-300 hover:bg-red-900/20'
-                    : 'text-red-600 hover:text-red-700 hover:bg-red-50'
-                    }`}
-                >
-                  Logout
-                </button>
-              </div>
+              <button
+                onClick={() => navigate('/profile')}
+                className={`p-2 rounded-full transition-all duration-200 ${darkMode
+                  ? 'bg-gray-700/50 text-gray-300 hover:text-white hover:bg-gray-600/50'
+                  : 'bg-gray-100/50 text-gray-600 hover:text-gray-900 hover:bg-gray-200/50'
+                  }`}
+                title="My Profile"
+              >
+                {currentUser.photoURL ? (
+                  <img
+                    src={currentUser.photoURL}
+                    alt="Profile"
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                )}
+              </button>
             ) : (
               <button
                 onClick={() => navigate('/login')}

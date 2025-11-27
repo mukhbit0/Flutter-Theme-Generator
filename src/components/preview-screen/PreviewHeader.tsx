@@ -11,9 +11,10 @@ export default function PreviewHeader({
   onBack,
   onDownload,
   onSave,
+  onShare,
   isDownloading,
   settings
-}: PreviewHeaderProps) {
+}: PreviewHeaderProps & { onShare: () => void }) {
   const navigate = useNavigate()
   const allModeOptions: { value: PreviewMode; label: string; group: 'light' | 'dark'; variantKey: keyof ThemeGeneratorSettings['themeVariants'] }[] = [
     { value: 'light', label: 'Light', group: 'light', variantKey: 'lightMode' },
@@ -124,6 +125,21 @@ export default function PreviewHeader({
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                  </svg>
+                </button>
+              </Tooltip>
+
+              <Tooltip content="Share Theme" position="bottom" darkMode={darkMode}>
+                <button
+                  onClick={onShare}
+                  className={`p-2.5 rounded-full transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${darkMode
+                    ? 'bg-blue-600 text-white hover:bg-blue-500 border border-blue-500'
+                    : 'bg-blue-600 text-white hover:bg-blue-700 border border-blue-600'
+                    }`}
+                  aria-label="Share Theme"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                   </svg>
                 </button>
               </Tooltip>

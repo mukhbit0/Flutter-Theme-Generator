@@ -7,6 +7,8 @@ import React, { useState, useCallback, useEffect } from 'react'
 import { sharingService, ShareOptions, ShareResult, ShareableTheme } from '../services/SharingService'
 import { ThemeConfig } from '../types/theme'
 import { Share2, Copy, Eye, EyeOff, Trash2, Clock, Tag, AlertCircle, CheckCircle } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
+import { themeService } from '../services/ThemeService'
 
 interface ShareThemeComponentProps {
   themeConfig: ThemeConfig
@@ -28,6 +30,7 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
   themeName = 'My Theme',
   className = ''
 }) => {
+  const { currentUser } = useAuth();
   const [state, setState] = useState<ShareState>({
     isSharing: false,
     shareResult: null,
@@ -62,9 +65,9 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
   // Handle sharing theme
   const handleShare = useCallback(async () => {
     if (!sharingService.isAvailable()) {
-      setState(prev => ({ 
-        ...prev, 
-        error: 'Sharing is not available. Please check your browser settings.' 
+      setState(prev => ({
+        ...prev,
+        error: 'Sharing is not available. Please check your browser settings.'
       }))
       return
     }
@@ -73,8 +76,13 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
 
     try {
       const result = await sharingService.shareTheme(themeConfig, shareOptions)
-      
-      if (result.success) {
+
+      if (result.success && result.shareId) {
+        // If user is logged in, save reference to backend
+        if (currentUser) {
+          await themeService.saveSharedThemeReference(currentUser.uid, result.shareId, shareOptions.name);
+        }
+
         // Refresh themes list
         const themes = sharingService.getMySharedThemes()
         setState(prev => ({
@@ -191,7 +199,7 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
               <CheckCircle className="w-5 h-5 flex-shrink-0" />
               <span className="font-medium">Theme Shared Successfully!</span>
             </div>
-            
+
             <div className="space-y-3">
               {/* Share URL */}
               <div>
@@ -327,8 +335,8 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
                   {shareOptions.isPublic ? <Eye className="w-4 h-4 text-green-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
                 </label>
                 <p className="text-xs text-gray-500 dark:text-gray-400 ml-6">
-                  {shareOptions.isPublic 
-                    ? "Anyone with the link can access this theme and it may appear in public galleries" 
+                  {shareOptions.isPublic
+                    ? "Anyone with the link can access this theme and it may appear in public galleries"
                     : "Only people with the direct link can access this theme"}
                 </p>
               </div>
@@ -340,9 +348,9 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
                 </label>
                 <select
                   value={shareOptions.expirationDays || ''}
-                  onChange={(e) => setShareOptions((prev: ShareOptions) => ({ 
-                    ...prev, 
-                    expirationDays: e.target.value ? parseInt(e.target.value) : undefined 
+                  onChange={(e) => setShareOptions((prev: ShareOptions) => ({
+                    ...prev,
+                    expirationDays: e.target.value ? parseInt(e.target.value) : undefined
                   }))}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 >

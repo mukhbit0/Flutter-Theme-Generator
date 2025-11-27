@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { Snackbar } from './Snackbar'
+import { ShareThemeComponent } from './ShareThemeComponent'
 import { downloadThemeFiles } from '../utils/FileDownloader'
 import { PreviewScreenProps, PreviewMode } from './preview-screen/PreviewScreenTypes'
 import PreviewHeader from './preview-screen/PreviewHeader'
@@ -150,10 +152,40 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
     }))
   }
 
+  const [snackbar, setSnackbar] = useState<{ isOpen: boolean; message: string; type: 'success' | 'error' | 'info' }>({
+    isOpen: false,
+    message: '',
+    type: 'success'
+  });
+  const [savedThemeId, setSavedThemeId] = useState<string | null>(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  const showSnackbar = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setSnackbar({ isOpen: true, message, type });
+  };
+
   const handleSave = async () => {
     if (!currentUser) {
       if (window.confirm('You need to be logged in to save themes. Would you like to log in now?')) {
         navigate('/login');
+      }
+      return;
+    }
+
+    // If already saved, unsave (delete)
+    if (savedThemeId) {
+      if (window.confirm('Are you sure you want to unsave (delete) this theme?')) {
+        try {
+          const result = await themeService.deleteTheme(currentUser.uid, savedThemeId);
+          if (result.success) {
+            setSavedThemeId(null);
+            showSnackbar('Theme unsaved', 'info');
+          } else {
+            showSnackbar('Failed to unsave theme', 'error');
+          }
+        } catch (error) {
+          showSnackbar('Error unsaving theme', 'error');
+        }
       }
       return;
     }
@@ -163,14 +195,15 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
 
     try {
       const result = await themeService.saveTheme(currentUser.uid, themeName, modifiedThemeConfig);
-      if (result.success) {
-        alert('Theme saved successfully!');
+      if (result.success && result.id) {
+        setSavedThemeId(result.id);
+        showSnackbar('Theme saved successfully!', 'success');
       } else {
-        alert('Failed to save theme: ' + result.error);
+        showSnackbar('Failed to save theme: ' + result.error, 'error');
       }
     } catch (error) {
       console.error('Error saving theme:', error);
-      alert('An error occurred while saving the theme.');
+      showSnackbar('An error occurred while saving the theme.', 'error');
     }
   };
 
@@ -201,6 +234,7 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
         onBack={onBack}
         onDownload={handleDownload}
         onSave={handleSave}
+        onShare={() => setIsShareModalOpen(true)}
         isDownloading={isDownloading}
         settings={settings}
       />
@@ -229,6 +263,32 @@ export default function PreviewScreen({ themeConfig, settings, onBack, darkMode 
           </div>
         </div>
       </div>
+      <Snackbar
+        isOpen={snackbar.isOpen}
+        message={snackbar.message}
+        type={snackbar.type}
+        onClose={() => setSnackbar(prev => ({ ...prev, isOpen: false }))}
+      />
+
+      {/* Share Modal */}
+      {isShareModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg">
+            <button
+              onClick={() => setIsShareModalOpen(false)}
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+            >
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <ShareThemeComponent
+              themeConfig={modifiedThemeConfig}
+              themeName={settings?.themeName || 'My Theme'}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
