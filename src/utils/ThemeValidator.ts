@@ -1,4 +1,4 @@
-import { ThemeConfig } from '../types/theme';
+import { ThemeConfig, ThemeColors } from '../types/theme';
 import { FlutterThemeGenerator } from './FlutterThemeGenerator';
 
 export interface ValidationResult {
@@ -206,7 +206,7 @@ export class ThemeValidator {
         };
     }
 
-    static simulateColorBlindness(colors: any, _contrastResults: ValidationResult[]): ColorBlindnessResult[] {
+    static simulateColorBlindness(colors: ThemeColors, _contrastResults: ValidationResult[]): ColorBlindnessResult[] {
         const types: Array<{ type: 'deuteranopia' | 'protanopia' | 'tritanopia', displayName: string, description: string }> = [
             { type: 'deuteranopia', displayName: 'Deuteranopia', description: 'Red-green color blindness (most common, ~6% of males)' },
             { type: 'protanopia', displayName: 'Protanopia', description: 'Red-green color blindness (~1% of males)' },
@@ -319,7 +319,7 @@ export class ThemeValidator {
         }).join('');
     }
 
-    static calculateBrandConsistency(colors: any): { score: number, harmony: string } {
+    static calculateBrandConsistency(colors: ThemeColors): { score: number, harmony: string } {
         const getHue = (hex: string) => FlutterThemeGenerator.hexToHsl(hex).h;
         const getSat = (hex: string) => FlutterThemeGenerator.hexToHsl(hex).s;
 
@@ -374,7 +374,7 @@ export class ThemeValidator {
         };
     }
 
-    static calculateSystemEfficiency(colors: any): number {
+    static calculateSystemEfficiency(colors: ThemeColors): number {
         const getHue = (hex: string) => FlutterThemeGenerator.hexToHsl(hex).h;
         const h1 = getHue(colors.primary);
         const h2 = getHue(colors.secondary);
@@ -394,8 +394,9 @@ export class ThemeValidator {
         if (d2 > 0 && d2 < 10) redundancyPenalty += 5;
         if (d3 > 0 && d3 < 10) redundancyPenalty += 5;
 
-        const uniqueColors = new Set(Object.values(colors).filter(v => typeof v === 'string')).size;
-        const totalSlots = Object.keys(colors).filter(k => typeof colors[k] === 'string').length;
+        const colorValues = Object.values(colors).filter((v): v is string => typeof v === 'string');
+        const uniqueColors = new Set(colorValues).size;
+        const totalSlots = colorValues.length;
         const uniquenessRatio = totalSlots > 0 ? uniqueColors / totalSlots : 1;
 
         let complexityScore = 90;
