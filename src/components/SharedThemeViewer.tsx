@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import {
   Download,
   Copy,
@@ -43,9 +43,9 @@ interface ViewerState {
 export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
   const { shareId } = useParams<{ shareId: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const { darkMode } = useDarkMode()
   const { currentUser } = useAuth()
-
   const [state, setState] = useState<ViewerState>({
     theme: null,
     loading: true,
@@ -382,14 +382,20 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
           {/* Navigation */}
           <div className="flex items-center justify-between mb-8">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => {
+                if (location.state?.from === 'gallery') {
+                  navigate('/gallery');
+                } else {
+                  navigate('/');
+                }
+              }}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${darkMode
                 ? 'hover:bg-gray-700 text-gray-300'
                 : 'hover:bg-gray-100 text-gray-600'
                 }`}
             >
               <ArrowLeft className="w-5 h-5" />
-              <span>Create Your Theme</span>
+              <span>{location.state?.from === 'gallery' ? 'Back to Gallery' : 'Create Your Theme'}</span>
             </button>
 
             <div className="flex items-center gap-3">
@@ -707,7 +713,7 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
           </div>
         </div>
       </footer>
-    </div>
+    </div >
   )
 }
 

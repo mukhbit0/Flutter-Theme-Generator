@@ -277,12 +277,12 @@ class SharingService {
   /**
    * Add a comment
    */
-  async addComment(themeId: string, userId: string, userName: string, content: string): Promise<boolean> {
+  async addComment(themeId: string, userId: string, userName: string, content: string, parentId?: string): Promise<boolean> {
     try {
       const response = await fetch(`${API_BASE_URL}/api/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ themeId, userId, userName, content })
+        body: JSON.stringify({ themeId, userId, userName, content, parentId })
       });
 
       const data = await response.json();

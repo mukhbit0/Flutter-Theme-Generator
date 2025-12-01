@@ -26,10 +26,10 @@ const ThemeCard: React.FC<ThemeCardProps> = ({ theme, darkMode }) => {
 
     return (
         <div
-            onClick={() => navigate(`/shared/${theme.id}`)}
+            onClick={() => navigate(`/shared/${theme.id}`, { state: { from: 'gallery' } })}
             className={`group cursor-pointer rounded-xl overflow-hidden border transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 ${darkMode
-                    ? 'bg-gray-800 border-gray-700 hover:border-blue-500/50'
-                    : 'bg-white border-gray-200 hover:border-blue-300'
+                ? 'bg-gray-800 border-gray-700 hover:border-blue-500/50'
+                : 'bg-white border-gray-200 hover:border-blue-300'
                 }`}
         >
             {/* Color Preview Header */}
