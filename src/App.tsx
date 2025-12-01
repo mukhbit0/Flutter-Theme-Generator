@@ -20,13 +20,13 @@ const ThemeValidationScreen = lazy(() => import('./components/validation/ThemeVa
 const LoginScreen = lazy(() => import('./components/auth/LoginScreen').then(m => ({ default: m.LoginScreen })))
 const SignupScreen = lazy(() => import('./components/auth/SignupScreen').then(m => ({ default: m.SignupScreen })))
 const UserProfile = lazy(() => import('./components/auth/UserProfile').then(m => ({ default: m.UserProfile })))
+const ThemeGallery = lazy(() => import('./components/gallery/ThemeGallery'))
 
 // Loading fallback component
 function LoadingFallback({ darkMode }: { darkMode?: boolean }) {
   return (
-    <div className={`min-h-screen flex items-center justify-center ${
-      darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-slate-50 to-blue-50'
-    }`}>
+    <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-slate-50 to-blue-50'
+      }`}>
       <div className="text-center">
         <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
         <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Loading...</p>
@@ -266,107 +266,112 @@ function AppContent() {
             path="/generator"
             element={
               <ThemeGeneratorComponent
-              onBack={handleBackToHome}
-              onPreview={handleNavigateToPreview}
-              darkMode={darkMode}
-              onToggleDarkMode={toggleDarkMode}
-              settings={themeState.generatorSettings}
-              onSettingsChange={setGeneratorSettings}
-              uploadedLogo={themeState.uploadedLogo}
-              setUploadedLogo={setUploadedLogo}
-              extractedColors={themeState.extractedColors}
-              setExtractedColors={setExtractedColors}
-            />
-          }
-        />
-
-        <Route
-          path="/guide"
-          element={
-            <GuideScreen
-              onBack={handleBackToHome}
-              darkMode={darkMode}
-            />
-          }
-        />
-
-        <Route
-          path="/roadmap"
-          element={
-            <RoadmapScreen
-              onBack={handleBackToHome}
-              darkMode={darkMode}
-              onNavigateToGenerator={handleNavigateToGenerator}
-              onNavigateToGuide={handleNavigateToGuide}
-            />
-          }
-        />
-
-        <Route
-          path="/preview"
-          element={<PreviewRoute />}
-        />
-
-        {/* Shared Theme Viewer */}
-        <Route
-          path="/shared/:shareId"
-          element={<SharedThemeViewer />}
-        />
-
-        {/* Theme Implementation / Mockups Route */}
-        <Route
-          path="/implementation"
-          element={
-            themeState.themeConfig ? (
-              <ThemeImplementationScreen
-                themeConfig={themeState.themeConfig}
-                settings={themeState.themeSettings}
-                onBack={() => navigate('/preview')}
-                darkMode={darkMode}
-              />
-            ) : (
-              <HomePage
-                onNavigateToGenerator={handleNavigateToGenerator}
-                onNavigateToGuide={handleNavigateToGuide}
-                onNavigateToRoadmap={handleNavigateToRoadmap}
+                onBack={handleBackToHome}
+                onPreview={handleNavigateToPreview}
                 darkMode={darkMode}
                 onToggleDarkMode={toggleDarkMode}
+                settings={themeState.generatorSettings}
+                onSettingsChange={setGeneratorSettings}
+                uploadedLogo={themeState.uploadedLogo}
+                setUploadedLogo={setUploadedLogo}
+                extractedColors={themeState.extractedColors}
+                setExtractedColors={setExtractedColors}
               />
-            )
-          }
-        />
+            }
+          />
 
-        {/* Theme Validation Route */}
-        <Route
-          path="/validation"
-          element={
-            themeState.themeConfig ? (
-              <ThemeValidationScreen
-                theme={themeState.themeConfig}
+          <Route
+            path="/guide"
+            element={
+              <GuideScreen
+                onBack={handleBackToHome}
                 darkMode={darkMode}
-                onBack={() => navigate('/preview')}
-                onUpdateTheme={(newTheme: ThemeConfig) => setThemeConfig(newTheme)}
               />
-            ) : (
-              <HomePage
+            }
+          />
+
+          <Route
+            path="/roadmap"
+            element={
+              <RoadmapScreen
+                onBack={handleBackToHome}
+                darkMode={darkMode}
                 onNavigateToGenerator={handleNavigateToGenerator}
                 onNavigateToGuide={handleNavigateToGuide}
-                onNavigateToRoadmap={handleNavigateToRoadmap}
-                darkMode={darkMode}
-                onToggleDarkMode={toggleDarkMode}
               />
-            )
-          }
-        />
+            }
+          />
 
-        {/* Catch all route - redirect to home */}
-        <Route path="*" element={<HomePage
-          onNavigateToGenerator={handleNavigateToGenerator}
-          onNavigateToGuide={handleNavigateToGuide}
-          onNavigateToRoadmap={handleNavigateToRoadmap}
-          darkMode={darkMode}
-          onToggleDarkMode={toggleDarkMode}
-        />} />
+          <Route
+            path="/gallery"
+            element={<ThemeGallery />}
+          />
+
+          <Route
+            path="/preview"
+            element={<PreviewRoute />}
+          />
+
+          {/* Shared Theme Viewer */}
+          <Route
+            path="/shared/:shareId"
+            element={<SharedThemeViewer />}
+          />
+
+          {/* Theme Implementation / Mockups Route */}
+          <Route
+            path="/implementation"
+            element={
+              themeState.themeConfig ? (
+                <ThemeImplementationScreen
+                  themeConfig={themeState.themeConfig}
+                  settings={themeState.themeSettings}
+                  onBack={() => navigate('/preview')}
+                  darkMode={darkMode}
+                />
+              ) : (
+                <HomePage
+                  onNavigateToGenerator={handleNavigateToGenerator}
+                  onNavigateToGuide={handleNavigateToGuide}
+                  onNavigateToRoadmap={handleNavigateToRoadmap}
+                  darkMode={darkMode}
+                  onToggleDarkMode={toggleDarkMode}
+                />
+              )
+            }
+          />
+
+          {/* Theme Validation Route */}
+          <Route
+            path="/validation"
+            element={
+              themeState.themeConfig ? (
+                <ThemeValidationScreen
+                  theme={themeState.themeConfig}
+                  darkMode={darkMode}
+                  onBack={() => navigate('/preview')}
+                  onUpdateTheme={(newTheme: ThemeConfig) => setThemeConfig(newTheme)}
+                />
+              ) : (
+                <HomePage
+                  onNavigateToGenerator={handleNavigateToGenerator}
+                  onNavigateToGuide={handleNavigateToGuide}
+                  onNavigateToRoadmap={handleNavigateToRoadmap}
+                  darkMode={darkMode}
+                  onToggleDarkMode={toggleDarkMode}
+                />
+              )
+            }
+          />
+
+          {/* Catch all route - redirect to home */}
+          <Route path="*" element={<HomePage
+            onNavigateToGenerator={handleNavigateToGenerator}
+            onNavigateToGuide={handleNavigateToGuide}
+            onNavigateToRoadmap={handleNavigateToRoadmap}
+            darkMode={darkMode}
+            onToggleDarkMode={toggleDarkMode}
+          />} />
         </Routes>
       </Suspense>
     </div>

@@ -27,3 +27,30 @@ CREATE TABLE IF NOT EXISTS shared_themes (
 );
 
 CREATE INDEX IF NOT EXISTS idx_shared_themes_user_id ON shared_themes(user_id);
+
+-- Comments Table
+CREATE TABLE IF NOT EXISTS comments (
+  id TEXT PRIMARY KEY,
+  theme_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  user_name TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (theme_id) REFERENCES shared_themes(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_comments_theme_id ON comments(theme_id);
+
+-- Likes Table
+CREATE TABLE IF NOT EXISTS likes (
+  user_id TEXT NOT NULL,
+  theme_id TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, theme_id),
+  FOREIGN KEY (theme_id) REFERENCES shared_themes(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_likes_theme_id ON likes(theme_id);
+
+-- Add likes column to shared_themes if it doesn't exist (handled in worker migration usually, but good for reference)
+-- ALTER TABLE shared_themes ADD COLUMN likes INTEGER DEFAULT 0;

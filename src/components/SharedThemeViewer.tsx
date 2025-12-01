@@ -18,11 +18,13 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
 import { sharingService, ShareableTheme } from '../services/SharingService'
 import { downloadThemeFiles } from '../utils/FileDownloader'
 import ColorPalette from './preview-screen/ColorPalette'
 import WidgetPreviews from './preview-screen/WidgetPreviews'
 import { useDarkMode } from '../contexts/DarkModeContext'
+import CommentsSection from './gallery/CommentsSection'
 
 interface SharedThemeViewerProps { }
 
@@ -31,6 +33,7 @@ interface ViewerState {
   loading: boolean
   error: string | null
   liked: boolean
+  likeCount: number
   downloadCount: number
   previewMode: 'light' | 'dark' | 'lightMediumContrast' | 'lightHighContrast' | 'darkMediumContrast' | 'darkHighContrast'
   copySuccess: boolean
@@ -41,12 +44,14 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
   const { shareId } = useParams<{ shareId: string }>()
   const navigate = useNavigate()
   const { darkMode } = useDarkMode()
+  const { currentUser } = useAuth()
 
   const [state, setState] = useState<ViewerState>({
     theme: null,
     loading: true,
     error: null,
     liked: false,
+    likeCount: 0,
     downloadCount: 0,
     previewMode: darkMode ? 'dark' : 'light',
     copySuccess: false,
@@ -180,6 +185,71 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
     loadSharedTheme()
   }, [shareId, darkMode])
 
+  // Load like status
+  useEffect(() => {
+    const loadLikeStatus = async () => {
+      if (!shareId) return;
+      try {
+        const status = await sharingService.getLikeStatus(shareId, currentUser?.uid);
+        setState(prev => ({
+          ...prev,
+          liked: status.liked,
+          likeCount: status.likes
+        }));
+      } catch (error) {
+        console.error('Failed to load like status:', error);
+      }
+    }
+    loadLikeStatus()
+  }, [shareId, currentUser])
+
+  // Handle like
+  const handleLike = async () => {
+    if (!shareId) return;
+
+    if (!currentUser) {
+      if (confirm('Please log in to like this theme. Go to login page?')) {
+        navigate('/login');
+      }
+      return;
+    }
+
+    // Optimistic update
+    const wasLiked = state.liked;
+    setState(prev => ({
+      ...prev,
+      liked: !wasLiked,
+      likeCount: wasLiked ? prev.likeCount - 1 : prev.likeCount + 1
+    }));
+
+    try {
+      const result = await sharingService.toggleLike(shareId, currentUser.uid);
+      if (result.success) {
+        // Update with actual server state to be sure
+        setState(prev => ({
+          ...prev,
+          liked: result.liked,
+          likeCount: result.likes
+        }));
+      } else {
+        // Revert on failure
+        setState(prev => ({
+          ...prev,
+          liked: wasLiked,
+          likeCount: wasLiked ? prev.likeCount : prev.likeCount // Revert count
+        }));
+      }
+    } catch (error) {
+      console.error('Like failed:', error);
+      // Revert on error
+      setState(prev => ({
+        ...prev,
+        liked: wasLiked,
+        likeCount: wasLiked ? prev.likeCount : prev.likeCount
+      }));
+    }
+  }
+
   // Handle download
   const handleDownload = async () => {
     if (!state.theme) return
@@ -211,12 +281,6 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
       console.error('Copy failed:', error)
     }
   }
-
-  // Handle like (local storage)
-  const handleLike = () => {
-    setState(prev => ({ ...prev, liked: !prev.liked }))
-  }
-
   // Get current colors based on preview mode
   const getCurrentColors = () => {
     if (!state.theme) return null
@@ -425,6 +489,21 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
                     {state.downloadCount}
                   </span>
                 </div>
+
+                <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700/50' : 'bg-white/70'
+                  }`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Heart className="w-4 h-4 text-red-500" />
+                    <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'
+                      }`}>
+                      Likes
+                    </span>
+                  </div>
+                  <span className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'
+                    }`}>
+                    {state.likeCount}
+                  </span>
+                </div>
               </div>
 
               {/* Tags */}
@@ -598,6 +677,9 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
                 />
               )}
             </div>
+
+            {/* Comments Section */}
+            <CommentsSection themeId={shareId!} darkMode={darkMode} />
           </div>
         </div>
       </div>

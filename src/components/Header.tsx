@@ -67,6 +67,16 @@ export const Header: React.FC = () => {
             )}
 
             <button
+              onClick={() => navigate('/gallery')}
+              className={`hidden md:block px-4 py-2 rounded-lg font-medium transition-all duration-200 ${darkMode
+                ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                }`}
+            >
+              Gallery
+            </button>
+
+            <button
               onClick={() => navigate('/guide')}
               className={`hidden md:block px-4 py-2 rounded-lg font-medium transition-all duration-200 ${darkMode
                 ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'

@@ -58,6 +58,16 @@ export default function HomePage({ onNavigateToGenerator, onNavigateToGuide, onN
               </button>
 
               <button
+                onClick={() => navigate('/gallery')}
+                className={`px-8 py-4 font-semibold rounded-xl border-2 transition-all duration-300 ${darkMode
+                  ? 'border-blue-600 text-blue-400 hover:border-blue-500 hover:text-white hover:bg-blue-900/20'
+                  : 'border-blue-300 text-blue-600 hover:border-blue-400 hover:text-blue-700 hover:bg-blue-50'
+                  }`}
+              >
+                Browse Gallery
+              </button>
+
+              <button
                 onClick={onNavigateToGuide}
                 className={`px-8 py-4 font-semibold rounded-xl border-2 transition-all duration-300 ${darkMode
                   ? 'border-gray-600 text-gray-300 hover:border-gray-500 hover:text-white hover:bg-gray-800/50'

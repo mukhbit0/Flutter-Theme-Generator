@@ -79,7 +79,8 @@ export default {
         (pathname.startsWith('/shared/') ||
           pathname.startsWith('/preview') ||
           pathname.startsWith('/roadmap') ||
-          pathname.startsWith('/guide'))) {
+          pathname.startsWith('/guide') ||
+          pathname.startsWith('/gallery'))) {
         try {
           console.log(`Serving index.html for SPA route: ${pathname}`);
           const indexRequest = new Request(`${url.origin}/index.html`, request);
@@ -163,6 +164,33 @@ export default {
       if (pathname.startsWith('/api/themes/share/') && request.method === 'DELETE') {
         const shareId = pathname.split('/').pop();
         return this.deleteSharedTheme(shareId, request, env, corsHeaders);
+      }
+
+      // Gallery Endpoints
+      if (pathname === '/api/gallery' && request.method === 'GET') {
+        return this.getGalleryThemes(request, env, corsHeaders);
+      }
+
+      // Comment Endpoints
+      if (pathname.startsWith('/api/comments/') && request.method === 'GET') {
+        const themeId = pathname.split('/').pop();
+        return this.getComments(themeId, env, corsHeaders);
+      }
+      if (pathname === '/api/comments' && request.method === 'POST') {
+        return this.addComment(request, env, corsHeaders);
+      }
+      if (pathname.startsWith('/api/comments/') && request.method === 'DELETE') {
+        const commentId = pathname.split('/').pop();
+        return this.deleteComment(commentId, request, env, corsHeaders);
+      }
+
+      // Like Endpoints
+      if (pathname === '/api/likes' && request.method === 'POST') {
+        return this.toggleLike(request, env, corsHeaders);
+      }
+      if (pathname.startsWith('/api/likes/') && request.method === 'GET') {
+        const themeId = pathname.split('/').pop();
+        return this.getLikeStatus(themeId, request, env, corsHeaders);
       }
 
       // Config Endpoint (Runtime Secrets)
@@ -492,7 +520,7 @@ export default {
         } catch (e) {
           console.error('Error parsing theme config:', e);
         }
-        
+
         // Return theme without full config but with extracted colors
         return {
           shareId: theme.shareId,
@@ -536,6 +564,244 @@ export default {
         return new Response(JSON.stringify({ error: 'Failed to delete or theme not found' }), { status: 404, headers: corsHeaders });
       }
 
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
+  // --- Gallery Functions ---
+
+  async getGalleryThemes(request, env, corsHeaders) {
+    try {
+      const url = new URL(request.url);
+      const page = parseInt(url.searchParams.get('page') || '1');
+      const limit = parseInt(url.searchParams.get('limit') || '12');
+      const sort = url.searchParams.get('sort') || 'newest'; // newest, popular
+      const search = url.searchParams.get('search') || '';
+
+      const offset = (page - 1) * limit;
+
+      await this.initializeDatabase(env);
+
+      let query = `
+        SELECT id, name, description, config, user_id, views, likes, created_at, tags 
+        FROM shared_themes 
+        WHERE is_public = 1
+      `;
+
+      const params = [];
+
+      if (search) {
+        query += ` AND (name LIKE ? OR description LIKE ? OR tags LIKE ?)`;
+        const searchTerm = `%${search}%`;
+        params.push(searchTerm, searchTerm, searchTerm);
+      }
+
+      if (sort === 'popular') {
+        query += ` ORDER BY likes DESC, views DESC`;
+      } else {
+        query += ` ORDER BY created_at DESC`;
+      }
+
+      query += ` LIMIT ? OFFSET ?`;
+      params.push(limit, offset);
+
+      const { results } = await env.THEME_DB.prepare(query).bind(...params).all();
+
+      // Get total count for pagination
+      let countQuery = `SELECT COUNT(*) as total FROM shared_themes WHERE is_public = 1`;
+      const countParams = [];
+      if (search) {
+        countQuery += ` AND (name LIKE ? OR description LIKE ? OR tags LIKE ?)`;
+        const searchTerm = `%${search}%`;
+        countParams.push(searchTerm, searchTerm, searchTerm);
+      }
+      const countResult = await env.THEME_DB.prepare(countQuery).bind(...countParams).first();
+
+      // Process results to extract colors
+      const themes = results.map(theme => {
+        let themeColors = null;
+        try {
+          const config = JSON.parse(theme.config);
+          if (config && config.colors && config.colors.light) {
+            themeColors = {
+              primary: config.colors.light.primary,
+              secondary: config.colors.light.secondary,
+              tertiary: config.colors.light.tertiary
+            };
+          }
+        } catch (e) {
+          console.error('Error parsing theme config:', e);
+        }
+
+        return {
+          id: theme.id,
+          name: theme.name,
+          description: theme.description,
+          userId: theme.user_id,
+          views: theme.views,
+          likes: theme.likes || 0,
+          createdAt: theme.created_at,
+          tags: JSON.parse(theme.tags || '[]'),
+          themeColors
+        };
+      });
+
+      return new Response(JSON.stringify({
+        success: true,
+        themes,
+        pagination: {
+          page,
+          limit,
+          total: countResult.total,
+          pages: Math.ceil(countResult.total / limit)
+        }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
+  // --- Comment Functions ---
+
+  async getComments(themeId, env, corsHeaders) {
+    try {
+      if (!themeId) {
+        return new Response(JSON.stringify({ error: 'Missing themeId' }), { status: 400, headers: corsHeaders });
+      }
+
+      await this.initializeDatabase(env);
+
+      const { results } = await env.THEME_DB.prepare(`
+        SELECT * FROM comments WHERE theme_id = ? ORDER BY created_at DESC
+      `).bind(themeId).all();
+
+      return new Response(JSON.stringify({ success: true, comments: results }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
+  async addComment(request, env, corsHeaders) {
+    try {
+      const { themeId, userId, userName, content } = await request.json();
+
+      if (!themeId || !userId || !content) {
+        return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: corsHeaders });
+      }
+
+      await this.initializeDatabase(env);
+
+      const id = crypto.randomUUID();
+
+      await env.THEME_DB.prepare(`
+        INSERT INTO comments (id, theme_id, user_id, user_name, content, created_at)
+        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `).bind(id, themeId, userId, userName || 'Anonymous', content).run();
+
+      return new Response(JSON.stringify({ success: true, id }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
+  async deleteComment(commentId, request, env, corsHeaders) {
+    try {
+      const url = new URL(request.url);
+      const userId = url.searchParams.get('userId');
+
+      if (!userId) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
+      }
+
+      await this.initializeDatabase(env);
+
+      const result = await env.THEME_DB.prepare(`
+        DELETE FROM comments WHERE id = ? AND user_id = ?
+      `).bind(commentId, userId).run();
+
+      if (result.success) {
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } else {
+        return new Response(JSON.stringify({ error: 'Failed to delete' }), { status: 404, headers: corsHeaders });
+      }
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
+  // --- Like Functions ---
+
+  async toggleLike(request, env, corsHeaders) {
+    try {
+      const { themeId, userId } = await request.json();
+
+      if (!themeId || !userId) {
+        return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: corsHeaders });
+      }
+
+      await this.initializeDatabase(env);
+
+      // Check if already liked
+      const existing = await env.THEME_DB.prepare(`
+        SELECT * FROM likes WHERE user_id = ? AND theme_id = ?
+      `).bind(userId, themeId).first();
+
+      let liked = false;
+
+      if (existing) {
+        // Unlike
+        await env.THEME_DB.batch([
+          env.THEME_DB.prepare('DELETE FROM likes WHERE user_id = ? AND theme_id = ?').bind(userId, themeId),
+          env.THEME_DB.prepare('UPDATE shared_themes SET likes = likes - 1 WHERE id = ?').bind(themeId)
+        ]);
+        liked = false;
+      } else {
+        // Like
+        await env.THEME_DB.batch([
+          env.THEME_DB.prepare('INSERT INTO likes (user_id, theme_id) VALUES (?, ?)').bind(userId, themeId),
+          env.THEME_DB.prepare('UPDATE shared_themes SET likes = likes + 1 WHERE id = ?').bind(themeId)
+        ]);
+        liked = true;
+      }
+
+      // Get updated count
+      const theme = await env.THEME_DB.prepare('SELECT likes FROM shared_themes WHERE id = ?').bind(themeId).first();
+
+      return new Response(JSON.stringify({ success: true, liked, likes: theme ? theme.likes : 0 }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
+  async getLikeStatus(themeId, request, env, corsHeaders) {
+    try {
+      const url = new URL(request.url);
+      const userId = url.searchParams.get('userId');
+
+      await this.initializeDatabase(env);
+
+      const theme = await env.THEME_DB.prepare('SELECT likes FROM shared_themes WHERE id = ?').bind(themeId).first();
+
+      let liked = false;
+      if (userId) {
+        const likeRecord = await env.THEME_DB.prepare('SELECT * FROM likes WHERE user_id = ? AND theme_id = ?').bind(userId, themeId).first();
+        liked = !!likeRecord;
+      }
+
+      return new Response(JSON.stringify({ success: true, likes: theme ? theme.likes : 0, liked }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     } catch (error) {
       return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
     }
@@ -588,6 +854,43 @@ export default {
       await env.THEME_DB.prepare(`
         CREATE INDEX IF NOT EXISTS idx_shared_themes_user_id ON shared_themes(user_id)
       `).run();
+
+      // Create Comments Table
+      await env.THEME_DB.prepare(`
+        CREATE TABLE IF NOT EXISTS comments (
+          id TEXT PRIMARY KEY,
+          theme_id TEXT NOT NULL,
+          user_id TEXT NOT NULL,
+          user_name TEXT NOT NULL,
+          content TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `).run();
+
+      await env.THEME_DB.prepare(`
+        CREATE INDEX IF NOT EXISTS idx_comments_theme_id ON comments(theme_id)
+      `).run();
+
+      // Create Likes Table
+      await env.THEME_DB.prepare(`
+        CREATE TABLE IF NOT EXISTS likes (
+          user_id TEXT NOT NULL,
+          theme_id TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY (user_id, theme_id)
+        )
+      `).run();
+
+      await env.THEME_DB.prepare(`
+        CREATE INDEX IF NOT EXISTS idx_likes_theme_id ON likes(theme_id)
+      `).run();
+
+      // Add likes column to shared_themes if it doesn't exist
+      try {
+        await env.THEME_DB.prepare('ALTER TABLE shared_themes ADD COLUMN likes INTEGER DEFAULT 0').run();
+      } catch (e) {
+        // Column likely exists
+      }
 
       // Insert initial value if doesn't exist
       await env.THEME_DB.prepare(`

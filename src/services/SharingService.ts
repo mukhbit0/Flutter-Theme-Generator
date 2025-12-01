@@ -45,7 +45,7 @@ class SharingService {
     try {
       console.log('[SharingService] shareTheme called with config:', themeConfig);
       console.log('[SharingService] Light primary:', themeConfig.colors?.light?.primary);
-      
+
       const response = await fetch(`${API_BASE_URL}/api/themes/share`, {
         method: 'POST',
         headers: {
@@ -104,7 +104,7 @@ class SharingService {
       console.log('[SharingService] getSharedTheme response:', data.theme);
       console.log('[SharingService] Fetched config:', data.theme.config);
       console.log('[SharingService] Fetched light primary:', data.theme.config?.colors?.light?.primary);
-      
+
       return {
         id: data.theme.id,
         name: data.theme.name,
@@ -208,15 +208,131 @@ class SharingService {
   /**
    * Validate if sharing service is available
    */
-  isAvailable(): boolean {
-    return true; // API is always available
+  /**
+   * Get gallery themes with pagination and filtering
+   */
+  async getGalleryThemes(page = 1, limit = 12, sort = 'newest', search = ''): Promise<{ themes: any[], pagination: any }> {
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        sort,
+        search
+      });
+
+      const response = await fetch(`${API_BASE_URL}/api/gallery?${params.toString()}`);
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to fetch gallery themes');
+      }
+
+      return {
+        themes: data.themes,
+        pagination: data.pagination
+      };
+    } catch (error) {
+      console.error('[SharingService] Error fetching gallery:', error);
+      return { themes: [], pagination: { page: 1, limit: 12, total: 0, pages: 0 } };
+    }
   }
 
   /**
-   * Get sharing statistics (Stubbed for now as we don't have a global stats endpoint)
+   * Get comments for a theme
    */
-  getStats(): { totalShares: number; publicShares: number; privateShares: number } {
-    return { totalShares: 0, publicShares: 0, privateShares: 0 };
+  async getComments(themeId: string): Promise<any[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/comments/${themeId}`);
+      const data = await response.json();
+
+      if (!data.success) {
+        return [];
+      }
+
+      return data.comments;
+    } catch (error) {
+      console.error('[SharingService] Error fetching comments:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Add a comment
+   */
+  async addComment(themeId: string, userId: string, userName: string, content: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ themeId, userId, userName, content })
+      });
+
+      const data = await response.json();
+      return data.success;
+    } catch (error) {
+      console.error('[SharingService] Error adding comment:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Delete a comment
+   */
+  async deleteComment(commentId: string, userId: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/comments/${commentId}?userId=${userId}`, {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
+      return data.success;
+    } catch (error) {
+      console.error('[SharingService] Error deleting comment:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Toggle like on a theme
+   */
+  async toggleLike(themeId: string, userId: string): Promise<{ success: boolean, liked: boolean, likes: number }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/likes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ themeId, userId })
+      });
+
+      const data = await response.json();
+      if (!data.success) throw new Error(data.error);
+
+      return { success: true, liked: data.liked, likes: data.likes };
+    } catch (error) {
+      console.error('[SharingService] Error toggling like:', error);
+      return { success: false, liked: false, likes: 0 };
+    }
+  }
+
+  /**
+   * Get like status for a theme
+   */
+  async getLikeStatus(themeId: string, userId?: string): Promise<{ likes: number, liked: boolean }> {
+    try {
+      let url = `${API_BASE_URL}/api/likes/${themeId}`;
+      if (userId) {
+        url += `?userId=${userId}`;
+      }
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (!data.success) return { likes: 0, liked: false };
+
+      return { likes: data.likes, liked: data.liked };
+    } catch (error) {
+      console.error('[SharingService] Error getting like status:', error);
+      return { likes: 0, liked: false };
+    }
   }
 }
 

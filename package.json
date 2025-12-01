@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@cloudflare/kv-asset-handler": "^0.3.0",
+    "date-fns": "^4.1.0",
     "file-saver": "^2.0.5",
     "firebase": "^12.6.0",
     "jszip": "^3.10.1",
