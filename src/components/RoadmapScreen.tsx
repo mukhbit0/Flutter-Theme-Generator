@@ -238,6 +238,27 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
         'Performance impact analysis'
       ]
     },
+    {
+      id: 'theme-gallery',
+      title: 'Theme Gallery & Library',
+      description: 'Public gallery of community themes with search and categorization',
+      status: 'completed',
+      category: 'ui',
+      version: 'v2.4',
+      date: 'December 2025',
+      priority: 'critical',
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+      ),
+      features: [
+        'Community themes',
+        'Public Publishing',
+        'Like/vote system',
+        'Comments & Replies'
+      ]
+    },
 
     // Planned Features
     {
@@ -327,27 +348,7 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
         'Advanced styling options'
       ]
     },
-    {
-      id: 'theme-gallery',
-      title: 'Theme Gallery & Library',
-      description: 'Public gallery of community themes with search and categorization',
-      status: 'future',
-      category: 'ui',
-      version: 'v3.2',
-      date: 'January 2026',
-      priority: 'medium',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-        </svg>
-      ),
-      features: [
-        'Community themes',
-        'Anonymous submissions',
-        'Like/vote system',
-        'Category browsing'
-      ]
-    },
+
     {
       id: 'ai-brand-analysis',
       title: 'AI-Powered Brand Analysis',
@@ -562,9 +563,9 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
 
       {/* Ambient Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className={`absolute -top-[20%] -left-[10%] w-[70%] h-[70%] rounded-full mix-blend-multiply filter blur-[120px] opacity-20 animate-blob ${darkMode ? 'bg-purple-900' : 'bg-purple-200'}`} />
-        <div className={`absolute top-[20%] -right-[10%] w-[70%] h-[70%] rounded-full mix-blend-multiply filter blur-[120px] opacity-20 animate-blob animation-delay-2000 ${darkMode ? 'bg-cyan-900' : 'bg-cyan-200'}`} />
-        <div className={`absolute -bottom-[20%] left-[20%] w-[70%] h-[70%] rounded-full mix-blend-multiply filter blur-[120px] opacity-20 animate-blob animation-delay-4000 ${darkMode ? 'bg-emerald-900' : 'bg-emerald-200'}`} />
+        <div className={`absolute -top-[20%] -left-[10%] w-[70%] h-[70%] rounded-full mix-blend-multiply filter blur-[80px] opacity-20 animate-blob will-change-transform ${darkMode ? 'bg-purple-900' : 'bg-purple-200'}`} />
+        <div className={`absolute top-[20%] -right-[10%] w-[70%] h-[70%] rounded-full mix-blend-multiply filter blur-[80px] opacity-20 animate-blob animation-delay-2000 will-change-transform ${darkMode ? 'bg-cyan-900' : 'bg-cyan-200'}`} />
+        <div className={`absolute -bottom-[20%] left-[20%] w-[70%] h-[70%] rounded-full mix-blend-multiply filter blur-[80px] opacity-20 animate-blob animation-delay-4000 will-change-transform ${darkMode ? 'bg-emerald-900' : 'bg-emerald-200'}`} />
       </div>
 
       {/* Header */}
@@ -668,7 +669,7 @@ export default function RoadmapScreen({ onBack, darkMode }: RoadmapScreenProps) 
             {filteredItems.map((item, index) => (
               <div
                 key={item.id}
-                className={`relative flex items-center md:justify-between md:odd:flex-row-reverse group ${visibleItems.includes(item.id) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                className={`relative flex items-center md:justify-between md:odd:flex-row-reverse group will-change-transform will-change-opacity ${visibleItems.includes(item.id) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                   }`}
                 style={{ transition: `all 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${index * 100}ms` }}
               >
