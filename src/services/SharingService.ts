@@ -15,6 +15,7 @@ export interface ShareableTheme {
   expiresAt?: string
   isPublic: boolean
   views: number
+  likes?: number
   tags?: string[]
 }
 
@@ -37,6 +38,13 @@ export interface ShareResult {
 
 class SharingService {
   private readonly baseUrl = window.location.origin
+
+  /**
+   * Check if sharing service is available
+   */
+  isAvailable(): boolean {
+    return true;
+  }
 
   /**
    * Share a theme and get a shareable link
@@ -136,7 +144,17 @@ class SharingService {
         return [];
       }
 
-      return data.themes;
+      return data.themes.map((theme: any) => ({
+        id: theme.shareId,
+        name: theme.themeName,
+        description: theme.description,
+        themeConfig: theme.config, // Note: backend might not return full config in list
+        createdAt: theme.createdAt,
+        views: theme.views,
+        likes: theme.likes,
+        isPublic: theme.isPublic,
+        tags: theme.tags
+      }));
     } catch (error) {
       console.error('[SharingService] Error getting user themes:', error);
       return [];

@@ -438,6 +438,7 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         Created {new Date(theme.createdAt).toLocaleDateString()}
                         {theme.views > 0 && ` • ${theme.views} views`}
+                        {theme.likes !== undefined && theme.likes > 0 && ` • ${theme.likes} likes`}
                       </p>
                     </div>
                     <div className="flex items-center gap-1">

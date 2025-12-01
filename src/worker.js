@@ -499,7 +499,7 @@ export default {
 
       await this.initializeDatabase(env);
       const results = await env.THEME_DB.prepare(`
-        SELECT id as shareId, name as themeName, config, created_at as createdAt, views, is_public as isPublic 
+        SELECT id as shareId, name as themeName, config, created_at as createdAt, views, likes, is_public as isPublic 
         FROM shared_themes 
         WHERE user_id = ? 
         ORDER BY created_at DESC
@@ -527,6 +527,7 @@ export default {
           themeName: theme.themeName,
           createdAt: theme.createdAt,
           views: theme.views,
+          likes: theme.likes || 0,
           isPublic: theme.isPublic,
           themeColors
         };
