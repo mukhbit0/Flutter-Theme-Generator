@@ -374,7 +374,7 @@ export default {
   // Create Shared Theme
   async createSharedTheme(request, env, corsHeaders) {
     try {
-      const { themeConfig, name, description, isPublic, tags, expirationDays, authorName, authorPhotoUrl } = await request.json();
+      const { themeConfig, name, description, isPublic, tags, expirationDays, authorName, authorPhotoUrl, userId } = await request.json();
 
       if (!themeConfig || !name) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: corsHeaders });
