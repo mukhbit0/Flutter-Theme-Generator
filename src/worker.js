@@ -366,6 +366,16 @@ export default {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
 
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
+  // Create Shared Theme
+  async createSharedTheme(request, env, corsHeaders) {
+    try {
+      const { themeConfig, name, description, isPublic, tags, expirationDays, authorName, authorPhotoUrl } = await request.json();
+
       if (!themeConfig || !name) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: corsHeaders });
       }
