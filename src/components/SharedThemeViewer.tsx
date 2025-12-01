@@ -464,6 +464,23 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
                 </p>
               )}
 
+              {/* Author Info */}
+              <div className="flex items-center gap-3 mb-6">
+                {theme.authorPhotoUrl ? (
+                  <img src={theme.authorPhotoUrl} alt={theme.authorName} className="w-10 h-10 rounded-full border-2 border-white dark:border-gray-700 shadow-sm" />
+                ) : (
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-sm ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600'}`}>
+                    {theme.authorName ? theme.authorName.charAt(0).toUpperCase() : 'A'}
+                  </div>
+                )}
+                <div>
+                  <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Created by</p>
+                  <p className={`text-base font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {theme.authorName || 'Anonymous'}
+                  </p>
+                </div>
+              </div>
+
               {/* Theme Meta */}
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700/50' : 'bg-white/70'

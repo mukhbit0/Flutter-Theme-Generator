@@ -1,0 +1,5 @@
+﻿
+> flutter-theme-generator@1.0.0 build
+> tsc && vite build
+
+src/components/gallery/CommentsSection.tsx(4,52): error TS6133: 'X' is declared but its value is never read.

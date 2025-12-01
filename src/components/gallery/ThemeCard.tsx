@@ -17,6 +17,8 @@ interface ThemeCardProps {
             tertiary: string;
         };
         tags?: string[];
+        authorName?: string;
+        authorPhotoUrl?: string;
     };
     darkMode: boolean;
 }
@@ -67,8 +69,7 @@ const ThemeCard: React.FC<ThemeCardProps> = ({ theme, darkMode }) => {
                 </div>
 
                 {/* Footer Stats */}
-                <div className={`flex items-center justify-between text-xs font-medium pt-4 border-t ${darkMode ? 'border-gray-700 text-gray-400' : 'border-gray-100 text-gray-500'
-                    }`}>
+                <div className={`flex items-center justify-between text-xs font-medium pt-4 border-t ${darkMode ? 'border-gray-700 text-gray-400' : 'border-gray-100 text-gray-500'}`}>
                     <div className="flex items-center gap-3">
                         <span className="flex items-center gap-1">
                             <Eye className="w-3.5 h-3.5" />
@@ -82,6 +83,20 @@ const ThemeCard: React.FC<ThemeCardProps> = ({ theme, darkMode }) => {
                     <span className="flex items-center gap-1">
                         <Calendar className="w-3.5 h-3.5" />
                         {formatDistanceToNow(new Date(theme.createdAt), { addSuffix: true })}
+                    </span>
+                </div>
+
+                {/* Author Info */}
+                <div className={`flex items-center gap-2 mt-3 pt-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+                    {theme.authorPhotoUrl ? (
+                        <img src={theme.authorPhotoUrl} alt={theme.authorName} className="w-5 h-5 rounded-full" />
+                    ) : (
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600'}`}>
+                            {theme.authorName ? theme.authorName.charAt(0).toUpperCase() : 'A'}
+                        </div>
+                    )}
+                    <span className={`text-xs truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        by {theme.authorName || 'Anonymous'}
                     </span>
                 </div>
             </div>

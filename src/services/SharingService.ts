@@ -17,6 +17,8 @@ export interface ShareableTheme {
   views: number
   likes?: number
   tags?: string[]
+  authorName?: string
+  authorPhotoUrl?: string
 }
 
 export interface ShareOptions {
@@ -26,6 +28,8 @@ export interface ShareOptions {
   expirationDays?: number
   tags?: string[]
   userId?: string
+  authorName?: string
+  authorPhotoUrl?: string
 }
 
 export interface ShareResult {
@@ -66,7 +70,9 @@ class SharingService {
           description: options.description,
           isPublic: options.isPublic,
           tags: options.tags,
-          expirationDays: options.expirationDays
+          expirationDays: options.expirationDays,
+          authorName: options.authorName,
+          authorPhotoUrl: options.authorPhotoUrl
         }),
       });
 
@@ -122,7 +128,9 @@ class SharingService {
         expiresAt: data.theme.expires_at,
         isPublic: data.theme.isPublic,
         views: data.theme.views,
-        tags: data.theme.tags
+        tags: data.theme.tags,
+        authorName: data.theme.authorName,
+        authorPhotoUrl: data.theme.authorPhotoUrl
       };
     } catch (error) {
       console.error('[SharingService] Error retrieving shared theme:', error);
@@ -153,7 +161,9 @@ class SharingService {
         views: theme.views,
         likes: theme.likes,
         isPublic: theme.isPublic,
-        tags: theme.tags
+        tags: theme.tags,
+        authorName: theme.authorName,
+        authorPhotoUrl: theme.authorPhotoUrl
       }));
     } catch (error) {
       console.error('[SharingService] Error getting user themes:', error);

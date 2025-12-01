@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { sharingService } from '../../services/SharingService';
-import { MessageSquare, Trash2, Send, User, Reply, X } from 'lucide-react';
+import { MessageSquare, Trash2, Send, User, Reply } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface Comment {

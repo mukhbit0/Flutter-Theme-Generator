@@ -365,20 +365,6 @@ export default {
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
-    } catch (error) {
-      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
-    }
-  },
-
-  // Create Shared Theme
-  async createSharedTheme(request, env, corsHeaders) {
-    try {
-      const { userId, themeConfig, name, description, isPublic, tags, expirationDays } = await request.json();
-
-      // Debug logging
-      console.log('[Worker] createSharedTheme - Received themeConfig:', JSON.stringify(themeConfig).substring(0, 500));
-      console.log('[Worker] createSharedTheme - Light primary:', themeConfig?.colors?.light?.primary);
-      console.log('[Worker] createSharedTheme - Settings:', themeConfig?.settings);
 
       if (!themeConfig || !name) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: corsHeaders });
@@ -410,9 +396,9 @@ export default {
       console.log('[Worker] createSharedTheme - Storing config length:', configString.length);
 
       await env.THEME_DB.prepare(`
-        INSERT INTO shared_themes (id, user_id, name, description, config, is_public, tags, expires_at, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-      `).bind(
+        INSERT INTO shared_themes(id, user_id, name, description, config, is_public, tags, expires_at, author_name, author_photo_url, created_at)
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `).bind(
         shareId,
         userId || null,
         finalName,
@@ -420,7 +406,9 @@ export default {
         configString,
         isPublic ? 1 : 0,
         tags ? JSON.stringify(tags) : '[]',
-        expiresAt
+        expiresAt,
+        authorName || null,
+        authorPhotoUrl || null
       ).run();
 
       console.log('[Worker] createSharedTheme - Successfully stored theme with shareId:', shareId);
@@ -448,11 +436,11 @@ export default {
       // Increment view count
       await env.THEME_DB.prepare(`
         UPDATE shared_themes SET views = views + 1 WHERE id = ?
-      `).bind(shareId).run();
+        `).bind(shareId).run();
 
       const result = await env.THEME_DB.prepare(`
         SELECT * FROM shared_themes WHERE id = ?
-      `).bind(shareId).first();
+        `).bind(shareId).first();
 
       if (!result) {
         console.log('[Worker] getSharedTheme - Theme not found for shareId:', shareId);
@@ -476,7 +464,9 @@ export default {
           ...result,
           config: parsedConfig,
           tags: JSON.parse(result.tags || '[]'),
-          isPublic: !!result.is_public
+          isPublic: !!result.is_public,
+          authorName: result.author_name,
+          authorPhotoUrl: result.author_photo_url
         }
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -499,11 +489,11 @@ export default {
 
       await this.initializeDatabase(env);
       const results = await env.THEME_DB.prepare(`
-        SELECT id as shareId, name as themeName, config, created_at as createdAt, views, likes, is_public as isPublic 
+        SELECT id as shareId, name as themeName, config, created_at as createdAt, views, likes, is_public as isPublic, author_name as authorName, author_photo_url as authorPhotoUrl
         FROM shared_themes 
-        WHERE user_id = ? 
+        WHERE user_id = ?
         ORDER BY created_at DESC
-      `).bind(userId).all();
+          `).bind(userId).all();
 
       // Parse config and extract theme colors for display
       const themesWithColors = results.results.map(theme => {
@@ -529,6 +519,8 @@ export default {
           views: theme.views,
           likes: theme.likes || 0,
           isPublic: theme.isPublic,
+          authorName: theme.authorName,
+          authorPhotoUrl: theme.authorPhotoUrl,
           themeColors
         };
       });
@@ -555,7 +547,7 @@ export default {
 
       const result = await env.THEME_DB.prepare(`
         DELETE FROM shared_themes WHERE id = ? AND user_id = ?
-      `).bind(shareId, userId).run();
+        `).bind(shareId, userId).run();
 
       if (result.success) {
         return new Response(JSON.stringify({ success: true }), {
@@ -585,16 +577,16 @@ export default {
       await this.initializeDatabase(env);
 
       let query = `
-        SELECT id, name, description, config, user_id, views, likes, created_at, tags 
+        SELECT id, name, description, config, user_id, views, likes, created_at, tags, author_name, author_photo_url
         FROM shared_themes 
         WHERE is_public = 1
-      `;
+        `;
 
       const params = [];
 
       if (search) {
-        query += ` AND (name LIKE ? OR description LIKE ? OR tags LIKE ?)`;
-        const searchTerm = `%${search}%`;
+        query += ` AND(name LIKE ? OR description LIKE ? OR tags LIKE ?)`;
+        const searchTerm = `% ${search}% `;
         params.push(searchTerm, searchTerm, searchTerm);
       }
 
@@ -604,7 +596,7 @@ export default {
         query += ` ORDER BY created_at DESC`;
       }
 
-      query += ` LIMIT ? OFFSET ?`;
+      query += ` LIMIT ? OFFSET ? `;
       params.push(limit, offset);
 
       const { results } = await env.THEME_DB.prepare(query).bind(...params).all();
@@ -613,8 +605,8 @@ export default {
       let countQuery = `SELECT COUNT(*) as total FROM shared_themes WHERE is_public = 1`;
       const countParams = [];
       if (search) {
-        countQuery += ` AND (name LIKE ? OR description LIKE ? OR tags LIKE ?)`;
-        const searchTerm = `%${search}%`;
+        countQuery += ` AND(name LIKE ? OR description LIKE ? OR tags LIKE ?)`;
+        const searchTerm = `% ${search}% `;
         countParams.push(searchTerm, searchTerm, searchTerm);
       }
       const countResult = await env.THEME_DB.prepare(countQuery).bind(...countParams).first();
@@ -644,201 +636,8 @@ export default {
           likes: theme.likes || 0,
           createdAt: theme.created_at,
           tags: JSON.parse(theme.tags || '[]'),
-          themeColors
-        };
-      });
-
-      return new Response(JSON.stringify({
-        success: true,
-        themes,
-        pagination: {
-          page,
-          limit,
-          total: countResult.total,
-          pages: Math.ceil(countResult.total / limit)
-        }
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-      const parsedConfig = JSON.parse(result.config);
-      console.log('[Worker] getSharedTheme - Raw config length:', result.config.length);
-      console.log('[Worker] getSharedTheme - Parsed light primary:', parsedConfig?.colors?.light?.primary);
-      console.log('[Worker] getSharedTheme - Parsed settings:', parsedConfig?.settings);
-
-      return new Response(JSON.stringify({
-        success: true,
-        theme: {
-          ...result,
-          config: parsedConfig,
-          tags: JSON.parse(result.tags || '[]'),
-          isPublic: !!result.is_public
-        }
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    } catch (error) {
-      console.error('[Worker] getSharedTheme - Error:', error);
-      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
-    }
-  },
-
-  // Get User Shared Themes
-  async getUserSharedThemes(request, env, corsHeaders) {
-    try {
-      const url = new URL(request.url);
-      const userId = url.searchParams.get('userId');
-
-      if (!userId) {
-        return new Response(JSON.stringify({ error: 'Missing userId' }), { status: 400, headers: corsHeaders });
-      }
-
-      await this.initializeDatabase(env);
-      const results = await env.THEME_DB.prepare(`
-        SELECT id as shareId, name as themeName, config, created_at as createdAt, views, likes, is_public as isPublic 
-        FROM shared_themes 
-        WHERE user_id = ? 
-        ORDER BY created_at DESC
-      `).bind(userId).all();
-
-      // Parse config and extract theme colors for display
-      const themesWithColors = results.results.map(theme => {
-        let themeColors = null;
-        try {
-          const config = JSON.parse(theme.config);
-          if (config && config.colors && config.colors.light) {
-            themeColors = {
-              primary: config.colors.light.primary,
-              secondary: config.colors.light.secondary,
-              tertiary: config.colors.light.tertiary
-            };
-          }
-        } catch (e) {
-          console.error('Error parsing theme config:', e);
-        }
-
-        // Return theme without full config but with extracted colors
-        return {
-          shareId: theme.shareId,
-          themeName: theme.themeName,
-          createdAt: theme.createdAt,
-          views: theme.views,
-          likes: theme.likes || 0,
-          isPublic: theme.isPublic,
-          themeColors
-        };
-      });
-
-      return new Response(JSON.stringify({ success: true, themes: themesWithColors }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    } catch (error) {
-      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
-    }
-  },
-
-  // Delete Shared Theme
-  async deleteSharedTheme(shareId, request, env, corsHeaders) {
-    try {
-      const url = new URL(request.url);
-      const userId = url.searchParams.get('userId');
-
-      if (!userId) {
-        return new Response(JSON.stringify({ error: 'Unauthorized deletion' }), { status: 401, headers: corsHeaders });
-      }
-
-      await this.initializeDatabase(env);
-
-      const result = await env.THEME_DB.prepare(`
-        DELETE FROM shared_themes WHERE id = ? AND user_id = ?
-      `).bind(shareId, userId).run();
-
-      if (result.success) {
-        return new Response(JSON.stringify({ success: true }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      } else {
-        return new Response(JSON.stringify({ error: 'Failed to delete or theme not found' }), { status: 404, headers: corsHeaders });
-      }
-
-    } catch (error) {
-      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
-    }
-  },
-
-  // --- Gallery Functions ---
-
-  async getGalleryThemes(request, env, corsHeaders) {
-    try {
-      const url = new URL(request.url);
-      const page = parseInt(url.searchParams.get('page') || '1');
-      const limit = parseInt(url.searchParams.get('limit') || '12');
-      const sort = url.searchParams.get('sort') || 'newest'; // newest, popular
-      const search = url.searchParams.get('search') || '';
-
-      const offset = (page - 1) * limit;
-
-      await this.initializeDatabase(env);
-
-      let query = `
-        SELECT id, name, description, config, user_id, views, likes, created_at, tags 
-        FROM shared_themes 
-        WHERE is_public = 1
-      `;
-
-      const params = [];
-
-      if (search) {
-        query += ` AND (name LIKE ? OR description LIKE ? OR tags LIKE ?)`;
-        const searchTerm = `%${search}%`;
-        params.push(searchTerm, searchTerm, searchTerm);
-      }
-
-      if (sort === 'popular') {
-        query += ` ORDER BY likes DESC, views DESC`;
-      } else {
-        query += ` ORDER BY created_at DESC`;
-      }
-
-      query += ` LIMIT ? OFFSET ?`;
-      params.push(limit, offset);
-
-      const { results } = await env.THEME_DB.prepare(query).bind(...params).all();
-
-      // Get total count for pagination
-      let countQuery = `SELECT COUNT(*) as total FROM shared_themes WHERE is_public = 1`;
-      const countParams = [];
-      if (search) {
-        countQuery += ` AND (name LIKE ? OR description LIKE ? OR tags LIKE ?)`;
-        const searchTerm = `%${search}%`;
-        countParams.push(searchTerm, searchTerm, searchTerm);
-      }
-      const countResult = await env.THEME_DB.prepare(countQuery).bind(...countParams).first();
-
-      // Process results to extract colors
-      const themes = results.map(theme => {
-        let themeColors = null;
-        try {
-          const config = JSON.parse(theme.config);
-          if (config && config.colors && config.colors.light) {
-            themeColors = {
-              primary: config.colors.light.primary,
-              secondary: config.colors.light.secondary,
-              tertiary: config.colors.light.tertiary
-            };
-          }
-        } catch (e) {
-          console.error('Error parsing theme config:', e);
-        }
-
-        return {
-          id: theme.id,
-          name: theme.name,
-          description: theme.description,
-          userId: theme.user_id,
-          views: theme.views,
-          likes: theme.likes || 0,
-          createdAt: theme.created_at,
-          tags: JSON.parse(theme.tags || '[]'),
+          authorName: theme.author_name,
+          authorPhotoUrl: theme.author_photo_url,
           themeColors
         };
       });
@@ -856,6 +655,7 @@ export default {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     } catch (error) {
+      console.error('[Worker] getGalleryThemes - Error:', error);
       return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
     }
   },
@@ -871,8 +671,8 @@ export default {
       await this.initializeDatabase(env);
 
       const { results } = await env.THEME_DB.prepare(`
-        SELECT * FROM comments WHERE theme_id = ? ORDER BY created_at DESC
-      `).bind(themeId).all();
+      SELECT * FROM comments WHERE theme_id = ? ORDER BY created_at DESC
+        `).bind(themeId).all();
 
       return new Response(JSON.stringify({ success: true, comments: results }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -895,9 +695,9 @@ export default {
       const id = crypto.randomUUID();
 
       await env.THEME_DB.prepare(`
-        INSERT INTO comments (id, theme_id, user_id, user_name, content, parent_id, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-      `).bind(id, themeId, userId, userName || 'Anonymous', content, parentId || null).run();
+        INSERT INTO comments(id, theme_id, user_id, user_name, content, parent_id, created_at)
+      VALUES(?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `).bind(id, themeId, userId, userName || 'Anonymous', content, parentId || null).run();
 
       return new Response(JSON.stringify({ success: true, id }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -920,7 +720,7 @@ export default {
 
       const result = await env.THEME_DB.prepare(`
         DELETE FROM comments WHERE id = ? AND user_id = ?
-      `).bind(commentId, userId).run();
+        `).bind(commentId, userId).run();
 
       if (result.success) {
         return new Response(JSON.stringify({ success: true }), {
@@ -949,7 +749,7 @@ export default {
       // Check if already liked
       const existing = await env.THEME_DB.prepare(`
         SELECT * FROM likes WHERE user_id = ? AND theme_id = ?
-      `).bind(userId, themeId).first();
+        `).bind(userId, themeId).first();
 
       let liked = false;
 
@@ -1009,27 +809,27 @@ export default {
       if (!env.THEME_DB) return;
 
       await env.THEME_DB.prepare(`
-        CREATE TABLE IF NOT EXISTS theme_counter (
+        CREATE TABLE IF NOT EXISTS theme_counter(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           counter_key TEXT UNIQUE NOT NULL,
           count INTEGER NOT NULL DEFAULT 0,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-      `).run();
+        `).run();
 
       await env.THEME_DB.prepare(`
-        CREATE TABLE IF NOT EXISTS user_themes (
+        CREATE TABLE IF NOT EXISTS user_themes(
           id TEXT PRIMARY KEY,
           user_id TEXT NOT NULL,
           name TEXT NOT NULL,
           config TEXT NOT NULL,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-      `).run();
+        `).run();
 
       await env.THEME_DB.prepare(`
-        CREATE TABLE IF NOT EXISTS shared_themes (
+        CREATE TABLE IF NOT EXISTS shared_themes(
           id TEXT PRIMARY KEY,
           user_id TEXT,
           name TEXT NOT NULL,
@@ -1039,21 +839,23 @@ export default {
           views INTEGER DEFAULT 0,
           tags TEXT DEFAULT '[]',
           expires_at DATETIME,
+          author_name TEXT,
+          author_photo_url TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-      `).run();
+        `).run();
 
       await env.THEME_DB.prepare(`
         CREATE INDEX IF NOT EXISTS idx_user_themes_user_id ON user_themes(user_id)
-      `).run();
+        `).run();
 
       await env.THEME_DB.prepare(`
         CREATE INDEX IF NOT EXISTS idx_shared_themes_user_id ON shared_themes(user_id)
-      `).run();
+        `).run();
 
       // Create Comments Table
       await env.THEME_DB.prepare(`
-        CREATE TABLE IF NOT EXISTS comments (
+        CREATE TABLE IF NOT EXISTS comments(
           id TEXT PRIMARY KEY,
           theme_id TEXT NOT NULL,
           user_id TEXT NOT NULL,
@@ -1062,25 +864,25 @@ export default {
           parent_id TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-      `).run();
+        `).run();
 
       await env.THEME_DB.prepare(`
         CREATE INDEX IF NOT EXISTS idx_comments_theme_id ON comments(theme_id)
-      `).run();
+        `).run();
 
       // Create Likes Table
       await env.THEME_DB.prepare(`
-        CREATE TABLE IF NOT EXISTS likes (
+        CREATE TABLE IF NOT EXISTS likes(
           user_id TEXT NOT NULL,
           theme_id TEXT NOT NULL,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          PRIMARY KEY (user_id, theme_id)
+          PRIMARY KEY(user_id, theme_id)
         )
-      `).run();
+        `).run();
 
       await env.THEME_DB.prepare(`
         CREATE INDEX IF NOT EXISTS idx_likes_theme_id ON likes(theme_id)
-      `).run();
+        `).run();
 
       // Add likes column to shared_themes if it doesn't exist
       try {
@@ -1096,14 +898,27 @@ export default {
         // Column likely exists
       }
 
+      // Add author_name and author_photo_url columns to shared_themes if they don't exist
+      try {
+        await env.THEME_DB.prepare('ALTER TABLE shared_themes ADD COLUMN author_name TEXT').run();
+      } catch (e) {
+        // Column likely exists
+      }
+      try {
+        await env.THEME_DB.prepare('ALTER TABLE shared_themes ADD COLUMN author_photo_url TEXT').run();
+      } catch (e) {
+        // Column likely exists
+      }
+
       // Insert initial value if doesn't exist
       await env.THEME_DB.prepare(`
-        INSERT OR IGNORE INTO theme_counter (counter_key, count) 
-        VALUES ('total_themes_generated', 12847)
-      `).run();
+        INSERT OR IGNORE INTO theme_counter(counter_key, count)
+      VALUES('total_themes_generated', 12847)
+        `).run();
 
     } catch (error) {
       console.error('Database initialization error:', error);
     }
   }
 };
+```

@@ -6,7 +6,7 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { sharingService, ShareOptions, ShareResult, ShareableTheme } from '../services/SharingService'
 import { ThemeConfig } from '../types/theme'
-import { Share2, Copy, Eye, EyeOff, Trash2, Clock, Tag, AlertCircle, CheckCircle } from 'lucide-react'
+import { Share2, Copy, Eye, EyeOff, Trash2, Clock, Tag, AlertCircle, CheckCircle, Globe, Lock } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 interface ShareThemeComponentProps {
@@ -44,7 +44,7 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
   const [shareOptions, setShareOptions] = useState<ShareOptions>({
     name: themeName,
     description: '',
-    isPublic: true,
+    isPublic: false, // Default to private
     expirationDays: undefined,
     tags: []
   })
@@ -67,7 +67,7 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
   }, [currentUser])
 
   // Handle sharing theme
-  const handleShare = useCallback(async () => {
+  const handleShare = useCallback(async (isPublic: boolean) => {
     if (!sharingService.isAvailable()) {
       setState(prev => ({
         ...prev,
@@ -89,10 +89,15 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
       };
 
       console.log('[ShareThemeComponent] Sharing theme config:', configToShare);
-      console.log('[ShareThemeComponent] Light primary color:', configToShare.colors?.light?.primary);
-      console.log('[ShareThemeComponent] Dark primary color:', configToShare.colors?.dark?.primary);
-      console.log('[ShareThemeComponent] Settings:', configToShare.settings);
-      const optionsWithUser = { ...shareOptions, userId: currentUser?.uid };
+
+      const optionsWithUser: ShareOptions = {
+        ...shareOptions,
+        isPublic,
+        userId: currentUser?.uid,
+        authorName: currentUser?.displayName || 'Anonymous',
+        authorPhotoUrl: currentUser?.photoURL || undefined
+      };
+
       const result = await sharingService.shareTheme(configToShare, optionsWithUser)
 
       if (result.success && result.shareId) {
@@ -119,7 +124,7 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
         isSharing: false
       }))
     }
-  }, [themeConfig, shareOptions, currentUser])
+  }, [themeConfig, shareOptions, currentUser, settings])
 
   // Handle copy to clipboard
   const handleCopy = useCallback(async (text: string) => {
@@ -256,6 +261,13 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
                   </div>
                 </div>
               )}
+
+              <button
+                onClick={() => setState(prev => ({ ...prev, shareResult: null }))}
+                className="text-sm text-blue-600 dark:text-blue-400 hover:underline mt-2"
+              >
+                Share another theme
+              </button>
             </div>
           </div>
         )}
@@ -333,69 +345,65 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
               </div>
             </div>
 
-            {/* Privacy Settings */}
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={shareOptions.isPublic}
-                    onChange={(e) => setShareOptions((prev: ShareOptions) => ({ ...prev, isPublic: e.target.checked }))}
-                    className="rounded border-gray-300 dark:border-gray-600"
-                  />
-                  <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
-                    Public Theme
-                  </span>
-                  {shareOptions.isPublic ? <Eye className="w-4 h-4 text-green-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
-                </label>
-                <p className="text-xs text-gray-500 dark:text-gray-400 ml-6">
-                  {shareOptions.isPublic
-                    ? "Anyone with the link can access this theme and it may appear in public galleries"
-                    : "Only people with the direct link can access this theme"}
-                </p>
-              </div>
-
-              {/* Expiration */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Expiration (Optional)
-                </label>
-                <select
-                  value={shareOptions.expirationDays || ''}
-                  onChange={(e) => setShareOptions((prev: ShareOptions) => ({
-                    ...prev,
-                    expirationDays: e.target.value ? parseInt(e.target.value) : undefined
-                  }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                >
-                  <option value="">Never expires</option>
-                  <option value="1">1 day</option>
-                  <option value="7">1 week</option>
-                  <option value="30">1 month</option>
-                  <option value="90">3 months</option>
-                  <option value="365">1 year</option>
-                </select>
-              </div>
+            {/* Expiration */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Expiration (Optional)
+              </label>
+              <select
+                value={shareOptions.expirationDays || ''}
+                onChange={(e) => setShareOptions((prev: ShareOptions) => ({
+                  ...prev,
+                  expirationDays: e.target.value ? parseInt(e.target.value) : undefined
+                }))}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              >
+                <option value="">Never expires</option>
+                <option value="1">1 day</option>
+                <option value="7">1 week</option>
+                <option value="30">1 month</option>
+                <option value="90">3 months</option>
+                <option value="365">1 year</option>
+              </select>
             </div>
 
-            {/* Share Button */}
-            <button
-              onClick={handleShare}
-              disabled={state.isSharing || !shareOptions.name.trim()}
-              className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-md transition-colors font-medium flex items-center justify-center gap-2"
-            >
-              {state.isSharing ? (
-                <>
+            {/* Action Buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              {/* Private Share */}
+              <button
+                onClick={() => handleShare(false)}
+                disabled={state.isSharing || !shareOptions.name.trim()}
+                className="px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-md transition-colors font-medium flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600"
+              >
+                {state.isSharing ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-500 border-t-transparent" />
+                ) : (
+                  <Lock className="w-4 h-4" />
+                )}
+                Get Private Link
+              </button>
+
+              {/* Public Publish */}
+              <button
+                onClick={() => handleShare(true)}
+                disabled={state.isSharing || !shareOptions.name.trim() || !currentUser}
+                className="px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white rounded-md transition-colors font-medium flex items-center justify-center gap-2"
+                title={!currentUser ? "Log in to publish to the gallery" : "Publish to public gallery"}
+              >
+                {state.isSharing ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                  Sharing...
-                </>
-              ) : (
-                <>
-                  <Share2 className="w-4 h-4" />
-                  Share Theme
-                </>
-              )}
-            </button>
+                ) : (
+                  <Globe className="w-4 h-4" />
+                )}
+                Publish to Gallery
+              </button>
+            </div>
+
+            {!currentUser && (
+              <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+                You must be logged in to publish themes to the public gallery.
+              </p>
+            )}
           </div>
         )}
 
@@ -430,9 +438,9 @@ export const ShareThemeComponent: React.FC<ShareThemeComponentProps> = ({
                           {theme.name}
                         </h4>
                         {theme.isPublic ? (
-                          <Eye className="w-3 h-3 text-green-600" />
+                          <Globe className="w-3 h-3 text-green-600" />
                         ) : (
-                          <EyeOff className="w-3 h-3 text-gray-400" />
+                          <Lock className="w-3 h-3 text-gray-400" />
                         )}
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
