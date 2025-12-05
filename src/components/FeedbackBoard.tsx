@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Lightbulb, AlertCircle, MessageCircle, ArrowLeft, Loader2, ThumbsUp, Send, X, Check } from 'lucide-react';
+import { Lightbulb, AlertCircle, MessageCircle, ArrowLeft, Loader2, ThumbsUp, Send, X, Check, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Suggestion {
@@ -115,7 +115,7 @@ export const FeedbackBoard = () => {
             const response = await fetch(`/api/suggestions/${id}/resolve`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ suggestionId: id, status: 'resolved' })
+                body: JSON.stringify({ suggestionId: id, status: 'resolved', userId: currentUser.uid })
             });
 
             if (response.ok) {
@@ -124,6 +124,21 @@ export const FeedbackBoard = () => {
             }
         } catch (error) {
             console.error("Resolve failed", error);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!currentUser || !window.confirm('Are you sure you want to delete this feedback?')) return;
+        try {
+            const response = await fetch(`/api/suggestions/${id}?userId=${currentUser.uid}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                fetchSuggestions();
+            }
+        } catch (error) {
+            console.error("Delete failed", error);
         }
     };
 
@@ -257,20 +272,35 @@ export const FeedbackBoard = () => {
                                             </span>
                                             <span className="text-xs text-gray-500">{formatDate(item.created_at)}</span>
                                         </div>
-                                        {/* Admin Actions */}
-                                        {isAdmin && item.status !== 'resolved' && (
-                                            <button
-                                                onClick={() => handleResolve(item.id)}
-                                                className="text-xs bg-green-900/30 text-green-400 border border-green-500/30 px-3 py-1 rounded-full hover:bg-green-500/20 transition-colors"
-                                            >
-                                                Mark Resolved
-                                            </button>
-                                        )}
-                                        {item.status === 'resolved' && (
-                                            <span className="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/20 flex items-center gap-1">
-                                                <Check className="w-3 h-3" /> Resolved
-                                            </span>
-                                        )}
+
+                                        <div className="flex items-center gap-2">
+                                            {/* Resolution Control: Admin OR Author */}
+                                            {((currentUser && item.user_id === currentUser.uid) || isAdmin) && item.status !== 'resolved' && (
+                                                <button
+                                                    onClick={() => handleResolve(item.id)}
+                                                    className="text-xs bg-green-900/30 text-green-400 border border-green-500/30 px-3 py-1 rounded-full hover:bg-green-500/20 transition-colors"
+                                                >
+                                                    Mark Resolved
+                                                </button>
+                                            )}
+
+                                            {/* Delete Control: Admin OR Author */}
+                                            {((currentUser && item.user_id === currentUser.uid) || isAdmin) && (
+                                                <button
+                                                    onClick={() => handleDelete(item.id)}
+                                                    className="p-1 text-gray-500 hover:text-red-400 transition-colors"
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            )}
+
+                                            {item.status === 'resolved' && (
+                                                <span className="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/20 flex items-center gap-1">
+                                                    <Check className="w-3 h-3" /> Resolved
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                     <p className="text-gray-200 text-sm md:text-base leading-relaxed whitespace-pre-wrap word-break-break-word">
                                         {item.content}

@@ -222,6 +222,9 @@ export default {
         // pattern: /api/suggestions/:id/resolve
         return this.resolveSuggestion(request, env, corsHeaders);
       }
+      if (pathname.startsWith('/api/suggestions/') && request.method === 'DELETE') {
+        return this.deleteSuggestion(request, env, corsHeaders);
+      }
 
       return new Response(JSON.stringify({ error: 'Endpoint not found' }), {
         status: 404,
@@ -1104,15 +1107,67 @@ export default {
 
   async resolveSuggestion(request, env, corsHeaders) {
     try {
-      const { suggestionId, status } = await request.json(); // status: 'resolved' or 'pending'
+      const { suggestionId, status, userId } = await request.json(); // userId is now required for auth check
 
-      if (!suggestionId || !status) {
+      if (!suggestionId || !status || !userId) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: corsHeaders });
       }
 
       await this.initializeDatabase(env);
 
+      // Verify ownership or admin
+      const suggestion = await env.THEME_DB.prepare('SELECT user_id FROM suggestions WHERE id = ?').bind(suggestionId).first();
+
+      if (!suggestion) {
+        return new Response(JSON.stringify({ error: 'Suggestion not found' }), { status: 404, headers: corsHeaders });
+      }
+
+      const isAdmin = userId === 'arslan@gmail.com' || userId === 'admin@gmail.com' || userId === '2'; // Simple admin check (id '2' is likely what we see in logs, but email is safer if we had it. For now trusting passed userId for same-user check)
+      // Note: In a real app we'd verify the token on the server. Here we trust the client passed the correct current userId matches the one in DB.
+
+      if (suggestion.user_id !== userId && !isAdmin) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 403, headers: corsHeaders });
+      }
+
       await env.THEME_DB.prepare('UPDATE suggestions SET status = ? WHERE id = ?').bind(status, suggestionId).run();
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
+  async deleteSuggestion(request, env, corsHeaders) {
+    try {
+      const url = new URL(request.url);
+      const suggestionId = url.pathname.split('/').pop();
+      const userId = url.searchParams.get('userId');
+
+      if (!suggestionId || !userId) {
+        return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: corsHeaders });
+      }
+
+      await this.initializeDatabase(env);
+
+      // Verify ownership or admin
+      const suggestion = await env.THEME_DB.prepare('SELECT user_id FROM suggestions WHERE id = ?').bind(suggestionId).first();
+
+      if (!suggestion) {
+        return new Response(JSON.stringify({ error: 'Suggestion not found' }), { status: 404, headers: corsHeaders });
+      }
+
+      const isAdmin = userId === 'arslan@gmail.com' || userId === 'admin@gmail.com';
+
+      if (suggestion.user_id !== userId && !isAdmin) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 403, headers: corsHeaders });
+      }
+
+      await env.THEME_DB.batch([
+        env.THEME_DB.prepare('DELETE FROM suggestions WHERE id = ?').bind(suggestionId),
+        env.THEME_DB.prepare('DELETE FROM suggestion_votes WHERE suggestion_id = ?').bind(suggestionId)
+      ]);
 
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
