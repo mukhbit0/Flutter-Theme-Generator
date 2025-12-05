@@ -25,6 +25,9 @@ const ThemeGallery = lazy(() => import('./components/gallery/ThemeGallery'))
 // Global Components
 import { SuggestionBox } from './components/SuggestionBox';
 import { WorldChat } from './components/WorldChat';
+import { AdminSuggestions } from './components/AdminSuggestions';
+import { FeedbackBoard } from './components/FeedbackBoard';
+
 
 // Loading fallback component
 function LoadingFallback({ darkMode }: { darkMode?: boolean }) {
@@ -265,6 +268,8 @@ function AppContent() {
           <Route path="/login" element={<LoginScreen />} />
           <Route path="/signup" element={<SignupScreen />} />
           <Route path="/profile" element={<UserProfile />} />
+          <Route path="/feedback" element={<FeedbackBoard />} />
+          <Route path="/admin/suggestions" element={<AdminSuggestions />} />
 
           <Route
             path="/generator"

@@ -215,6 +215,13 @@ export default {
       if (pathname === '/api/suggestions' && request.method === 'GET') {
         return this.getSuggestions(request, env, corsHeaders);
       }
+      if (pathname === '/api/suggestions/vote' && request.method === 'POST') {
+        return this.voteSuggestion(request, env, corsHeaders);
+      }
+      if (pathname.startsWith('/api/suggestions/') && pathname.endsWith('/resolve') && request.method === 'PATCH') {
+        // pattern: /api/suggestions/:id/resolve
+        return this.resolveSuggestion(request, env, corsHeaders);
+      }
 
       return new Response(JSON.stringify({ error: 'Endpoint not found' }), {
         status: 404,
@@ -946,6 +953,23 @@ export default {
         // Column likely exists
       }
 
+      // Add votes column to suggestions if it doesn't exist
+      try {
+        await env.THEME_DB.prepare('ALTER TABLE suggestions ADD COLUMN votes INTEGER DEFAULT 0').run();
+      } catch (e) {
+        // Column likely exists
+      }
+
+      // Create Suggestion Votes Table
+      await env.THEME_DB.prepare(`
+        CREATE TABLE IF NOT EXISTS suggestion_votes(
+          user_id TEXT NOT NULL,
+          suggestion_id TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY(user_id, suggestion_id)
+        )
+      `).run();
+
       // Insert initial value if doesn't exist
       await env.THEME_DB.prepare(`
         INSERT OR IGNORE INTO theme_counter(counter_key, count)
@@ -987,26 +1011,117 @@ export default {
 
   async getSuggestions(request, env, corsHeaders) {
     try {
-      // Basic auth check (optional, for now open or check for specific header)
-      // For this user's request, we'll just return them all or filtered by user.
-      // Let's protect it slightly or just return all for admin purposes.
-
       const url = new URL(request.url);
       const limit = parseInt(url.searchParams.get('limit') || '50');
+      const sort = url.searchParams.get('sort') || 'created_at'; // 'votes' or 'created_at'
+      const status = url.searchParams.get('status') || 'all'; // 'pending', 'resolved', 'all'
+      const userId = url.searchParams.get('userId'); // Check if user has voted
 
       await this.initializeDatabase(env);
 
-      const { results } = await env.THEME_DB.prepare(`
-        SELECT * FROM suggestions ORDER BY created_at DESC LIMIT ?
-      `).bind(limit).all();
+      let query = 'SELECT * FROM suggestions';
+      const params = [];
 
-      return new Response(JSON.stringify({ success: true, suggestions: results }), {
+      if (status !== 'all') {
+        query += ' WHERE status = ?';
+        params.push(status);
+      }
+
+      query += sort === 'votes' ? ' ORDER BY votes DESC, created_at DESC' : ' ORDER BY created_at DESC';
+      query += ' LIMIT ?';
+      params.push(limit);
+
+      const { results } = await env.THEME_DB.prepare(query).bind(...params).all();
+
+      // If userId provided, check which suggestions they voted on
+      let enrichedResults = results;
+      if (userId && results.length > 0) {
+        const suggestionIds = results.map(r => r.id);
+        const placeholders = suggestionIds.map(() => '?').join(',');
+        const votes = await env.THEME_DB.prepare(`
+          SELECT suggestion_id FROM suggestion_votes 
+          WHERE user_id = ? AND suggestion_id IN (${placeholders})
+        `).bind(userId, ...suggestionIds).all();
+
+        const votedIds = new Set(votes.results.map(v => v.suggestion_id));
+        enrichedResults = results.map(r => ({
+          ...r,
+          has_voted: votedIds.has(r.id)
+        }));
+      }
+
+      return new Response(JSON.stringify({ success: true, results: enrichedResults }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     } catch (error) {
       return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
     }
   },
+
+  async voteSuggestion(request, env, corsHeaders) {
+    try {
+      const { suggestionId, userId } = await request.json();
+
+      if (!suggestionId || !userId) {
+        return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: corsHeaders });
+      }
+
+      await this.initializeDatabase(env);
+
+      // Check if already voted
+      const existing = await env.THEME_DB.prepare(`
+        SELECT * FROM suggestion_votes WHERE user_id = ? AND suggestion_id = ?
+      `).bind(userId, suggestionId).first();
+
+      let voted = false;
+
+      if (existing) {
+        // Remove vote
+        await env.THEME_DB.batch([
+          env.THEME_DB.prepare('DELETE FROM suggestion_votes WHERE user_id = ? AND suggestion_id = ?').bind(userId, suggestionId),
+          env.THEME_DB.prepare('UPDATE suggestions SET votes = MAX(0, votes - 1) WHERE id = ?').bind(suggestionId)
+        ]);
+        voted = false;
+      } else {
+        // Add vote
+        await env.THEME_DB.batch([
+          env.THEME_DB.prepare('INSERT INTO suggestion_votes (user_id, suggestion_id) VALUES (?, ?)').bind(userId, suggestionId),
+          env.THEME_DB.prepare('UPDATE suggestions SET votes = votes + 1 WHERE id = ?').bind(suggestionId)
+        ]);
+        voted = true;
+      }
+
+      // Get updated count
+      const suggestion = await env.THEME_DB.prepare('SELECT votes FROM suggestions WHERE id = ?').bind(suggestionId).first();
+
+      return new Response(JSON.stringify({ success: true, voted, votes: suggestion ? suggestion.votes : 0 }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
+  async resolveSuggestion(request, env, corsHeaders) {
+    try {
+      const { suggestionId, status } = await request.json(); // status: 'resolved' or 'pending'
+
+      if (!suggestionId || !status) {
+        return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: corsHeaders });
+      }
+
+      await this.initializeDatabase(env);
+
+      await env.THEME_DB.prepare('UPDATE suggestions SET status = ? WHERE id = ?').bind(status, suggestionId).run();
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
 
   // --- Cron Cleanup Function ---
 
