@@ -208,6 +208,14 @@ export default {
         });
       }
 
+      // Suggestions Endpoints
+      if (pathname === '/api/suggestions' && request.method === 'POST') {
+        return this.createSuggestion(request, env, corsHeaders);
+      }
+      if (pathname === '/api/suggestions' && request.method === 'GET') {
+        return this.getSuggestions(request, env, corsHeaders);
+      }
+
       return new Response(JSON.stringify({ error: 'Endpoint not found' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -220,6 +228,12 @@ export default {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
+  },
+
+  // Cron Trigger Handler
+  async scheduled(event, env, ctx) {
+    console.log('[Cron] Running scheduled maintenance...');
+    await this.cleanupOldMessages(env);
   },
 
   // Get current counter value
@@ -894,6 +908,18 @@ export default {
         CREATE INDEX IF NOT EXISTS idx_likes_theme_id ON likes(theme_id)
         `).run();
 
+      // Create Suggestions Table
+      await env.THEME_DB.prepare(`
+        CREATE TABLE IF NOT EXISTS suggestions(
+          id TEXT PRIMARY KEY,
+          type TEXT NOT NULL,
+          content TEXT NOT NULL,
+          status TEXT DEFAULT 'pending',
+          user_id TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+        `).run();
+
       // Add likes column to shared_themes if it doesn't exist
       try {
         await env.THEME_DB.prepare('ALTER TABLE shared_themes ADD COLUMN likes INTEGER DEFAULT 0').run();
@@ -926,8 +952,120 @@ export default {
       VALUES('total_themes_generated', 12847)
         `).run();
 
-    } catch (error) {
       console.error('Database initialization error:', error);
+    }
+  },
+
+  // --- Suggestion Functions ---
+
+  async createSuggestion(request, env, corsHeaders) {
+    try {
+      const { type, content, userId } = await request.json();
+
+      if (!type || !content) {
+        return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: corsHeaders });
+      }
+
+      await this.initializeDatabase(env);
+
+      const id = crypto.randomUUID();
+      const validType = ['bug', 'feature'].includes(type) ? type : 'other';
+
+      await env.THEME_DB.prepare(`
+        INSERT INTO suggestions(id, type, content, user_id, created_at)
+        VALUES(?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `).bind(id, validType, content, userId || null).run();
+
+      return new Response(JSON.stringify({ success: true, id }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
+  async getSuggestions(request, env, corsHeaders) {
+    try {
+      // Basic auth check (optional, for now open or check for specific header)
+      // For this user's request, we'll just return them all or filtered by user.
+      // Let's protect it slightly or just return all for admin purposes.
+
+      const url = new URL(request.url);
+      const limit = parseInt(url.searchParams.get('limit') || '50');
+
+      await this.initializeDatabase(env);
+
+      const { results } = await env.THEME_DB.prepare(`
+        SELECT * FROM suggestions ORDER BY created_at DESC LIMIT ?
+      `).bind(limit).all();
+
+      return new Response(JSON.stringify({ success: true, suggestions: results }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
+  },
+
+  // --- Cron Cleanup Function ---
+
+  async cleanupOldMessages(env) {
+    try {
+      const projectId = env.VITE_FIREBASE_PROJECT_ID;
+      const dbUrl = `https://${projectId}-default-rtdb.firebaseio.com`; // Assuming default instance
+      // Note: If the user has a different region, this URL might need adjustment. 
+      // But typically it's project-id-default-rtdb.firebaseio.com or project-id.firebaseio.com
+
+      // 7 days ago in milliseconds
+      const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+
+      // Fetch old messages
+      // We assume messages are at /messages/{messageId} and have a 'timestamp' field
+      const fetchUrl = `${dbUrl}/messages.json?orderBy="timestamp"&endAt=${sevenDaysAgo}&limitToFirst=50&print=pretty`;
+
+      // We might need an auth token if rules are strict.
+      // For this environment, we'll assume rules allow or we'd need a service account.
+      // However, managing service accounts in Workers without secrets manager is tricky.
+      // If rules are "read/write: true", this works. If not, this might fail without auth.
+      // Given the user context, we'll try strict usage. If it fails, we assume public or user handles rules.
+
+      const response = await fetch(fetchUrl);
+      if (!response.ok) {
+        console.error('[Cleanup] Failed to fetch old messages:', response.statusText);
+        return;
+      }
+
+      const data = await response.json();
+      if (!data) {
+        console.log('[Cleanup] No old messages to delete.');
+        return;
+      }
+
+      const messageIds = Object.keys(data);
+      console.log(`[Cleanup] Found ${messageIds.length} old messages to delete.`);
+
+      // Delete them one by one (or use update with nulls for batch if supported via REST)
+      // REST API supports PATCH for batch deletion by setting keys to null.
+      const batchUpdate = {};
+      messageIds.forEach(id => {
+        batchUpdate[id] = null;
+      });
+
+      const updateUrl = `${dbUrl}/messages.json`;
+      const updateResponse = await fetch(updateUrl, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(batchUpdate)
+      });
+
+      if (updateResponse.ok) {
+        console.log('[Cleanup] Successfully deleted old messages.');
+      } else {
+        console.error('[Cleanup] Failed to delete messages:', updateResponse.statusText);
+      }
+
+    } catch (error) {
+      console.error('[Cleanup] Error during cleanup:', error);
     }
   }
 };

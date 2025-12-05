@@ -52,5 +52,15 @@ CREATE TABLE IF NOT EXISTS likes (
 
 CREATE INDEX IF NOT EXISTS idx_likes_theme_id ON likes(theme_id);
 
+-- Suggestions/Feedback Table
+CREATE TABLE IF NOT EXISTS suggestions (
+  id TEXT PRIMARY KEY,
+  type TEXT NOT NULL, -- 'bug', 'feature', 'other'
+  content TEXT NOT NULL,
+  status TEXT DEFAULT 'pending', -- 'pending', 'reviewed', 'implemented'
+  user_id TEXT, -- Optional, if user is logged in
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Add likes column to shared_themes if it doesn't exist (handled in worker migration usually, but good for reference)
 -- ALTER TABLE shared_themes ADD COLUMN likes INTEGER DEFAULT 0;

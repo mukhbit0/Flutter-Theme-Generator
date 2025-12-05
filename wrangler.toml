@@ -35,3 +35,7 @@ watch_dir = "src"
 
 [observability.logs]
 enabled = true
+
+# Cron Triggers
+[triggers]
+crons = ["0 0 * * *"] # Run once a day at midnight UTC

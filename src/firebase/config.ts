@@ -47,3 +47,17 @@ export const getFirebaseAuth = (): Auth => {
 
 // For backward compatibility during refactor, we might export a proxy or similar,
 // but since we are updating AuthContext, we don't need to export 'auth' directly anymore.
+
+import { getDatabase, Database } from "firebase/database";
+
+let db: Database | undefined;
+
+export const getFirebaseDb = (): Database => {
+    if (!app) {
+        throw new Error("Firebase app not initialized. Call initializeFirebase() first.");
+    }
+    if (!db) {
+        db = getDatabase(app);
+    }
+    return db;
+};

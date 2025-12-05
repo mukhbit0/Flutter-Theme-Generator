@@ -22,6 +22,10 @@ const SignupScreen = lazy(() => import('./components/auth/SignupScreen').then(m 
 const UserProfile = lazy(() => import('./components/auth/UserProfile').then(m => ({ default: m.UserProfile })))
 const ThemeGallery = lazy(() => import('./components/gallery/ThemeGallery'))
 
+// Global Components
+import { SuggestionBox } from './components/SuggestionBox';
+import { WorldChat } from './components/WorldChat';
+
 // Loading fallback component
 function LoadingFallback({ darkMode }: { darkMode?: boolean }) {
   return (
@@ -374,6 +378,10 @@ function AppContent() {
           />} />
         </Routes>
       </Suspense>
+
+      {/* Global Floating Components */}
+      <SuggestionBox />
+      <WorldChat />
     </div>
   )
 }
