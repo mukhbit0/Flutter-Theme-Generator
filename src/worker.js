@@ -952,6 +952,7 @@ export default {
       VALUES('total_themes_generated', 12847)
         `).run();
 
+    } catch (error) {
       console.error('Database initialization error:', error);
     }
   },
