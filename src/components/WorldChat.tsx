@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getFirebaseDb } from '../firebase/config';
 import { ref, onChildAdded, push, serverTimestamp, query, limitToLast, orderByChild } from 'firebase/database';
-import { MessageCircle, X, Send, User, Globe } from 'lucide-react';
+import { MessageCircle, X, Send, Globe } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext'; // Creating dependency to AuthContext if available, or fallback
 
 // Simple types for chat message
@@ -33,20 +33,21 @@ export const WorldChat = () => {
     // Auth
     const { currentUser } = useAuth();
 
-    // Attempt to get user info from localStorage or generate random
-    // Now strictly relying on Auth Context or fallback to temporary guest for connection logic only if we wanted to allow read-only
-    // But user requested "only registered users can use". So we will block access if !currentUser.
+    // Chat User State (derived from auth user)
+    const [userProfile, setUserProfile] = useState<{ id: string, name: string, color: string } | null>(null);
 
     useEffect(() => {
         if (currentUser) {
             // Use real user data
             const storedColor = localStorage.getItem(`chat_color_${currentUser.uid}`) || AVATAR_COLORS[Math.abs(currentUser.uid.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % AVATAR_COLORS.length];
 
-            setCurrentUser({
+            setUserProfile({
                 id: currentUser.uid,
                 name: currentUser.displayName || 'User',
                 color: storedColor
             });
+        } else {
+            setUserProfile(null);
         }
     }, [currentUser]);
 
