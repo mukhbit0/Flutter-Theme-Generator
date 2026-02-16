@@ -105,16 +105,17 @@ class MyWidget extends StatelessWidget {
     
     return Container(
       color: colorScheme.surface,
-      padding: EdgeInsets.all(AppConstants.paddingMedium), // ScreenUtil ready
+      padding: EdgeInsets.all(AppConstants.spacingMD),
       child: Column(
         children: [
+          // M3 buttons inherit styling from AppTheme automatically
           ElevatedButton(
             onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colorScheme.primary,
-              foregroundColor: colorScheme.onPrimary,
-            ),
             child: Text('Themed Button'),
+          ),
+          FilledButton(
+            onPressed: () {},
+            child: Text('Filled Button'),
           ),
           Text(
             'Primary Text',

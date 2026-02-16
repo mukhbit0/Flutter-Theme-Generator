@@ -176,6 +176,11 @@ function AppContent() {
             settings={localThemeSettings || undefined}
             onBack={handleBackToGenerator}
             darkMode={darkMode}
+            onThemeUpdate={(updatedConfig: ThemeConfig) => {
+              // Sync preview color edits back to global state
+              setLocalThemeConfig(updatedConfig)
+              setThemeConfig(updatedConfig)
+            }}
           />
         </div>
       )

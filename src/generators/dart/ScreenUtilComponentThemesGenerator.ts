@@ -50,18 +50,18 @@ export function generateScreenUtilComponentThemes(): string {
   static const BottomNavigationBarThemeData _bottomNavigationBarTheme = BottomNavigationBarThemeData();
 
   /// Tab bar theme (ScreenUtil)
-  static const TabBarThemeData _tabBarTheme = TabBarThemeData(
+  static final TabBarThemeData _tabBarTheme = TabBarThemeData(
     labelPadding: EdgeInsets.symmetric(
       horizontal: AppConstants.spacingMD,
       vertical: AppConstants.spacingSM,
     ),
   );
 
-  /// Switch theme (ScreenUtil)
-  static final SwitchThemeData _switchTheme = SwitchThemeData(
+  /// Switch theme (ScreenUtil) - uses colorScheme from theme() parameter
+  static SwitchThemeData switchTheme(ColorScheme colorScheme) => SwitchThemeData(
     thumbColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return lightScheme().primary;
+        return colorScheme.primary;
       }
       return null;
     }),

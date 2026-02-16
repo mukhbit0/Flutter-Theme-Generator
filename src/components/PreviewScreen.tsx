@@ -16,9 +16,10 @@ interface PreviewScreenProps {
   settings?: ThemeGeneratorSettings
   onBack: () => void
   darkMode: boolean
+  onThemeUpdate?: (config: ThemeConfig) => void
 }
 
-export const PreviewScreen: React.FC<PreviewScreenProps> = ({ themeConfig, settings, onBack, darkMode }) => {
+export const PreviewScreen: React.FC<PreviewScreenProps> = ({ themeConfig, settings, onBack, darkMode, onThemeUpdate }) => {
   const navigate = useNavigate()
 
   const { currentUser } = useAuth()
@@ -32,6 +33,7 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({ themeConfig, setti
 
   // Sync modifiedThemeConfig when themeConfig prop changes (e.g., after validation fixes)
   useEffect(() => {
+    console.log('[PreviewScreen] themeConfig prop changed, syncing modifiedThemeConfig');
     setModifiedThemeConfig(themeConfig);
   }, [themeConfig]);
 
@@ -155,16 +157,23 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({ themeConfig, setti
       }
     }
 
-    setModifiedThemeConfig((prev: ThemeConfig) => ({
-      ...prev,
-      colors: {
-        ...prev.colors,
-        [getCurrentModeKey()]: {
-          ...prev.colors[getCurrentModeKey() as keyof typeof prev.colors],
-          [colorName]: newColor
+    setModifiedThemeConfig((prev: ThemeConfig) => {
+      const updated = {
+        ...prev,
+        colors: {
+          ...prev.colors,
+          [getCurrentModeKey()]: {
+            ...prev.colors[getCurrentModeKey() as keyof typeof prev.colors],
+            [colorName]: newColor
+          }
         }
+      };
+      // Sync color edits back to global state so validation and download use the latest values
+      if (onThemeUpdate) {
+        onThemeUpdate(updated);
       }
-    }))
+      return updated;
+    })
   }
 
   const [snackbar, setSnackbar] = useState<{ isOpen: boolean; message: string; type: 'success' | 'error' | 'info' }>({

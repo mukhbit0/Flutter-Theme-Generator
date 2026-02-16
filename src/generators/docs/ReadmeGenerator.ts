@@ -157,21 +157,35 @@ Container(
 
 ### 📱 Complete Widget Examples
 
-#### Beautiful Button
+#### Beautiful Button (M3 - Inherits from Theme)
 \`\`\`dart
+// Buttons automatically inherit M3 styling from AppTheme
+// No need for manual styleFrom - just use the button directly!
 ElevatedButton(
   onPressed: () {
     // Your action here
   },
-  style: ElevatedButton.styleFrom(
-    backgroundColor: context.colorScheme.primary,
-    foregroundColor: context.colorScheme.onPrimary,
-    padding: context.paddingMD,
-    shape: RoundedRectangleBorder(
-      borderRadius: context.radiusMD,
-    ),
-  ),
   child: Text('Beautiful Button'),
+)
+
+// Or customize with M3 ButtonStyle if needed:
+ElevatedButton(
+  onPressed: () {},
+  style: ButtonStyle(
+    backgroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return context.colorScheme.onSurface.withValues(alpha: 0.12);
+      }
+      return context.colorScheme.primary;
+    }),
+    foregroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return context.colorScheme.onSurface.withValues(alpha: 0.38);
+      }
+      return context.colorScheme.onPrimary;
+    }),
+  ),
+  child: Text('Custom Button'),
 )
 \`\`\`
 
@@ -247,10 +261,10 @@ Your theme includes these colors (automatically adjusted for light/dark modes):
 - \`context.colorScheme.onSecondaryContainer\` - Text on secondary container
 
 ### Surface Colors
-- \`context.colorScheme.surface\` - Cards, sheets, menus
+- \`context.colorScheme.surface\` - Cards, sheets, menus, screen background
 - \`context.colorScheme.onSurface\` - Text on surfaces
-- \`context.colorScheme.background\` - Screen background
-- \`context.colorScheme.onBackground\` - Text on background
+- \`context.colorScheme.surfaceContainerHighest\` - Highest emphasis surface
+- \`context.colorScheme.surfaceContainerLow\` - Low emphasis surface
 
 ### Utility Colors
 - \`context.colorScheme.error\` - Error states

@@ -62,11 +62,17 @@ export function generateComponentThemes(): string {
     ),
   );
 
-  /// Switch theme
-  static final SwitchThemeData _switchTheme = SwitchThemeData(
+  /// Switch theme - uses colorScheme from theme() parameter
+  static SwitchThemeData switchTheme(ColorScheme colorScheme) => SwitchThemeData(
     thumbColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return lightScheme().primary;
+        return colorScheme.primary;
+      }
+      return null;
+    }),
+    trackColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) {
+        return colorScheme.primaryContainer;
       }
       return null;
     }),

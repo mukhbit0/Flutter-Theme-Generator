@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { ThemeConfig } from '../../types/theme';
 import { ThemeValidator, ThemeValidationReport, ColorBlindnessResult } from '../../utils/ThemeValidator';
 
@@ -208,6 +208,12 @@ export default function ThemeValidationScreen({ theme, darkMode, onBack, onUpdat
     const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
+    // Use ref to always have latest theme (avoids stale closure in setTimeout)
+    const themeRef = useRef(theme);
+    useEffect(() => {
+        themeRef.current = theme;
+    }, [theme]);
+
     useEffect(() => {
         const validationReport = ThemeValidator.validateTheme(theme, darkMode);
         setReport(validationReport);
@@ -225,26 +231,31 @@ export default function ThemeValidationScreen({ theme, darkMode, onBack, onUpdat
 
     const handleAutoFix = () => {
         setIsFixing(true);
+        // Use ref to get latest theme, preventing stale closure issues
+        const fixedTheme = ThemeValidator.getFixedTheme(themeRef.current, darkMode);
+        // Small delay for animation, then apply fix immediately
         setTimeout(() => {
-            const fixedTheme = ThemeValidator.getFixedTheme(theme, darkMode);
             onUpdateTheme(fixedTheme);
             setIsFixing(false);
             showToast("✨ All accessibility issues have been fixed!");
-        }, 1200);
+        }, 800);
     };
 
     const handleFixPair = (fgKey: string, bg: string, fg: string) => {
         setFixingKey(fgKey);
+        // Compute fix immediately using latest theme ref (avoids stale closure)
+        const fixedFg = ThemeValidator.fixColor(fg, bg, 7.0);
+        const latestTheme = themeRef.current;
+        const newTheme = JSON.parse(JSON.stringify(latestTheme)) as ThemeConfig;
+        const targetColors = darkMode ? newTheme.colors.dark : newTheme.colors.light;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (targetColors as any)[fgKey] = fixedFg;
+        // Small delay for animation, then apply fix immediately
         setTimeout(() => {
-            const fixedFg = ThemeValidator.fixColor(fg, bg, 7.0);
-            const newTheme = JSON.parse(JSON.stringify(theme)) as ThemeConfig;
-            const targetColors = darkMode ? newTheme.colors.dark : newTheme.colors.light;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (targetColors as any)[fgKey] = fixedFg;
             onUpdateTheme(newTheme);
             setFixingKey(null);
             showToast(`✓ Fixed ${fgKey.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
-        }, 600);
+        }, 300);
     };
 
     const filteredResults = useMemo(() => {

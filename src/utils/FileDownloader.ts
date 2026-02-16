@@ -22,8 +22,10 @@ export async function downloadThemeFiles(themeConfig: ThemeConfig, settings?: Th
     const mainExample = generateMainExample(themeConfig, settings)
     const sampleWidgetsExample = generateSampleWidgetsExample(themeConfig, settings)
     
-    // Add all files to ZIP
-    zipService.addFiles(themeFiles)
+    // Add theme files under theme/ subdirectory (matches import paths in examples)
+    Object.entries(themeFiles).forEach(([filename, content]) => {
+      zipService.addFile(`theme/${filename}`, content)
+    })
     zipService.addFile('README.md', readmeContent)
     
     // Add example files in example/ directory

@@ -11,63 +11,96 @@ export default function WidgetExamplesSection({ darkMode }: WidgetExamplesSectio
         {
           title: "Enhanced ElevatedButton",
           description: "Material 3 primary action button with ScreenUtil responsive design",
-          code: `import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'theme/app_constants.dart';
+          code: `import 'theme/app_constants.dart';
 
+// M3 buttons inherit styling from AppTheme automatically!
+// Just use them directly - no styleFrom needed:
 ElevatedButton(
   onPressed: () {
     // Handle button press
   },
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Theme.of(context).colorScheme.primary,
-    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-    elevation: 3,
-    padding: EdgeInsets.symmetric(
-      horizontal: AppConstants.paddingLarge, // ScreenUtil ready
-      vertical: AppConstants.paddingMedium,
+  child: Text('Primary Action'),
+)
+
+// For custom state-aware styling, use ButtonStyle + WidgetStateProperty:
+ElevatedButton(
+  onPressed: () {},
+  style: ButtonStyle(
+    backgroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12);
+      }
+      return Theme.of(context).colorScheme.primary;
+    }),
+    padding: WidgetStateProperty.all(
+      EdgeInsets.symmetric(
+        horizontal: AppConstants.spacingLG,
+        vertical: AppConstants.spacingMD,
+      ),
     ),
-    textStyle: TextStyle(fontSize: AppConstants.fontSizeMedium), // .sp scaling
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
+    shape: WidgetStateProperty.all(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppConstants.radiusMD),
+      ),
     ),
   ),
-  child: Text('Primary Action'),
+  child: Text('Custom Action'),
 )`
         },
         {
           title: "OutlinedButton",
           description: "Secondary action button with border outline",
-          code: `OutlinedButton(
+          code: `// OutlinedButton inherits M3 styling from AppTheme
+OutlinedButton(
   onPressed: () {
     // Handle button press
   },
-  style: OutlinedButton.styleFrom(
-    foregroundColor: Theme.of(context).colorScheme.primary,
-    side: BorderSide(
-      color: Theme.of(context).colorScheme.outline,
-      width: 1,
-    ),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8),
-    ),
-  ),
   child: Text('Secondary Action'),
+)
+
+// Custom state-aware styling:
+OutlinedButton(
+  onPressed: () {},
+  style: ButtonStyle(
+    foregroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38);
+      }
+      return Theme.of(context).colorScheme.primary;
+    }),
+    side: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12));
+      }
+      return BorderSide(color: Theme.of(context).colorScheme.outline);
+    }),
+  ),
+  child: Text('Custom Outlined'),
 )`
         },
         {
           title: "TextButton",
           description: "Minimalist text-only button for tertiary actions",
-          code: `TextButton(
+          code: `// TextButton inherits M3 styling from AppTheme
+TextButton(
   onPressed: () {
     // Handle button press
   },
-  style: TextButton.styleFrom(
-    foregroundColor: Theme.of(context).colorScheme.primary,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8),
-    ),
-  ),
   child: Text('Text Action'),
+)
+
+// Custom state-aware styling:
+TextButton(
+  onPressed: () {},
+  style: ButtonStyle(
+    foregroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38);
+      }
+      return Theme.of(context).colorScheme.primary;
+    }),
+  ),
+  child: Text('Custom Text'),
 )`
         },
         {

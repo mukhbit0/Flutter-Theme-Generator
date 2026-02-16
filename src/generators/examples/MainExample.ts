@@ -10,13 +10,27 @@ export function generateMainExample(config: ThemeConfig, settings?: ThemeGenerat
   return `import 'package:flutter/material.dart';
 ${useScreenUtil ? `import 'package:flutter_screenutil/flutter_screenutil.dart';` : ''}
 import 'theme/app_theme.dart';
+${useScreenUtil ? `import 'theme/app_constants.dart';` : ''}
 
 void main() {
   runApp(const ${themeName}App());
 }
 
-class ${themeName}App extends StatelessWidget {
+class ${themeName}App extends StatefulWidget {
   const ${themeName}App({super.key});
+
+  @override
+  State<${themeName}App> createState() => _${themeName}AppState();
+}
+
+class _${themeName}AppState extends State<${themeName}App> {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  void _toggleThemeMode() {
+    setState(() {
+      _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +46,10 @@ class ${themeName}App extends StatelessWidget {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           
-          // Optional: Use high contrast themes for accessibility
-          // theme: AppTheme.lightHighContrastTheme,
-          // darkTheme: AppTheme.darkHighContrastTheme,
+          // Theme mode controlled by user toggle
+          themeMode: _themeMode,
           
-          // Automatic theme switching based on system preference
-          themeMode: ThemeMode.system,
-          
-          home: const HomeScreen(),
+          home: HomeScreen(onToggleTheme: _toggleThemeMode),
           debugShowCheckedModeBanner: false,
         );
       },
@@ -50,21 +60,19 @@ class ${themeName}App extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       
-      // Optional: Use high contrast themes for accessibility
-      // theme: AppTheme.lightHighContrastTheme,
-      // darkTheme: AppTheme.darkHighContrastTheme,
+      // Theme mode controlled by user toggle
+      themeMode: _themeMode,
       
-      // Automatic theme switching based on system preference
-      themeMode: ThemeMode.system,
-      
-      home: const HomeScreen(),
+      home: HomeScreen(onToggleTheme: _toggleThemeMode),
       debugShowCheckedModeBanner: false,
     );`}
   }
 }
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final VoidCallback onToggleTheme;
+  
+  const HomeScreen({super.key, required this.onToggleTheme});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -72,7 +80,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  bool _isDarkMode = false;
 
   final List<Widget> _screens = [
     const HomeTab(),
@@ -82,20 +89,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    ${useScreenUtil ? `final constants = AppConstants(); // ScreenUtil ready constants` : ''}
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
         title: Text('${themeName} Theme Demo'),
         actions: [
           IconButton(
-            icon: Icon(_isDarkMode ? Icons.light_mode : Icons.dark_mode),
-            onPressed: () {
-              setState(() {
-                _isDarkMode = !_isDarkMode;
-              });
-            },
+            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+            onPressed: widget.onToggleTheme,
             tooltip: 'Toggle theme mode',
           ),
         ],
@@ -137,17 +139,16 @@ class HomeTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    ${useScreenUtil ? `final constants = AppConstants();` : ''}
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(${useScreenUtil ? 'constants.paddingLarge' : '16.0'}),
+      padding: EdgeInsets.all(${useScreenUtil ? 'AppConstants.spacingLG' : '16.0'}),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Welcome Card
           Card(
             child: Padding(
-              padding: EdgeInsets.all(${useScreenUtil ? 'constants.paddingLarge' : '20.0'}),
+              padding: EdgeInsets.all(${useScreenUtil ? 'AppConstants.spacingLG' : '20.0'}),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -157,7 +158,7 @@ class HomeTab extends StatelessWidget {
                       color: colorScheme.primary,
                     ),
                   ),
-                  SizedBox(height: ${useScreenUtil ? 'constants.spacingMedium' : '12.0'}),
+                  SizedBox(height: ${useScreenUtil ? 'AppConstants.spacingMD' : '12.0'}),
                   Text(
                     'This is a demo app showcasing your custom Material 3 theme with all color variants and enhanced accessibility features.',
                     style: textTheme.bodyLarge,
@@ -167,21 +168,21 @@ class HomeTab extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: ${useScreenUtil ? 'constants.spacingLarge' : '24.0'}),
+          SizedBox(height: ${useScreenUtil ? 'AppConstants.spacingXL' : '24.0'}),
 
           // Color Showcase
           Text(
             'Color Palette',
             style: textTheme.headlineSmall,
           ),
-          SizedBox(height: ${useScreenUtil ? 'constants.spacingMedium' : '16.0'}),
+          SizedBox(height: ${useScreenUtil ? 'AppConstants.spacingMD' : '16.0'}),
           
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisCount: 2,
-            crossAxisSpacing: ${useScreenUtil ? 'constants.spacingMedium' : '12.0'},
-            mainAxisSpacing: ${useScreenUtil ? 'constants.spacingMedium' : '12.0'},
+            crossAxisSpacing: ${useScreenUtil ? 'AppConstants.spacingMD' : '12.0'},
+            mainAxisSpacing: ${useScreenUtil ? 'AppConstants.spacingMD' : '12.0'},
             childAspectRatio: 3,
             children: [
               _ColorTile('Primary', colorScheme.primary),
@@ -209,7 +210,7 @@ class _ColorTile extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(${useScreenUtil ? 'AppConstants().borderRadiusMedium' : '8.0'}),
+        borderRadius: BorderRadius.circular(${useScreenUtil ? 'AppConstants.radiusMD' : '8.0'}),
       ),
       child: Center(
         child: Text(

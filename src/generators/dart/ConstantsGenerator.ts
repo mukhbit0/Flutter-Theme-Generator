@@ -201,13 +201,14 @@ class AppConstants {
   // Screen size breakpoints for responsive design
   
   /// Mobile breakpoint (600px) - Phone screens
-  static ${useScreenUtil ? 'double get' : 'const double'} breakpointMobile${useScreenUtil ? ' => 600.w' : ' = 600.0'};
+  /// Note: Breakpoints use raw logical pixels (not ScreenUtil-scaled) for correct responsive checks
+  static const double breakpointMobile = 600.0;
   
   /// Tablet breakpoint (900px) - Tablet screens
-  static ${useScreenUtil ? 'double get' : 'const double'} breakpointTablet${useScreenUtil ? ' => 900.w' : ' = 900.0'};
+  static const double breakpointTablet = 900.0;
   
   /// Desktop breakpoint (1200px) - Desktop screens
-  static ${useScreenUtil ? 'double get' : 'const double'} breakpointDesktop${useScreenUtil ? ' => 1200.w' : ' = 1200.0'};
+  static const double breakpointDesktop = 1200.0;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 🔤 TYPOGRAPHY SCALE
