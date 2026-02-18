@@ -4,6 +4,7 @@ import { Search, Filter, ArrowLeft, Loader2 } from 'lucide-react';
 import { sharingService } from '../../services/SharingService';
 import ThemeCard from './ThemeCard';
 import { useDarkMode } from '../../contexts/DarkModeContext';
+import { GridAd } from '../ads';
 
 const ThemeGallery: React.FC = () => {
     const navigate = useNavigate();
@@ -71,8 +72,8 @@ const ThemeGallery: React.FC = () => {
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     className={`pl-10 pr-4 py-2 rounded-lg border outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-64 transition-all ${darkMode
-                                            ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500'
-                                            : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400'
+                                        ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500'
+                                        : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400'
                                         }`}
                                 />
                             </div>
@@ -84,8 +85,8 @@ const ThemeGallery: React.FC = () => {
                                     value={sort}
                                     onChange={(e) => { setSort(e.target.value); setPage(1); }}
                                     className={`pl-10 pr-8 py-2 rounded-lg border outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer transition-all ${darkMode
-                                            ? 'bg-gray-800 border-gray-700 text-white'
-                                            : 'bg-white border-gray-200 text-gray-900'
+                                        ? 'bg-gray-800 border-gray-700 text-white'
+                                        : 'bg-white border-gray-200 text-gray-900'
                                         }`}
                                 >
                                     <option value="newest">Newest First</option>
@@ -106,8 +107,13 @@ const ThemeGallery: React.FC = () => {
                 ) : themes.length > 0 ? (
                     <>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {themes.map((theme) => (
-                                <ThemeCard key={theme.id} theme={theme} darkMode={darkMode} />
+                            {themes.map((theme, index) => (
+                                <React.Fragment key={theme.id}>
+                                    {index > 0 && index % 4 === 0 && (
+                                        <GridAd darkMode={darkMode} />
+                                    )}
+                                    <ThemeCard theme={theme} darkMode={darkMode} />
+                                </React.Fragment>
                             ))}
                         </div>
 
@@ -118,8 +124,8 @@ const ThemeGallery: React.FC = () => {
                                     onClick={() => setPage(p => Math.max(1, p - 1))}
                                     disabled={page === 1}
                                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${darkMode
-                                            ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50'
-                                            : 'bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 border border-gray-200'
+                                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50'
+                                        : 'bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 border border-gray-200'
                                         }`}
                                 >
                                     Previous
@@ -131,8 +137,8 @@ const ThemeGallery: React.FC = () => {
                                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                     disabled={page === totalPages}
                                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${darkMode
-                                            ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50'
-                                            : 'bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 border border-gray-200'
+                                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50'
+                                        : 'bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 border border-gray-200'
                                         }`}
                                 >
                                     Next

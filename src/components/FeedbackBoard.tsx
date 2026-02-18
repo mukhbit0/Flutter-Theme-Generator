@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { BannerAd } from './ads';
 import { useAuth } from '../contexts/AuthContext';
 import { Lightbulb, AlertCircle, MessageCircle, ArrowLeft, Loader2, ThumbsUp, Send, X, Check, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -232,6 +233,11 @@ export const FeedbackBoard = () => {
                         <Check className="w-4 h-4" />
                         Resolved
                     </button>
+                </div>
+
+                {/* Ad between tabs and content */}
+                <div className="mb-6">
+                    <BannerAd darkMode={true} />
                 </div>
 
                 {/* Content */}

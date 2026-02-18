@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { BannerAd } from './ads'
 import {
   GettingStartedSection,
   ColorExtractionSection,
@@ -129,21 +130,25 @@ export default function GuideScreen({ onBack, darkMode }: GuideScreenProps) {
                   <button
                     key={section.id}
                     onClick={() => setActiveSection(section.id)}
-                    className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                      activeSection === section.id
+                    className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${activeSection === section.id
                         ? darkMode
                           ? 'bg-blue-900/50 text-blue-300 border border-blue-700/50'
                           : 'bg-blue-50 text-blue-700 border border-blue-200'
                         : darkMode
-                        ? 'text-gray-300 hover:bg-gray-700/50'
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
+                          ? 'text-gray-300 hover:bg-gray-700/50'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
                   >
                     {section.icon}
                     <span className="text-sm font-medium">{section.title}</span>
                   </button>
                 ))}
               </nav>
+            </div>
+
+            {/* Ad below sidebar */}
+            <div className="mt-6">
+              <BannerAd darkMode={darkMode} />
             </div>
           </div>
 

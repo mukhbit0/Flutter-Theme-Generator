@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { BannerAd, SidebarAd } from './ads'
 import { useNavigate } from 'react-router-dom'
 import PreviewHeader from './preview-screen/PreviewHeader'
 import ColorPalette from './preview-screen/ColorPalette'
@@ -262,6 +263,11 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({ themeConfig, setti
         settings={settings}
       />
 
+      {/* Banner Ad below header */}
+      <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-4">
+        <BannerAd darkMode={darkMode} />
+      </div>
+
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 lg:px-6 py-8">
         <div className="grid grid-cols-1 xl:grid-cols-7 lg:grid-cols-4 gap-6 lg:gap-8">
@@ -274,6 +280,8 @@ export const PreviewScreen: React.FC<PreviewScreenProps> = ({ themeConfig, setti
               onColorChange={handleColorChange}
               isEditable={true}
             />
+            {/* Sidebar Ad below palette */}
+            <SidebarAd darkMode={darkMode} />
           </div>
 
           {/* Preview Content - More space allocated */}

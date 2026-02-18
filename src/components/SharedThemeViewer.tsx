@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react'
+import { BannerAd } from './ads'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import {
   Download,
@@ -612,6 +613,11 @@ export const SharedThemeViewer: React.FC<SharedThemeViewerProps> = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Ad between hero and controls */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-6">
+        <BannerAd darkMode={darkMode} />
       </div>
 
       {/* Controls Bar */}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { BannerAd, SidebarAd } from './ads'
 import { ThemeConfig, ThemeGeneratorSettings } from '../types/theme'
 import { generateFlutterTheme } from '../utils/FlutterThemeGenerator'
 import { extractColorsFromImage } from '../utils/ColorExtractor.ts'
@@ -107,8 +108,8 @@ export default function ThemeGeneratorComponent({
               <button
                 onClick={onBack}
                 className={`p-2 rounded-lg transition-all duration-200 ${darkMode
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                  ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
                   }`}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,8 +130,8 @@ export default function ThemeGeneratorComponent({
               <button
                 onClick={onToggleDarkMode}
                 className={`p-2 rounded-lg transition-all duration-200 ${darkMode
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                  ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
                   }`}
               >
                 {darkMode ? (
@@ -150,6 +151,9 @@ export default function ThemeGeneratorComponent({
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+        {/* Banner Ad below header */}
+        <BannerAd darkMode={darkMode} />
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Configuration Panel */}
           <div className="lg:col-span-2 space-y-8">
@@ -187,13 +191,17 @@ export default function ThemeGeneratorComponent({
           </div>
 
           {/* Action Panel */}
-          <PreviewPanel
-            settings={settings}
-            isGenerating={isGenerating}
-            onGenerate={handleGenerate}
-            onSettingsChange={handleSettingsChange}
-            darkMode={darkMode}
-          />
+          <div className="space-y-6">
+            <PreviewPanel
+              settings={settings}
+              isGenerating={isGenerating}
+              onGenerate={handleGenerate}
+              onSettingsChange={handleSettingsChange}
+              darkMode={darkMode}
+            />
+            {/* Sidebar Ad */}
+            <SidebarAd darkMode={darkMode} />
+          </div>
         </div>
       </div>
     </div>

@@ -1,0 +1,66 @@
+{
+    "name": "Flutter Theme Generator",
+    "short_name": "ThemeGen",
+    "description": "Create professional Material 3 themes for Flutter apps. Generate color schemes, validate WCAG accessibility, and export production-ready Dart code.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#6366F1",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "en",
+    "categories": [
+        "developer tools",
+        "design",
+        "productivity"
+    ],
+    "icons": [
+        {
+            "src": "https://img.ionicerrrrscode.com/company-projects/logo-light.webp",
+            "sizes": "192x192",
+            "type": "image/webp",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "https://img.ionicerrrrscode.com/company-projects/logo-light.webp",
+            "sizes": "512x512",
+            "type": "image/webp",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "https://img.ionicerrrrscode.com/company-projects/logo-light.webp",
+            "sizes": "1280x720",
+            "type": "image/webp",
+            "form_factor": "wide",
+            "label": "Flutter Theme Generator - Material 3 Theme Builder"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Generate Theme",
+            "short_name": "Generator",
+            "description": "Create a new Flutter theme",
+            "url": "/generator",
+            "icons": [
+                {
+                    "src": "https://img.ionicerrrrscode.com/company-projects/logo-light.webp",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "Theme Gallery",
+            "short_name": "Gallery",
+            "description": "Browse community themes",
+            "url": "/gallery",
+            "icons": [
+                {
+                    "src": "https://img.ionicerrrrscode.com/company-projects/logo-light.webp",
+                    "sizes": "96x96"
+                }
+            ]
+        }
+    ]
+}

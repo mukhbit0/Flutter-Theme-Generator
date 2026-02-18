@@ -1,51 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://theme.ionicerrrrscode.com/</loc>
-    <lastmod>2026-02-16</lastmod>
+    <lastmod>2026-02-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://theme.ionicerrrrscode.com/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://theme.ionicerrrrscode.com/" />
   </url>
   <url>
     <loc>https://theme.ionicerrrrscode.com/generator</loc>
-    <lastmod>2026-02-16</lastmod>
+    <lastmod>2026-02-18</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://theme.ionicerrrrscode.com/preview</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
   </url>
   <url>
     <loc>https://theme.ionicerrrrscode.com/gallery</loc>
-    <lastmod>2026-02-16</lastmod>
+    <lastmod>2026-02-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://theme.ionicerrrrscode.com/guide</loc>
-    <lastmod>2026-02-16</lastmod>
+    <lastmod>2026-02-18</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.75</priority>
   </url>
   <url>
     <loc>https://theme.ionicerrrrscode.com/roadmap</loc>
-    <lastmod>2026-02-16</lastmod>
+    <lastmod>2026-02-18</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.65</priority>
   </url>
   <url>
     <loc>https://theme.ionicerrrrscode.com/feedback</loc>
-    <lastmod>2026-02-16</lastmod>
+    <lastmod>2026-02-18</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://theme.ionicerrrrscode.com/login</loc>
-    <lastmod>2026-02-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://theme.ionicerrrrscode.com/signup</loc>
-    <lastmod>2026-02-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
+    <priority>0.50</priority>
   </url>
 </urlset>

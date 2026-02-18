@@ -1,4 +1,19 @@
 User-agent: *
 Allow: /
+Allow: /generator
+Allow: /gallery
+Allow: /guide
+Allow: /roadmap
+Allow: /shared/
+Allow: /feedback
+Disallow: /admin
+Disallow: /login
+Disallow: /signup
+Disallow: /profile
+Disallow: /implementation
+Disallow: /validation
+
+User-agent: Googlebot
+Allow: /
 
 Sitemap: https://theme.ionicerrrrscode.com/sitemap.xml

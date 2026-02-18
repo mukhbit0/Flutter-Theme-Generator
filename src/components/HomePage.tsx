@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { Footer } from './Footer'
 import { Header } from './Header'
 import { ThemeCounter } from './ThemeCounter'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { BannerAd } from './ads'
 
 interface HomePageProps {
   onNavigateToGenerator: () => void
@@ -15,6 +17,42 @@ interface HomePageProps {
 export default function HomePage({ onNavigateToGenerator, onNavigateToGuide, onNavigateToRoadmap, darkMode }: HomePageProps) {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const faqItems = [
+    {
+      question: 'What is the Flutter Theme Generator?',
+      answer: 'Flutter Theme Generator is a free online tool that creates professional Material 3 themes for Flutter applications. It supports color extraction from logos, light and dark mode generation, WCAG accessibility validation, and exports production-ready Dart code that you can directly use in your Flutter projects.'
+    },
+    {
+      question: 'How do I generate a Flutter theme from my brand logo?',
+      answer: 'Simply upload your brand logo on the Generator page. Our advanced color extraction algorithm analyzes your logo and extracts the dominant colors. These colors are then used as primary, secondary, and accent colors to generate a harmonious Material 3 color scheme for both light and dark modes.'
+    },
+    {
+      question: 'Does it support Material Design 3 and Flutter\'s latest theming?',
+      answer: 'Yes! The tool generates themes fully compliant with Material Design 3 specifications. It produces complete ColorScheme objects with all 29+ color roles, supports 6 contrast variants (light, dark, light medium/high contrast, dark medium/high contrast), and follows Flutter\'s latest ThemeData best practices.'
+    },
+    {
+      question: 'Is the generated Flutter theme code production-ready?',
+      answer: 'Absolutely. The generated Dart code follows clean architecture principles with proper separation of concerns. It includes AppTheme, AppColorScheme, and AppTextTheme classes ready for production use. It also supports ScreenUtil for responsive typography and optional custom color extensions.'
+    },
+    {
+      question: 'Can I preview how the theme looks on Flutter widgets?',
+      answer: 'Yes! The Preview page shows your theme applied to real Flutter widget representations including buttons, cards, text fields, navigation bars, dialogs, switches, chips, and more. You can switch between light and dark modes and all contrast variants in real-time.'
+    },
+    {
+      question: 'How do I share my Flutter theme with others?',
+      answer: 'After generating a theme, you can share it via a unique URL that others can open to view, like, comment on, and even download your theme. Shared themes also appear in the public Theme Gallery where the community can discover and use them.'
+    },
+    {
+      question: 'What accessibility features does the theme generator support?',
+      answer: 'The tool includes WCAG 2.1 contrast validation that checks all color combinations for accessibility compliance. It shows AA and AAA pass/fail status for every color pair and suggests fixes for failing combinations, ensuring your Flutter app is accessible to all users.'
+    },
+    {
+      question: 'Is the Flutter Theme Generator free to use?',
+      answer: 'Yes, the Flutter Theme Generator is completely free to use. You can generate unlimited themes, preview widgets, validate accessibility, and export production-ready Dart code without any cost. Create an account to save and share your themes.'
+    }
+  ];
 
   return (
     <div className={`min-h-screen flex flex-col ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
@@ -187,8 +225,13 @@ export default function HomePage({ onNavigateToGenerator, onNavigateToGuide, onN
             ))}
           </div>
 
+          {/* Banner Ad between features and CTA */}
+          <div className="mt-10">
+            <BannerAd darkMode={darkMode} />
+          </div>
+
           {/* CTA Section with Counter */}
-          <div className={`mt-20 text-center p-12 rounded-3xl ${darkMode ? 'bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-700/50' : 'bg-gradient-to-r from-blue-50/50 to-purple-50/50 border border-gray-200/50'} backdrop-blur-lg`}>
+          <div className={`mt-10 text-center p-12 rounded-3xl ${darkMode ? 'bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-700/50' : 'bg-gradient-to-r from-blue-50/50 to-purple-50/50 border border-gray-200/50'} backdrop-blur-lg`}>
             <div className="flex flex-col items-center space-y-6">
               <ThemeCounter darkMode={darkMode} />
 
@@ -207,6 +250,60 @@ export default function HomePage({ onNavigateToGenerator, onNavigateToGuide, onN
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </button>
+            </div>
+          </div>
+
+          {/* FAQ Section for SEO */}
+          <div className="mt-20">
+            <div className="text-center mb-12">
+              <h2 className={`text-3xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                Frequently Asked Questions
+              </h2>
+              <p className={`text-lg max-w-2xl mx-auto ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Everything you need to know about the Flutter Theme Generator
+              </p>
+            </div>
+
+            <div className="max-w-3xl mx-auto space-y-3">
+              {faqItems.map((faq, index) => (
+                <div
+                  key={index}
+                  className={`rounded-2xl border overflow-hidden transition-all duration-300 ${darkMode
+                      ? 'border-gray-700/50 bg-gray-800/50'
+                      : 'border-gray-200/50 bg-white/70'
+                    } backdrop-blur-lg ${openFaq === index
+                      ? darkMode ? 'shadow-lg shadow-purple-500/5' : 'shadow-lg shadow-purple-500/10'
+                      : ''
+                    }`}
+                >
+                  <button
+                    onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                    className={`w-full flex items-center justify-between px-6 py-5 text-left transition-colors ${darkMode ? 'hover:bg-gray-700/30' : 'hover:bg-gray-50/50'
+                      }`}
+                  >
+                    <span className={`font-semibold pr-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {faq.question}
+                    </span>
+                    <svg
+                      className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'
+                        } ${openFaq === index ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  <div
+                    className={`overflow-hidden transition-all duration-300 ${openFaq === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                      }`}
+                  >
+                    <p className={`px-6 pb-5 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      {faq.answer}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

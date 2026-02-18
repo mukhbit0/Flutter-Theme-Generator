@@ -195,3 +195,116 @@ html::-webkit-scrollbar {
 .animate-confetti {
   animation: confetti 3s ease-out forwards;
 }
+
+/* ===== Ad Component Styles ===== */
+
+/* Banner Ad Container */
+.ad-banner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0;
+  max-width: 100%;
+  overflow: hidden;
+  position: relative;
+  border-radius: 12px;
+  margin: 1rem 0;
+}
+
+.ad-banner-container.ad-light {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.03), rgba(168, 85, 247, 0.03));
+  border: 1px solid rgba(99, 102, 241, 0.08);
+}
+
+.ad-banner-container.ad-dark {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(168, 85, 247, 0.05));
+  border: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.ad-banner-container ins {
+  max-width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .ad-banner-container ins {
+    max-width: 728px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ad-banner-container ins {
+    max-width: 320px;
+  }
+}
+
+/* Grid Ad Slot */
+.ad-grid-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ad-grid-slot.ad-light {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(168, 85, 247, 0.04));
+  border: 1px dashed rgba(99, 102, 241, 0.15);
+}
+
+.ad-grid-slot.ad-dark {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.ad-grid-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Sidebar Ad Container */
+.ad-sidebar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border-radius: 16px;
+  position: relative;
+  margin-top: 1.5rem;
+}
+
+.ad-sidebar-container.ad-light {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(168, 85, 247, 0.04));
+  border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.ad-sidebar-container.ad-dark {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+/* Ad Label */
+.ad-label-tag {
+  display: block;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-align: center;
+  margin-top: 0.35rem;
+  opacity: 0.4;
+  font-weight: 500;
+}
+
+.ad-light .ad-label-tag {
+  color: #6b7280;
+}
+
+.ad-dark .ad-label-tag {
+  color: rgba(255, 255, 255, 0.35);
+}

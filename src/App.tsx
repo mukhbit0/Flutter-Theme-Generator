@@ -58,6 +58,69 @@ function AppContent() {
 
   const { darkMode, toggleDarkMode } = useDarkMode()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // ── Agent: seo-specialist ── Per-page dynamic titles & descriptions
+  useEffect(() => {
+    const pageMeta: Record<string, { title: string; description: string }> = {
+      '/': {
+        title: 'Flutter Theme Generator - Create Beautiful Material 3 Themes | Free Online Tool',
+        description: 'Free online Flutter theme generator with Material 3 support. Extract colors from logos, customize light & dark modes, validate WCAG accessibility, preview widgets, and export production-ready Dart code.',
+      },
+      '/generator': {
+        title: 'Generate Flutter Theme - Material 3 Color Scheme Builder | Free Tool',
+        description: 'Build a complete Flutter Material 3 color scheme in minutes. Upload your logo for automatic color extraction, choose contrast variants, and export production-ready ThemeData Dart code.',
+      },
+      '/preview': {
+        title: 'Preview Flutter Theme - Live Widget Preview | Flutter Theme Generator',
+        description: 'Preview your Flutter theme applied to real widgets: buttons, cards, text fields, navigation bars, dialogs, and more. Switch between light/dark modes and all 6 contrast variants in real-time.',
+      },
+      '/gallery': {
+        title: 'Flutter Theme Gallery - Browse & Download Community Themes | Free',
+        description: 'Explore hundreds of community-created Flutter Material 3 themes. Browse by color, style, or popularity. Download and use any theme in your Flutter project instantly.',
+      },
+      '/guide': {
+        title: 'Flutter Theme Guide - Documentation & Tutorials | Flutter Theme Generator',
+        description: 'Complete guide to using the Flutter Theme Generator. Learn how to create Material 3 themes, extract colors from logos, validate WCAG accessibility, and integrate themes into your Flutter app.',
+      },
+      '/roadmap': {
+        title: 'Flutter Theme Generator Roadmap - Upcoming Features & Updates',
+        description: 'See what features are coming to Flutter Theme Generator. Vote on features, track progress, and stay up to date with the latest Material 3 theming tools for Flutter developers.',
+      },
+      '/feedback': {
+        title: 'Community Feedback - Flutter Theme Generator | Share Your Ideas',
+        description: 'Share feedback, request features, and vote on improvements for Flutter Theme Generator. Join the community of Flutter developers building better apps with Material 3 themes.',
+      },
+      '/shared': {
+        title: 'Shared Flutter Theme - View & Download | Flutter Theme Generator',
+        description: 'View this community-shared Flutter Material 3 theme. Download the Dart code, preview on widgets, and use it in your Flutter project for free.',
+      },
+      '/implementation': {
+        title: 'Flutter Theme Implementation - Code & Mockups | Flutter Theme Generator',
+        description: 'View generated Flutter theme implementation code with mockups. Copy production-ready ThemeData, ColorScheme, and TextTheme Dart code directly into your Flutter project.',
+      },
+      '/validation': {
+        title: 'Flutter Theme Validation - WCAG Accessibility Checker | Flutter Theme Generator',
+        description: 'Validate your Flutter theme for WCAG 2.1 accessibility compliance. Check AA and AAA contrast ratios for all color combinations and get actionable fix suggestions.',
+      },
+    }
+
+    // Match exact path or prefix (e.g. /shared/:id)
+    const path = location.pathname
+    const meta = pageMeta[path] ?? Object.entries(pageMeta).find(([k]) => path.startsWith(k) && k !== '/')?.[1] ?? pageMeta['/']
+
+    document.title = meta.title
+    const descEl = document.querySelector('meta[name="description"]')
+    if (descEl) descEl.setAttribute('content', meta.description)
+    const ogTitleEl = document.querySelector('meta[property="og:title"]')
+    if (ogTitleEl) ogTitleEl.setAttribute('content', meta.title)
+    const ogDescEl = document.querySelector('meta[property="og:description"]')
+    if (ogDescEl) ogDescEl.setAttribute('content', meta.description)
+    const twTitleEl = document.querySelector('meta[name="twitter:title"]')
+    if (twTitleEl) twTitleEl.setAttribute('content', meta.title)
+    const twDescEl = document.querySelector('meta[name="twitter:description"]')
+    if (twDescEl) twDescEl.setAttribute('content', meta.description)
+  }, [location.pathname])
 
   // PreviewRoute component to handle editShared parameters
   const PreviewRoute = () => {
